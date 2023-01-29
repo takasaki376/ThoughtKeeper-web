@@ -9,5 +9,23 @@
     "prettier",
     "prettier/@typescript-eslint"
   ],
-  "plugins": ["@typescript-eslint", "tailwindcss", "prettier-plugin-tailwindcss"]
+  "plugins": ["@typescript-eslint", "tailwindcss", "prettier-plugin-tailwindcss","sort-keys-custom-order","simple-import-sort","import","unused-imports"],
+   "rules": {
+        "sort-keys-custom-order/object-keys": ["warn", { "orderedKeys": [
+            "id",
+            "name",
+            "title"
+        ] }],
+        "sort-keys-custom-order/type-keys": ["warn", { "orderedKeys": [
+            "id",
+            "name",
+            "title"
+        ] }],
+        "simple-import-sort/imports": "warn",
+    "simple-import-sort/exports": "warn",
+    "import/first": "warn",
+    "import/newline-after-import": "warn",
+    "import/no-duplicates": "error",
+    "unused-imports/no-unused-imports": "error"
+    }
 }
