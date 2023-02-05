@@ -5,11 +5,9 @@
     "plugin:@typescript-eslint/eslint-recommended",
     "next",
     "next/core-web-vitals",
-    "plugin:tailwindcss/recommended",
-    "prettier",
-    "prettier/@typescript-eslint"
+    "prettier"
   ],
-  "plugins": ["@typescript-eslint", "tailwindcss", "prettier-plugin-tailwindcss","sort-keys-custom-order","simple-import-sort","import","unused-imports"],
+  "plugins": ["tailwindcss", "@typescript-eslint", "sort-keys-custom-order","simple-import-sort","import","unused-imports"],
    "rules": {
         "sort-keys-custom-order/object-keys": ["warn", { "orderedKeys": [
             "id",
