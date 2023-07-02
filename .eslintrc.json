@@ -5,9 +5,27 @@
     "plugin:@typescript-eslint/eslint-recommended",
     "next",
     "next/core-web-vitals",
-    "plugin:tailwindcss/recommended",
-    "prettier",
-    "prettier/@typescript-eslint"
+    "prettier"
   ],
-  "plugins": ["@typescript-eslint", "tailwindcss", "prettier-plugin-tailwindcss"]
+  "plugins": ["tailwindcss", "@typescript-eslint", "sort-keys-custom-order","simple-import-sort","import","unused-imports"],
+   "rules": {
+        // For JS objects sorting
+        "sort-keys-custom-order/object-keys": ["error", { "orderedKeys": [
+            "id",
+            "name",
+            "title"
+        ] }],
+        // For TS types sorting
+        "sort-keys-custom-order/type-keys": ["error", { "orderedKeys": [
+            "id",
+            "name",
+            "title"
+        ] }],
+    "simple-import-sort/imports": "error",
+    "simple-import-sort/exports": "error",
+    "import/first": "error",
+    "import/newline-after-import": "error",
+    "import/no-duplicates": "error",
+    "unused-imports/no-unused-imports": "error"
+    }
 }
