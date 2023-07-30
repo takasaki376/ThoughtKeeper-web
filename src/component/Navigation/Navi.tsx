@@ -7,7 +7,7 @@ const items = [
   { href: pagesPath.top.$url().pathname, label: "Top" },
   { href: pagesPath.ThemeSelect.$url().pathname, label: "ThemeSelect" },
   { href: pagesPath.setting.$url().pathname, label: "Setting" },
-  { href: pagesPath.privacy.$url().pathname, label: "Privacy" },
+  { href: pagesPath.setting.privacy.$url().pathname, label: "Privacy" },
   { href: pagesPath.MemoEditor.$url().pathname, label: "MemoEditor" },
   { href: pagesPath.MemoList.$url().pathname, label: "MemoList" },
   { href: pagesPath.MemoViewer.$url().pathname, label: "MemoViewer" },
