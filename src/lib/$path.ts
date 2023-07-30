@@ -1,35 +1,51 @@
+const buildSuffix = (url?: {query?: Record<string, string>, hash?: string}) => {
+  const query = url?.query
+  const hash = url?.hash
+  if (!query && !hash) return ''
+  const search = query ? `?${new URLSearchParams(query)}` : ''
+  return `${search}${hash ? `#${hash}` : ''}`
+}
+
 export const pagesPath = {
-  $url: (url?: { hash?: string }) => ({ hash: url?.hash, pathname: '/' as const }),
-  "about": {
-    $url: (url?: { hash?: string }) => ({ hash: url?.hash, pathname: '/about' as const })
-  },
   "MemoEditor": {
-    $url: (url?: { hash?: string }) => ({ hash: url?.hash, pathname: '/MemoEditor' as const })
+    $url: (url?: { hash?: string }) => ({ pathname: '/MemoEditor' as const, hash: url?.hash, path: `/MemoEditor${buildSuffix(url)}` })
   },
   "MemoList": {
-    $url: (url?: { hash?: string }) => ({ hash: url?.hash, pathname: '/MemoList' as const })
+    $url: (url?: { hash?: string }) => ({ pathname: '/MemoList' as const, hash: url?.hash, path: `/MemoList${buildSuffix(url)}` })
   },
   "MemoViewer": {
-    $url: (url?: { hash?: string }) => ({ hash: url?.hash, pathname: '/MemoViewer' as const })
-  },
-  "privacy": {
-    $url: (url?: { hash?: string }) => ({ hash: url?.hash, pathname: '/setting/privacy' as const })
-  },
-  "setting": {
-    $url: (url?: { hash?: string }) => ({ hash: url?.hash, pathname: '/setting' as const })
+    $url: (url?: { hash?: string }) => ({ pathname: '/MemoViewer' as const, hash: url?.hash, path: `/MemoViewer${buildSuffix(url)}` })
   },
   "ThemeSelect": {
-    $url: (url?: { hash?: string }) => ({ hash: url?.hash, pathname: '/ThemeSelect' as const })
+    $url: (url?: { hash?: string }) => ({ pathname: '/ThemeSelect' as const, hash: url?.hash, path: `/ThemeSelect${buildSuffix(url)}` })
+  },
+  "auth": {
+    "signin": {
+      $url: (url?: { hash?: string }) => ({ pathname: '/auth/signin' as const, hash: url?.hash, path: `/auth/signin${buildSuffix(url)}` })
+    },
+    "signup": {
+      $url: (url?: { hash?: string }) => ({ pathname: '/auth/signup' as const, hash: url?.hash, path: `/auth/signup${buildSuffix(url)}` })
+    }
+  },
+  "setting": {
+    "privacy": {
+      $url: (url?: { hash?: string }) => ({ pathname: '/setting/privacy' as const, hash: url?.hash, path: `/setting/privacy${buildSuffix(url)}` })
+    },
+    $url: (url?: { hash?: string }) => ({ pathname: '/setting' as const, hash: url?.hash, path: `/setting${buildSuffix(url)}` })
   },
   "top": {
-    $url: (url?: { hash?: string }) => ({ hash: url?.hash, pathname: '/top' as const })
+    $url: (url?: { hash?: string }) => ({ pathname: '/top' as const, hash: url?.hash, path: `/top${buildSuffix(url)}` })
   },
+  $url: (url?: { hash?: string }) => ({ pathname: '/' as const, hash: url?.hash, path: `/${buildSuffix(url)}` })
 }
 
 export type PagesPath = typeof pagesPath
 
 export const staticPath = {
-  favicon_ico: '/favicon.ico'
+  favicon_ico: '/favicon.ico',
+  next_svg: '/next.svg',
+  thirteen_svg: '/thirteen.svg',
+  vercel_svg: '/vercel.svg'
 } as const
 
 export type StaticPath = typeof staticPath
