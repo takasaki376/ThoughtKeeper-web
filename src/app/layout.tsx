@@ -16,7 +16,7 @@ export default function RootLayout({
     <html lang="en">
      <body>
         <div className='flex'>
-          <div className=' bg-tomato/5'><Navigation/></div>
+          <div className=' bg-red-50'><Navigation/></div>
           <div className='min-h-screen flex-1'>{children}</div>
       </div>
       </body>

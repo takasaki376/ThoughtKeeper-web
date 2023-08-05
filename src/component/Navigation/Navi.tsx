@@ -19,7 +19,7 @@ const items = [
 export const Navigation: FC = () => {
   return (
     <div>
-      <nav className="flex flex-col items-start text-gray">
+      <nav className="flex flex-col items-start text-gray-500">
         {items.map(({ href, label }) => {
           return (
             <NavLink key={href} href={href} activeClassName="text-tomato/40">

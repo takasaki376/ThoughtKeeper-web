@@ -1,6 +1,6 @@
 const MemoEditorPage = () => {
   return (
-    <div className='text-gray'>
+    <div className='text-gray-500'>
       MemoEditorPage
     </div>
   )

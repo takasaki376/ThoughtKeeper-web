@@ -1,6 +1,6 @@
 const ThemeSelectPage = () => {
   return (
-    <div className='text-gray'>
+    <div className='text-gray-500'>
       ThemeSelectPage
     </div>
   )
