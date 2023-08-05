@@ -1,16 +1,15 @@
 import type { FC } from "react";
-import { pagesPath } from "src/lib/$path";
 
 import { NavLink } from "./NavLink";
 
 const items = [
-  { href: pagesPath.top.$url().pathname, label: "Top" },
-  { href: pagesPath.ThemeSelect.$url().pathname, label: "ThemeSelect" },
-  { href: pagesPath.setting.$url().pathname, label: "Setting" },
-  { href: pagesPath.setting.privacy.$url().pathname, label: "Privacy" },
-  { href: pagesPath.MemoEditor.$url().pathname, label: "MemoEditor" },
-  { href: pagesPath.MemoList.$url().pathname, label: "MemoList" },
-  { href: pagesPath.MemoViewer.$url().pathname, label: "MemoViewer" },
+  { href: "/top", label: "Top" },
+  { href: "/ThemeSelect", label: "ThemeSelect" },
+  { href: "/setting", label: "Setting" },
+  { href: "/setting/privacy", label: "Privacy" },
+  { href: "/MemoEditor", label: "MemoEditor" },
+  { href: "/MemoList", label: "MemoList" },
+  { href: "/MemoViewer", label: "MemoViewer" },
 ];
 
 /**
