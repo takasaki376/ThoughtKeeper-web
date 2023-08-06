@@ -5,7 +5,6 @@ const SignInPage = () => {
     <div className='text-gray'>
       SignInPage
       <div className="flex justify-center py-20">
-
       <GoogleAuthButton/>
       </div>
 
