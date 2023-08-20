@@ -1,30 +1,41 @@
-import type { FC } from "react";
-import { pagesPath } from "src/lib/$path";
+"use client";
 
-import { NavLink } from "./NavLink";
+import cc from "classcat";
+import Link from "next/link";
+import { usePathname } from "next/navigation";
+import type { FC } from "react";
+
 
 const items = [
-  { href: pagesPath.top.$url().pathname, label: "Top" },
-  { href: pagesPath.ThemeSelect.$url().pathname, label: "ThemeSelect" },
-  { href: pagesPath.setting.$url().pathname, label: "Setting" },
-  { href: pagesPath.setting.privacy.$url().pathname, label: "Privacy" },
-  { href: pagesPath.MemoEditor.$url().pathname, label: "MemoEditor" },
-  { href: pagesPath.MemoList.$url().pathname, label: "MemoList" },
-  { href: pagesPath.MemoViewer.$url().pathname, label: "MemoViewer" },
-];
+  { href: "/top", label: "Top" },
+  { href: "/ThemeSelect", label: "ThemeSelect" },
+  { href: "/setting", label: "Setting" },
+  { href: "/setting/privacy", label: "Privacy" },
+  { href: "/MemoEditor", label: "MemoEditor" },
+  { href: "/MemoList", label: "MemoList" },
+  { href: "/MemoViewer", label: "MemoViewer" },
+] as const;
 
 /**
  * @package
  */
 export const Navigation: FC = () => {
+  const pathname = usePathname();
   return (
     <div>
       <nav className="flex flex-col items-start text-gray">
         {items.map(({ href, label }) => {
+          const activeColorClass = cc([
+            "inline-block p-4",
+            {
+              "text-black": pathname === href!,
+              "text-tomato": pathname === href,
+            },
+          ]);
           return (
-            <NavLink key={href} href={href} activeClassName="text-tomato/40">
-              <div className="inline-block p-4">{label}</div>
-            </NavLink>
+            <Link href={href} key={label}>
+              <span className={activeColorClass}>{label}</span>
+            </Link>
           );
         })}
       </nav>
