@@ -1,11 +1,9 @@
-import React from 'react'
+import {Tiptap} from '../../component/TipTap'
 
-const TestPage = () => {
-  return (
-    <div>
-      Create TestPage
-    </div>
-  )
+const TestPage = ()=> {
+    return (
+         <Tiptap />
+    )
 }
 
 export default TestPage
