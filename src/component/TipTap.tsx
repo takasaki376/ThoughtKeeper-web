@@ -1,4 +1,6 @@
 "use client"
+import TaskItem from "@tiptap/extension-task-item";
+import TaskList from "@tiptap/extension-task-list";
 import { EditorContent, useEditor } from "@tiptap/react";
 import StarterKit from "@tiptap/starter-kit";
 import React from "react";
@@ -7,13 +9,22 @@ import React from "react";
 
 export const Tiptap = () => {
   const editor = useEditor({
-    content: "<p>Hello World! 🌎️</p>",
+    content: `<ul data-type="taskList">
+          <li data-type="taskItem" data-checked="true">A list item</li>
+          <li data-type="taskItem" data-checked="false">And another one</li>
+        </ul>`,
     editorProps: {
       attributes: {
         class: "prose prose-base m-5 focus:outline-none text-left",
       },
     },
-    extensions: [StarterKit],
+    extensions: [
+      StarterKit,
+      TaskList,
+      TaskItem.configure({
+        nested: true,
+      }),
+    ],
   });
 
   if (!editor) {
