@@ -5,14 +5,11 @@ import { EditorContent, useEditor } from "@tiptap/react";
 import StarterKit from "@tiptap/starter-kit";
 import React from "react";
 
-// import RichEditorToolbar from "./rich-editor-toolbar";
+import RichEditorToolbar from "./RichEditorToolbar";
 
 export const Tiptap = () => {
   const editor = useEditor({
-    content: `<ul data-type="taskList">
-          <li data-type="taskItem" data-checked="true">A list item</li>
-          <li data-type="taskItem" data-checked="false">And another one</li>
-        </ul>`,
+    content: ``,
     editorProps: {
       attributes: {
         class: "prose prose-base m-5 focus:outline-none text-left",
@@ -33,7 +30,7 @@ export const Tiptap = () => {
 
   return (
     <div className="mx-auto mt-10 w-2/3 border-2">
-        {/* <RichEditorToolbar editor={editor} /> */}
+        <RichEditorToolbar editor={editor} />
         <div className="mt-3 h-[70vh] overflow-hidden overflow-y-scroll p-3">
             <EditorContent editor={editor} />
         </div>
