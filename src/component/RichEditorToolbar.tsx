@@ -1,6 +1,4 @@
 import { Editor } from "@tiptap/react";
-import { useCallback } from "react";
-import { AiOutlineLink } from "react-icons/ai";
 import {
   MdCode,
   MdFormatBold,
@@ -15,22 +13,7 @@ import {
 } from "react-icons/md";
 
 const RichEditorToolbar = ({ editor }: { editor: Editor }) => {
-  const setLink = useCallback(() => {
-    const previousUrl = editor.getAttributes("link").href;
-    const url = window.prompt("URL", previousUrl);
-    // cancelled
-    if (url === null) {
-      return;
-    }
-    // empty (unsetLink()エラーになるので非表示)
-    // if (url === "") {
-    //   editor.chain().focus().extendMarkRange("link").unsetLink().run();
 
-    //   return;
-    // }
-    // update link (setLink()エラーになるので非表示)
-  //   editor.chain().focus().extendMarkRange("link").setLink({ href: url }).run();
-  }, [editor]);
 
   if (!editor) {
     return null;
@@ -95,13 +78,6 @@ const RichEditorToolbar = ({ editor }: { editor: Editor }) => {
         className={!editor.isActive("blockquote") ? "opacity-20" : ""}
       >
         <MdFormatQuote />
-      </button>
-      <button
-        type="button"
-        onClick={setLink}
-        className={!editor.isActive("link") ? "opacity-20" : ""}
-      >
-        <AiOutlineLink />
       </button>
 
       <button onClick={() => editor.chain().focus().undo().run()} type="button">
