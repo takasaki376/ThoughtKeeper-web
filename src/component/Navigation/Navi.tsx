@@ -14,6 +14,7 @@ const items = [
   { href: "/MemoEditor", label: "MemoEditor" },
   { href: "/MemoList", label: "MemoList" },
   { href: "/MemoViewer", label: "MemoViewer" },
+  { href: "/test", label: "Test" },
 ] as const;
 
 /**
