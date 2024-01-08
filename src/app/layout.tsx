@@ -1,6 +1,8 @@
 import '@/styles/globals.scss'
 
+import Header from '@/component/Header';
 import { Navigation } from '@/component/Navigation'
+
 
 export const metadata = {
   title: 'Next.js',
@@ -14,7 +16,8 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en">
-     <body>
+      <body>
+        <Header/>
         <div className='flex'>
           <div className=' bg-tomato/5'><Navigation/></div>
           <div className='min-h-screen flex-1'>{children}</div>
