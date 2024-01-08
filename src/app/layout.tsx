@@ -1,6 +1,6 @@
 import '@/styles/globals.scss'
 
-import Header from '@/component/Header';
+import {Header} from '@/component/Header';
 import { Navigation } from '@/component/Navigation'
 
 
