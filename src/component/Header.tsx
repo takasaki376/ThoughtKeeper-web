@@ -13,7 +13,9 @@ export const Header = () => {
   const pathname = usePathname();
   return (
     <header className='flex w-screen items-center justify-between bg-lightGray px-5 py-3'>
+      <Link href="/">
       <span className='text-lg font-semibold'>Tought Keeper</span>
+      </Link>
       <div className="flex w-20 justify-around">
         <div className="relative text-xl">
         <button type="button" onClick={handlePopOverOpen}>
