@@ -1,9 +1,5 @@
 const MemoViewerPage = () => {
-  return (
-    <div className='text-gray'>
-      MemoViewerPage
-    </div>
-  )
-}
+  return <div className="text-gray">MemoViewerPage</div>;
+};
 
-export default MemoViewerPage
+export default MemoViewerPage;

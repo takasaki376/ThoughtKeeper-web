@@ -1,9 +1,5 @@
 const PrivacyPage = () => {
-  return (
-    <div className="text-gray">
-      PrivacyPage
-    </div>
-  )
-}
+  return <div className="text-gray">PrivacyPage</div>;
+};
 
-export default PrivacyPage
+export default PrivacyPage;

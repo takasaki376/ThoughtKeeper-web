@@ -1,11 +1,9 @@
-import { NextPage } from 'next'
+import { NextPage } from "next";
 
-import {Tiptap} from '../../component/TipTap'
+import { Tiptap } from "../../component/TipTap";
 
-const TestPage:NextPage = ()=> {
-    return (
-         <Tiptap />
-    )
-}
+const TestPage: NextPage = () => {
+  return <Tiptap />;
+};
 
-export default TestPage
+export default TestPage;

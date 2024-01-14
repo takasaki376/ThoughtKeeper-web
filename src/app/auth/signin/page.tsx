@@ -1,15 +1,14 @@
-import GoogleAuthButton from "../_button/GoogleAuthButton"
+import GoogleAuthButton from "../_button/GoogleAuthButton";
 
 const SignInPage = () => {
   return (
-    <div className='text-gray'>
+    <div className="text-gray">
       SignInPage
       <div className="flex justify-center py-20">
-      <GoogleAuthButton/>
+        <GoogleAuthButton />
       </div>
-
     </div>
-  )
-}
+  );
+};
 
-export default SignInPage
+export default SignInPage;
