@@ -1,9 +1,5 @@
 const ThemeSelectPage = () => {
-  return (
-    <div className='text-gray'>
-      ThemeSelectPage
-    </div>
-  )
-}
+  return <div className="text-gray">ThemeSelectPage</div>;
+};
 
-export default ThemeSelectPage
+export default ThemeSelectPage;

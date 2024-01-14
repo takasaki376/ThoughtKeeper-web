@@ -1,9 +1,5 @@
 const SettingPage = () => {
-  return (
-    <div className="text-gray">
-      SettingPage
-    </div>
-  )
-}
+  return <div className="text-gray">SettingPage</div>;
+};
 
-export default SettingPage
+export default SettingPage;

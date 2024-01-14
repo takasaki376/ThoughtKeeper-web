@@ -7,7 +7,6 @@ import type { FC } from "react";
 
 
 const items = [
-  { href: "/top", label: "Top" },
   { href: "/ThemeSelect", label: "ThemeSelect" },
   { href: "/setting", label: "Setting" },
   { href: "/setting/privacy", label: "Privacy" },
