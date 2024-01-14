@@ -12,29 +12,39 @@ export const Header = () => {
   // path名の判定（/settingの時）でボタンを非アクティブ
   const pathname = usePathname();
   return (
-    <header className='flex w-screen items-center justify-between bg-lightGray px-5 py-3'>
+    <header className="flex w-screen items-center justify-between bg-lightGray px-5 py-3">
       <Link href="/">
-      <span className='text-lg font-semibold'>Tought Keeper</span>
+        <span className="text-lg font-semibold">Tought Keeper</span>
       </Link>
       <div className="flex w-20 justify-around">
         <div className="relative text-xl">
-        <button type="button" onClick={handlePopOverOpen}>
-        <FaRegCircleUser />
-        </button>
-         <ul
-        className={`absolute right-0 top-7 z-10 rounded bg-white px-3 py-2 shadow drop-shadow ${
-          isPopoverOpen ? "block" : "hidden"
-        }`}
-      >
-        <MdLogout />
-      </ul>
+          <button
+            aria-label="User Icon"
+            type="button"
+            onClick={handlePopOverOpen}
+          >
+            <FaRegCircleUser />
+          </button>
+          <ul
+            className={`absolute right-0 top-7 z-10 rounded bg-white px-3 py-2 shadow drop-shadow ${
+              isPopoverOpen ? "block" : "hidden"
+            }`}
+          >
+            <MdLogout />
+          </ul>
         </div>
         <div className="text-2xl">
-          {pathname === "/setting" ? <span className="text-gray"><MdOutlineSettings /></span> :
+          {pathname === "/setting" ? (
+            <span className="text-gray">
+              <MdOutlineSettings />
+            </span>
+          ) : (
             <Link href="/setting">
-       <MdOutlineSettings />
-        </Link>}
+              <MdOutlineSettings />
+            </Link>
+          )}
         </div>
       </div>
-    </header>)
+    </header>
+  );
 }
