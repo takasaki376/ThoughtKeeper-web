@@ -1,3 +1,5 @@
+import Link from "next/link";
+
 import { theme } from "@/mock/theme";
 
 const ThemeSelectPage = () => {
@@ -23,12 +25,13 @@ const ThemeSelectPage = () => {
       <ul className="mx-auto w-full flex-col items-center justify-center p-3">
         {selected.map((item) => {
           return (
-            <div
+            <Link
+              href="/MemoEditor"
               className="flex w-full items-center justify-center p-3"
               key={item.theme}
             >
-              {item.theme}
-            </div>
+              【{item.title}】 {item.theme}
+            </Link>
           );
         })}
       </ul>
