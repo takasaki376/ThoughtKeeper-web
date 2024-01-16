@@ -30,7 +30,9 @@ const ThemeSelectPage = () => {
               className="flex w-full items-center justify-center p-3"
               key={item.theme}
             >
-              【{item.title}】 {item.theme}
+              <li>
+                【{item.title}】 {item.theme}
+              </li>
             </Link>
           );
         })}
