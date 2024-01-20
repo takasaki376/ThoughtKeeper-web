@@ -1,13 +1,20 @@
 import type { NextPage } from "next";
+import Link from "next/link";
 
 import Button from "@/component/Button";
 
 const Home: NextPage = () => {
   return (
     <div className="mx-auto flex h-1/2 w-40 flex-col content-center justify-around">
-      <Button>今日のメモ書き</Button>
-      <Button>過去のメモ書き</Button>
-      <Button>設定</Button>
+      <Button>
+        <Link href="/ThemeSelect">今日のメモ書き</Link>
+      </Button>
+      <Button>
+        <Link href="/ThemeSelect">過去のメモ書き</Link>
+      </Button>
+      <Button>
+        <Link href="/ThemeSelect">設定</Link>
+      </Button>
     </div>
   );
 };
