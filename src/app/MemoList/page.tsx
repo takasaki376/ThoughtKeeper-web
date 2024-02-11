@@ -25,7 +25,7 @@ const MemoListPage = () => {
             >
               <li className="mb-2 flex justify-around">
                 <div className="w-28"> {item.date}</div>
-                <div className="mx-2 w-2/3">{item.memo}</div>
+                <div className="mx-2 line-clamp-1 w-2/3">{item.memo}</div>
                 <div className="w-1/3">({item.theme})</div>
               </li>
             </Link>
