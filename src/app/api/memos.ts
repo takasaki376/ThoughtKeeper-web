@@ -1,3 +1,7 @@
+import { NextApiRequest, NextApiResponse } from "next";
+
+import { Memo } from "@/types/memo";
+
 export const memos = [
   {
     title: "仕事",
@@ -3000,3 +3004,12 @@ export const memos = [
     theme: "パートナーと良い関係を維持するには？",
   },
 ];
+
+export default function handler(
+  req: NextApiRequest,
+  res: NextApiResponse<Memo[]>
+) {
+  // You can add logic here to fetch data from a database or other source
+
+  res.status(200).json(memos);
+}
