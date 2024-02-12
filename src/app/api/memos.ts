@@ -2,6 +2,8 @@ import { NextApiRequest, NextApiResponse } from "next";
 
 import { Memo } from "@/types/memo";
 
+const pageSize = 10;
+
 export const memos = [
   {
     title: "仕事",
@@ -3009,7 +3011,12 @@ export default function handler(
   req: NextApiRequest,
   res: NextApiResponse<Memo[]>
 ) {
-  // You can add logic here to fetch data from a database or other source
+  const { page = 1 } = req.query; // クエリパラメータからページ番号を取得
 
-  res.status(200).json(memos);
+  const startIndex = (Number(page) - 1) * pageSize;
+  const endIndex = startIndex + pageSize;
+
+  const pageMemos = memos.slice(startIndex, endIndex);
+
+  res.status(200).json(pageMemos);
 }
