@@ -1,39 +1,52 @@
-import Link from "next/link";
+// pages/index.tsx
+"use client";
 
-import { memos } from "@/mock/memos";
+import useSWRInfinite from "swr/infinite";
 
-const MemoListPage = () => {
-  console.log(memos);
+import { Memo } from "@/types/memo";
+
+import { memos } from "../api/memos";
+
+const fetcher = (url: string) => fetch(url).then((res) => res.json());
+
+function PostList({ memos }: { memos: Memo[] }) {
   return (
-    <div className="flex flex-col items-center text-gray">
-      <div className="my-6 w-1/2">
-        <input
-          className="w-full border-2 border-gray px-3 py-1"
-          type="text"
-          id="name"
-          name="name"
-          placeholder="Filter Theme"
-        />
-      </div>
-      <div className="flex w-full flex-col  px-3">
-        {memos.map((item) => {
-          return (
-            <Link
-              href="/MemoViewer"
-              // className="flex w-full items-center justify-center p-3"
-              key={item.theme}
-            >
-              <li className="mb-2 flex justify-around">
-                <div className="w-28"> {item.createdAt}</div>
-                <div className="mx-2 line-clamp-1 w-2/3">{item.memo}</div>
-                <div className="w-1/3">({item.theme})</div>
-              </li>
-            </Link>
-          );
-        })}
-      </div>
+    <div>
+      {memos.map((memo) => (
+        <div className="line-clamp-1" key={memo.title}>
+          {memo.memo}
+        </div>
+      ))}
     </div>
   );
-};
+}
 
-export default MemoListPage;
+function InfiniteScroll() {
+  const getKey = (pageIndex: number, previousPageData: Memo[]) => {
+    if (previousPageData && !previousPageData.length) return null; // 最後に到達した
+    return `/api/memos?page=${pageIndex + 1}`; // SWR キー
+  };
+
+  const { data, error, setSize, size } = useSWRInfinite(getKey, fetcher);
+
+  // const posts = data ? data.flat() : [];
+
+  if (error) return <div>エラーが発生しました。</div>;
+  if (!data) return <div>データを取得中...</div>;
+
+  return (
+    <div>
+      <PostList memos={memos} />
+      <button onClick={() => setSize(size + 1)}>次のページ</button>
+    </div>
+  );
+}
+
+export default function Home() {
+  return (
+    <div>
+      <h1>無限スクロールのデモ</h1>
+      <InfiniteScroll />
+    </div>
+  );
+}
