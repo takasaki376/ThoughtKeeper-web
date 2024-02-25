@@ -9,7 +9,7 @@ import { Memo } from "@/types/memo";
 
 const fetcher = (url: string) => fetch(url).then((res) => res.json());
 
-export const PostList = ({ memos }: { memos: Memo[] }) => {
+const PostList = ({ memos }: { memos: Memo[] }) => {
   console.log(typeof memos);
   if (memos) {
     return (
