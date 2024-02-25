@@ -1,6 +1,7 @@
 // pages/index.tsx
 "use client";
 
+import Link from "next/link";
 import useSWRInfinite from "swr/infinite";
 
 import { memos } from "@/pages/api/memos";
@@ -8,14 +9,14 @@ import { Memo } from "@/types/memo";
 
 const fetcher = (url: string) => fetch(url).then((res) => res.json());
 
-const PostList = ({ memos }: { memos: Memo[] }) => {
+export const PostList = ({ memos }: { memos: Memo[] }) => {
   console.log(typeof memos);
   if (memos) {
     return (
       <div className="px-12">
         {memos.map((memo, index) => (
           <div className="line-clamp-1" key={index}>
-            {memo.theme}
+            <Link href={`/MemoViewer/${memo.id}`}>{memo.theme}</Link>
           </div>
         ))}
       </div>
