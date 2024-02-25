@@ -3,23 +3,27 @@
 
 import useSWRInfinite from "swr/infinite";
 
+import { memos } from "@/pages/api/memos";
 import { Memo } from "@/types/memo";
-
-import { memos } from "../api/memos";
 
 const fetcher = (url: string) => fetch(url).then((res) => res.json());
 
-function PostList({ memos }: { memos: Memo[] }) {
-  return (
-    <div>
-      {memos.map((memo) => (
-        <div className="line-clamp-1" key={memo.title}>
-          {memo.memo}
-        </div>
-      ))}
-    </div>
-  );
-}
+const PostList = ({ memos }: { memos: Memo[] }) => {
+  console.log(typeof memos);
+  if (memos) {
+    return (
+      <div className="px-12">
+        {memos.map((memo, index) => (
+          <div className="line-clamp-1" key={index}>
+            {memo.theme}
+          </div>
+        ))}
+      </div>
+    );
+  } else {
+    return null;
+  }
+};
 
 function InfiniteScroll() {
   const getKey = (pageIndex: number, previousPageData: Memo[]) => {
