@@ -10,7 +10,6 @@ import { Memo } from "@/types/memo";
 const fetcher = (url: string) => fetch(url).then((res) => res.json());
 
 const PostList = ({ memos }: { memos: Memo[] }) => {
-  console.log(typeof memos);
   if (memos) {
     return (
       <div className="px-12">
