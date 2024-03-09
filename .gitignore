@@ -38,4 +38,4 @@ next-env.d.ts
 .yarn
 
 #firebase-admin json
-tought-keeper-firebase-adminsdk-secret.json
+firebaseSecretKey.json
