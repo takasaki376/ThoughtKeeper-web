@@ -2,6 +2,7 @@ import "@/styles/globals.scss";
 
 import { Header } from "@/component/Header";
 import { Navigation } from "@/component/Navigation";
+import SessionProvider from "@/provider/SessionProvider";
 
 export const metadata = {
   title: "Next.js",
@@ -14,16 +15,18 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en">
-      <body>
-        <Header />
-        <div className="flex">
-          <div className=" bg-tomato/5">
-            <Navigation />
+    <SessionProvider>
+      <html lang="en">
+        <body>
+          <Header />
+          <div className="flex">
+            <div className=" bg-tomato/5">
+              <Navigation />
+            </div>
+            <div className="min-h-screen flex-1">{children}</div>
           </div>
-          <div className="min-h-screen flex-1">{children}</div>
-        </div>
-      </body>
-    </html>
+        </body>
+      </html>
+    </SessionProvider>
   );
 }
