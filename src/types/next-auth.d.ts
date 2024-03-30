@@ -1,4 +1,5 @@
-import { DefaultSession } from "next-auth";
+import { DefaultJWT, DefaultSession } from "next-auth";
+import { JWT } from "next-auth/jwt";
 
 declare module "next-auth" {
   interface Session {
@@ -11,9 +12,12 @@ declare module "next-auth" {
 }
 
 declare module "next-auth/jwt" {
-  interface JWT {
+  interface JWT extends DefaultJWT {
     // Firebaseの認証情報
     emailVerified: boolean;
+    idToken?: string;
     uid: string;
   }
 }
+
+export default JWT;
