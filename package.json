@@ -18,7 +18,7 @@
     "@tiptap/pm": "^2.1.12",
     "@tiptap/react": "^2.1.12",
     "@tiptap/starter-kit": "^2.1.12",
-    "@types/node": "18.11.18",
+    "@types/node": "^20.12.2",
     "@types/react": "^18.2.58",
     "@types/react-dom": "^18.2.19",
     "eslint-config-next": "13.1.4",
@@ -51,7 +51,7 @@
   },
   "packageManager": "yarn@3.6.1",
   "volta": {
-    "node": "18.16.1",
+    "node": "20.11.1",
     "yarn": "1.22.19"
   }
 }
