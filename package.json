@@ -1,14 +1,13 @@
 {
-  "name": "thoughtkeeper-web",
-  "version": "0.1.0",
   "private": true,
   "scripts": {
     "dev": "next dev",
     "build": "next build",
-    "start": "next start",
-    "lint": "next lint"
+    "start": "next start"
   },
   "dependencies": {
+    "@supabase/ssr": "latest",
+    "@supabase/supabase-js": "latest",
     "@tiptap/extension-highlight": "^2.1.12",
     "@tiptap/extension-task-item": "^2.1.12",
     "@tiptap/extension-task-list": "^2.1.12",
@@ -16,37 +15,40 @@
     "@tiptap/pm": "^2.1.12",
     "@tiptap/react": "^2.1.12",
     "@tiptap/starter-kit": "^2.1.12",
-    "@types/node": "18.11.18",
-    "@types/react": "^18.2.58",
-    "@types/react-dom": "^18.2.19",
+    "autoprefixer": "10.4.17",
     "eslint-config-next": "13.1.4",
-    "next": "13.4.7",
+    "geist": "^1.2.1",
+    "next": "latest",
+    "postcss": "8.4.33",
     "react": "18.2.0",
     "react-dom": "18.2.0",
-    "react-icons": "^4.11.0",
+    "react-icons": "^5.0.1",
     "sass": "^1.69.5",
     "swr": "^2.2.4",
-    "typescript": "^5.3.3"
+    "tailwindcss": "3.4.1",
+    "typescript": "5.3.3"
   },
   "devDependencies": {
+    "@types/node": "20.11.5",
+    "@types/react": "18.2.48",
+    "@types/react-dom": "18.2.18",
     "@typescript-eslint/eslint-plugin": "^5.48.2",
     "@typescript-eslint/parser": "^5.48.2",
     "autoprefixer": "^10.4.14",
     "classcat": "^5.0.4",
+    "encoding": "^0.1.13",
     "eslint": "^8.44.0",
     "eslint-config-prettier": "^8.6.0",
     "eslint-plugin-simple-import-sort": "^10.0.0",
     "eslint-plugin-sort-keys-custom-order": "^1.0.5",
     "eslint-plugin-tailwindcss": "^3.8.0",
     "eslint-plugin-unused-imports": "^2.0.0",
-    "postcss": "^8.4.24",
     "prettier": "^2.8.8",
-    "prettier-plugin-tailwindcss": "^0.3.0",
-    "tailwindcss": "^3.3.2"
+    "prettier-plugin-tailwindcss": "^0.3.0"
   },
   "packageManager": "yarn@3.6.1",
   "volta": {
-    "node": "18.16.1",
+    "node": "20.11.1",
     "yarn": "1.22.19"
   }
 }
