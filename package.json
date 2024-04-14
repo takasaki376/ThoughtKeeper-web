@@ -46,7 +46,6 @@
     "prettier": "^2.8.8",
     "prettier-plugin-tailwindcss": "^0.3.0"
   },
-  "packageManager": "yarn@3.6.1",
   "volta": {
     "node": "20.11.1",
     "yarn": "1.22.19"
