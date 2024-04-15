@@ -1,17 +1,38 @@
-import Image from "next/image";
+import Link from "next/link";
+import { redirect } from "next/navigation";
 
-const GoogleAuthButton = () => {
-  return (
-    <div className="relative">
-      <Image
-        src="/images/google_signin_buttons/btn_google_signin_dark_normal_web@2x.png"
-        alt="Google auth button"
-        width={382}
-        height={92}
-        className="hover:cursor-pointer hover:opacity-70"
-      />
+import { createClient } from "@/utils/supabase/server";
+
+export default async function AuthButton() {
+  const supabase = createClient();
+
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  const signOut = async () => {
+    "use server";
+
+    const supabase = createClient();
+    await supabase.auth.signOut();
+    return redirect("/auth/signin");
+  };
+
+  return user ? (
+    <div className="flex items-center gap-4">
+      Hey, {user.email}!
+      <form action={signOut}>
+        <button className="rounded-md bg-btn-background px-4 py-2 no-underline hover:bg-btn-background-hover">
+          Logout
+        </button>
+      </form>
     </div>
+  ) : (
+    <Link
+      href="/"
+      className="flex rounded-md bg-btn-background px-3 py-2 no-underline hover:bg-btn-background-hover"
+    >
+      Login
+    </Link>
   );
-};
-
-export default GoogleAuthButton;
+}
