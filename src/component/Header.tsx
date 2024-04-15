@@ -30,7 +30,9 @@ export const Header = () => {
               isPopoverOpen ? "block" : "hidden"
             }`}
           >
-            <MdLogout />
+            <Link href="/auth/signin">
+              <MdLogout />
+            </Link>
           </ul>
         </div>
         <HeaderSettingButton />
