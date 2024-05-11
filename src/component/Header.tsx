@@ -2,7 +2,6 @@
 import Link from "next/link";
 import { useState } from "react";
 import { FaRegCircleUser } from "react-icons/fa6";
-import { MdLogout } from "react-icons/md";
 
 import { HeaderSettingButton } from "./HeaderSettingButton";
 
@@ -23,17 +22,10 @@ export const Header = () => {
             type="button"
             onClick={handlePopOverOpen}
           >
-            <FaRegCircleUser />
-          </button>
-          <ul
-            className={`absolute right-0 top-7 z-10 rounded bg-white px-3 py-2 shadow drop-shadow ${
-              isPopoverOpen ? "block" : "hidden"
-            }`}
-          >
-            <Link href="/auth/signin">
-              <MdLogout />
+            <Link href="/auth/login">
+              <FaRegCircleUser />
             </Link>
-          </ul>
+          </button>
         </div>
         <HeaderSettingButton />
       </div>
