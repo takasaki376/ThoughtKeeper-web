@@ -24,7 +24,7 @@ export default function SignInPage({
     });
 
     if (error) {
-      return redirect("/login?message=Could not authenticate user");
+      return redirect("/auth/login?message=Could not authenticate user");
     }
 
     return redirect("/");
@@ -47,10 +47,12 @@ export default function SignInPage({
     });
 
     if (error) {
-      return redirect("/login?message=Could not authenticate user");
+      return redirect("/auth/login?message=Could not authenticate user");
     }
 
-    return redirect("/login?message=Check email to continue sign in process");
+    return redirect(
+      "/auth/login?message=Check email to continue sign in process"
+    );
   };
 
   return (
@@ -81,7 +83,7 @@ export default function SignInPage({
           Email
         </label>
         <input
-          className="bg-inherit mb-6 rounded-md border px-4 py-2"
+          className="mb-6 rounded-md border bg-inherit px-4 py-2"
           name="email"
           placeholder="you@example.com"
           required
@@ -90,7 +92,7 @@ export default function SignInPage({
           Password
         </label>
         <input
-          className="bg-inherit mb-6 rounded-md border px-4 py-2"
+          className="mb-6 rounded-md border bg-inherit px-4 py-2"
           type="password"
           name="password"
           placeholder="••••••••"
@@ -98,7 +100,7 @@ export default function SignInPage({
         />
         <SubmitButton
           formAction={signIn}
-          className="bg-green-700 mb-2 rounded-md px-4 py-2 text-foreground"
+          className="mb-2 rounded-md bg-green-700 px-4 py-2 text-foreground"
           pendingText="Signing In..."
         >
           Sign In
@@ -111,7 +113,7 @@ export default function SignInPage({
           Sign Up
         </SubmitButton>
         {searchParams?.message && (
-          <p className="mt-4 bg-foreground/10 p-4 text-center text-foreground">
+          <p className="mt-4 p-4 text-center text-tomato">
             {searchParams.message}
           </p>
         )}
