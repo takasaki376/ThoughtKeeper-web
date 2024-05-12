@@ -6,7 +6,7 @@ import { createClient } from "@/utils/supabase/server";
 
 import { SubmitButton } from "./submit-button";
 
-export default function Login({
+export default function SignInPage({
   searchParams,
 }: {
   searchParams: { message: string };
@@ -24,7 +24,7 @@ export default function Login({
     });
 
     if (error) {
-      return redirect("/login?message=Could not authenticate user");
+      return redirect("/auth/login?message=Could not authenticate user");
     }
 
     return redirect("/");
@@ -47,17 +47,19 @@ export default function Login({
     });
 
     if (error) {
-      return redirect("/login?message=Could not authenticate user");
+      return redirect("/auth/login?message=Could not authenticate user");
     }
 
-    return redirect("/login?message=Check email to continue sign in process");
+    return redirect(
+      "/auth/login?message=Check email to continue sign in process"
+    );
   };
 
   return (
     <div className="flex w-full flex-1 flex-col justify-center gap-2 px-8 sm:max-w-md">
       <Link
         href="/"
-        className="text-foreground bg-btn-background hover:bg-btn-background-hover group absolute left-8 top-8 flex items-center rounded-md px-4 py-2 text-sm no-underline"
+        className="group absolute left-8 top-8 flex items-center rounded-md bg-btn-background px-4 py-2 text-sm text-foreground no-underline hover:bg-btn-background-hover"
       >
         <svg
           xmlns="http://www.w3.org/2000/svg"
@@ -76,12 +78,12 @@ export default function Login({
         Back
       </Link>
 
-      <form className="animate-in text-foreground flex w-full flex-1 flex-col justify-center gap-2">
+      <form className="animate-in flex w-full flex-1 flex-col justify-center gap-2 text-foreground">
         <label className="text-md" htmlFor="email">
           Email
         </label>
         <input
-          className="bg-inherit mb-6 rounded-md border px-4 py-2"
+          className="mb-6 rounded-md border bg-inherit px-4 py-2"
           name="email"
           placeholder="you@example.com"
           required
@@ -90,7 +92,7 @@ export default function Login({
           Password
         </label>
         <input
-          className="bg-inherit mb-6 rounded-md border px-4 py-2"
+          className="mb-6 rounded-md border bg-inherit px-4 py-2"
           type="password"
           name="password"
           placeholder="••••••••"
@@ -98,20 +100,20 @@ export default function Login({
         />
         <SubmitButton
           formAction={signIn}
-          className="bg-green-700 text-foreground mb-2 rounded-md px-4 py-2"
+          className="mb-2 rounded-md bg-green-700 px-4 py-2 text-foreground"
           pendingText="Signing In..."
         >
           Sign In
         </SubmitButton>
         <SubmitButton
           formAction={signUp}
-          className="border-foreground/20 text-foreground mb-2 rounded-md border px-4 py-2"
+          className="mb-2 rounded-md border border-foreground/20 px-4 py-2 text-foreground"
           pendingText="Signing Up..."
         >
           Sign Up
         </SubmitButton>
         {searchParams?.message && (
-          <p className="bg-foreground/10 text-foreground mt-4 p-4 text-center">
+          <p className="mt-4 p-4 text-center text-tomato">
             {searchParams.message}
           </p>
         )}
