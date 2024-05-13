@@ -17,11 +17,11 @@ export default function RootLayout({
     <html lang="en">
       <body>
         <Header />
-        <div className="flex">
+        <div className="flex justify-center">
           <div className=" bg-tomato/5">
             <Navigation />
           </div>
-          <div className="min-h-screen flex-1">{children}</div>
+          <div className="min-h-screen w-full">{children}</div>
         </div>
       </body>
     </html>

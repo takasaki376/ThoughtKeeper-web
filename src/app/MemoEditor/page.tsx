@@ -1,5 +1,6 @@
 import { redirect } from "next/navigation";
 
+import { Tiptap } from "@/component/TipTap";
 import { createClient } from "@/utils/supabase/server";
 
 export default async function MemoEditorPage() {
@@ -12,5 +13,5 @@ export default async function MemoEditorPage() {
   if (!user) {
     return redirect("/auth/login");
   }
-  return <div className="text-gray">MemoEditorPage</div>;
+  return <Tiptap />;
 }
