@@ -55,7 +55,7 @@ export default function SignInPage({
   };
 
   return (
-    <div className="flex w-screen justify-center gap-2 px-8">
+    <div className="flex justify-center gap-2 px-8">
       <form className="flex w-full flex-col gap-2 text-foreground md:w-1/2">
         <label className="text-md" htmlFor="email">
           Email
