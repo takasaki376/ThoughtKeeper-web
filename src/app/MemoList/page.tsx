@@ -1,13 +1,11 @@
 // pages/index.tsx
-"use client";
 
 import Link from "next/link";
-import useSWRInfinite from "swr/infinite";
+import { redirect } from "next/navigation";
 
 import { memos } from "@/pages/api/memos";
 import { Memo } from "@/types/memo";
-
-const fetcher = (url: string) => fetch(url).then((res) => res.json());
+import { createClient } from "@/utils/supabase/server";
 
 const PostList = ({ memos }: { memos: Memo[] }) => {
   if (memos) {
@@ -25,32 +23,20 @@ const PostList = ({ memos }: { memos: Memo[] }) => {
   }
 };
 
-function InfiniteScroll() {
-  const getKey = (pageIndex: number, previousPageData: Memo[]) => {
-    if (previousPageData && !previousPageData.length) return null; // 最後に到達した
-    return `/api/memos?page=${pageIndex + 1}`; // SWR キー
-  };
+export default async function Home() {
+  const supabase = createClient();
 
-  const { data, error, setSize, size } = useSWRInfinite(getKey, fetcher);
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
 
-  // const posts = data ? data.flat() : [];
-
-  if (error) return <div>エラーが発生しました。</div>;
-  if (!data) return <div>データを取得中...</div>;
-
-  return (
-    <div>
-      <PostList memos={memos} />
-      <button onClick={() => setSize(size + 1)}>次のページ</button>
-    </div>
-  );
-}
-
-export default function Home() {
+  if (!user) {
+    return redirect("/auth/login");
+  }
   return (
     <div>
       <h1>無限スクロールのデモ</h1>
-      <InfiniteScroll />
+      <PostList memos={memos} />
     </div>
   );
 }

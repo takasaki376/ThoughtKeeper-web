@@ -1,5 +1,16 @@
-const SettingPage = () => {
-  return <div className="text-gray">SettingPage</div>;
-};
+import { redirect } from "next/navigation";
 
-export default SettingPage;
+import { createClient } from "@/utils/supabase/server";
+
+export default async function SettingPage() {
+  const supabase = createClient();
+
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  if (!user) {
+    return redirect("/auth/login");
+  }
+  return <div className="text-gray">SettingPage</div>;
+}
