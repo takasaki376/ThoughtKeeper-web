@@ -1,11 +1,21 @@
-import type { NextPage } from "next";
 import Link from "next/link";
+import { redirect } from "next/navigation";
 
 import Button from "@/component/Button";
+import { createClient } from "@/utils/supabase/server";
 
 import AuthButton from "./auth/_button/AuthButton";
 
-const Home: NextPage = () => {
+export default async function Home() {
+  const supabase = createClient();
+
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  if (!user) {
+    return redirect("/auth/login");
+  }
   return (
     <div className="mx-auto flex h-1/2 w-40 flex-col content-center justify-around">
       <AuthButton />
@@ -13,12 +23,11 @@ const Home: NextPage = () => {
         <Link href="/ThemeSelect">今日のメモ書き</Link>
       </Button>
       <Button>
-        <Link href="/ThemeSelect">過去のメモ書き</Link>
+        <Link href="/MemoList">過去のメモ書き</Link>
       </Button>
       <Button>
-        <Link href="/ThemeSelect">設定</Link>
+        <Link href="/setting">設定</Link>
       </Button>
     </div>
   );
-};
-export default Home;
+}
