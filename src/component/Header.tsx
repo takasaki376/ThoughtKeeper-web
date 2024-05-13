@@ -11,7 +11,7 @@ export const Header = () => {
         <span className="text-lg font-semibold">Tought Keeper</span>
       </Link>
       <div className="flex w-20 justify-around">
-        <div className="">
+        <div className="pt-1">
           <AuthButton />
         </div>
         <HeaderSettingButton />
