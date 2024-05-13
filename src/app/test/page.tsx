@@ -1,9 +1,17 @@
-import { NextPage } from "next";
+import { redirect } from "next/navigation";
 
-import { Tiptap } from "../../component/TipTap";
+import { Tiptap } from "@/component/TipTap";
+import { createClient } from "@/utils/supabase/server";
 
-const TestPage: NextPage = () => {
+export default async function TestPage() {
+  const supabase = createClient();
+
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  if (!user) {
+    return redirect("/auth/login");
+  }
   return <Tiptap />;
-};
-
-export default TestPage;
+}
