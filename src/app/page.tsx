@@ -4,7 +4,6 @@ import { redirect } from "next/navigation";
 import Button from "@/component/Button";
 import { createClient } from "@/utils/supabase/server";
 
-import AuthButton from "./auth/_button/AuthButton";
 
 export default async function Home() {
   const supabase = createClient();
