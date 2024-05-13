@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
+import { FaArrowRightFromBracket, FaRegCircleUser } from "react-icons/fa6";
 
 import { createClient } from "@/utils/supabase/server";
 
@@ -20,19 +21,15 @@ export default async function AuthButton() {
 
   return user ? (
     <div className="flex items-center gap-4">
-      Hey, {user.email}!
       <form action={signOut}>
-        <button className="rounded-md bg-btn-background px-4 py-2 no-underline hover:bg-btn-background-hover">
-          Logout
+        <button className="rounded-md bg-btn-background pr-2 pt-1 no-underline hover:bg-btn-background-hover">
+          <FaArrowRightFromBracket />
         </button>
       </form>
     </div>
   ) : (
-    <Link
-      href="/auth/login"
-      className="flex rounded-md bg-btn-background px-3 py-2 no-underline hover:bg-btn-background-hover"
-    >
-      Login
+    <Link href="/auth/login" className=" relative">
+      <FaRegCircleUser />
     </Link>
   );
 }

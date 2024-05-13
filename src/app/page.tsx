@@ -18,7 +18,6 @@ export default async function Home() {
   }
   return (
     <div className="mx-auto flex h-1/2 w-40 flex-col content-center justify-around">
-      <AuthButton />
       <Button>
         <Link href="/ThemeSelect">今日のメモ書き</Link>
       </Button>
