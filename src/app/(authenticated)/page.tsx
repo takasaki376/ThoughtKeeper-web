@@ -1,20 +1,10 @@
 import Link from "next/link";
-import { redirect } from "next/navigation";
 
 import Button from "@/component/Button";
-import { createClient } from "@/utils/supabase/server";
 
 
 export default async function Home() {
-  const supabase = createClient();
 
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-
-  if (!user) {
-    return redirect("/auth/login");
-  }
   return (
     <div className="mx-auto flex h-1/2 w-40 flex-col content-center justify-around">
       <Button>

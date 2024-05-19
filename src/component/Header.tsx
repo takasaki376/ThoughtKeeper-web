@@ -1,6 +1,6 @@
 import Link from "next/link";
 
-import AuthButton from "@/app/auth/_button/AuthButton";
+import AuthButton from "@/app/(auth)/auth/_button/AuthButton";
 
 import { HeaderSettingButton } from "./HeaderSettingButton";
 

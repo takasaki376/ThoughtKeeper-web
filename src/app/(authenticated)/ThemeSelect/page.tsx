@@ -1,19 +1,9 @@
 import Link from "next/link";
-import { redirect } from "next/navigation";
 
 import { theme } from "@/mock/theme";
-import { createClient } from "@/utils/supabase/server";
 
 export default async function ThemeSelectPage() {
-  const supabase = createClient();
 
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-
-  if (!user) {
-    return redirect("/auth/login");
-  }
   const selected = randomSelect(theme.slice(), 10);
 
   // 配列themeからランダムにnum個の要素を取り出す
