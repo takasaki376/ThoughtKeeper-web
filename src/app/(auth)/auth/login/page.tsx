@@ -23,9 +23,9 @@ export default function SignInPage({
     });
 
     if (error) {
-      redirect("/auth/login?message=Could not authenticate user");
+     return redirect("/auth/login?message=Could not authenticate user");
     } else {
-      redirect("/");
+     return redirect("/");
     }
     // }
 
