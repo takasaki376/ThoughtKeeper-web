@@ -22,14 +22,9 @@ export default function SignInPage({
       password,
     });
 
-    if (error) {
-     return redirect("/auth/login?message=Could not authenticate user");
-    } else {
-     return redirect("/");
-    }
-    // }
-
-    // return redirect("/(authenticated)/");
+    error
+      ? redirect("/auth/login?message=Could not authenticate user")
+      : redirect("/");
   };
 
   const signUp = async (formData: FormData) => {
