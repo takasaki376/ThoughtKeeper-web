@@ -21,8 +21,8 @@ export default function SignInPage({
       email,
       password,
     });
-    if (error) {
-      return redirect("/auth/login?message=Could not authenticate user");
+    if (error?.message) {
+      return redirect(`/auth/login?message=${error.message}`);
     }
 
     return "/";
@@ -43,9 +43,10 @@ export default function SignInPage({
       },
       password,
     });
+    console.log(error?.message);
 
-    if (error) {
-      return redirect("/auth/login?message=Could not authenticate user");
+    if (error?.message) {
+      return redirect(`/auth/login?message=${error.message}`);
     }
 
     return redirect(
