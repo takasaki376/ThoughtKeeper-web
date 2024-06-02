@@ -2,7 +2,8 @@ import Link from "next/link";
 
 import { theme } from "@/mock/theme";
 
-const ThemeSelectPage = () => {
+export default async function ThemeSelectPage() {
+
   const selected = randomSelect(theme.slice(), 10);
 
   // 配列themeからランダムにnum個の要素を取り出す
@@ -40,5 +41,3 @@ const ThemeSelectPage = () => {
     </div>
   );
 };
-
-export default ThemeSelectPage;

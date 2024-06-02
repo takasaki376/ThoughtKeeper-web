@@ -1,5 +1,4 @@
 import { headers } from "next/headers";
-import Link from "next/link";
 import { redirect } from "next/navigation";
 
 import { createClient } from "@/utils/supabase/server";
@@ -22,12 +21,11 @@ export default function SignInPage({
       email,
       password,
     });
-
-    if (error) {
-      return redirect("/auth/login?message=Could not authenticate user");
+    if (error?.message) {
+      return redirect(`/auth/login?message=${error.message}`);
     }
 
-    return redirect("/");
+    return "/";
   };
 
   const signUp = async (formData: FormData) => {
@@ -45,9 +43,10 @@ export default function SignInPage({
       },
       password,
     });
+    console.log(error?.message);
 
-    if (error) {
-      return redirect("/auth/login?message=Could not authenticate user");
+    if (error?.message) {
+      return redirect(`/auth/login?message=${error.message}`);
     }
 
     return redirect(
@@ -56,29 +55,8 @@ export default function SignInPage({
   };
 
   return (
-    <div className="flex w-full flex-1 flex-col justify-center gap-2 px-8 sm:max-w-md">
-      <Link
-        href="/"
-        className="group absolute left-8 top-8 flex items-center rounded-md bg-btn-background px-4 py-2 text-sm text-foreground no-underline hover:bg-btn-background-hover"
-      >
-        <svg
-          xmlns="http://www.w3.org/2000/svg"
-          width="24"
-          height="24"
-          viewBox="0 0 24 24"
-          fill="none"
-          stroke="currentColor"
-          strokeWidth="2"
-          strokeLinecap="round"
-          strokeLinejoin="round"
-          className="mr-2 size-4 transition-transform group-hover:-translate-x-1"
-        >
-          <polyline points="15 18 9 12 15 6" />
-        </svg>{" "}
-        Back
-      </Link>
-
-      <form className="animate-in flex w-full flex-1 flex-col justify-center gap-2 text-foreground">
+    <div className="flex justify-center gap-2 px-8">
+      <form className="flex w-full flex-col gap-2 text-foreground md:w-1/2">
         <label className="text-md" htmlFor="email">
           Email
         </label>
