@@ -22,7 +22,7 @@ export default function SignInPage({
       password,
     });
     if (error) {
-      return redirect("/login?message=Could not authenticate user");
+      return redirect("/auth/login?message=Could not authenticate user");
     }
 
     return "/";
