@@ -9,7 +9,7 @@ export default function SettingPage() {
     setValue(e.target.value);
   };
   return (
-    <div id="section2" className="mt-6 rounded bg-white p-8 shadow lg:mt-0">
+    <div id="section2" className="mt-6 rounded bg-white p-8 lg:mt-0">
       <form>
         <div className="mb-6 md:flex">
           <div className="md:w-1/3">
