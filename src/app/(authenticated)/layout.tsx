@@ -33,10 +33,7 @@ export default async function RootLayout({
           <div className=" bg-tomato/5">
             <Navigation />
           </div>
-          <div className="min-h-screen w-full">
-            {user.email}
-            {children}
-          </div>
+          <div className="min-h-screen w-full">{children}</div>
         </div>
       </body>
     </html>
