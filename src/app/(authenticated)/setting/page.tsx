@@ -1,7 +1,6 @@
 "use client";
 import { type ChangeEvent, useState } from "react";
 
-import Button from "@/component/Button";
 
 export default function SettingPage() {
   const [value, setValue] = useState("");
@@ -78,13 +77,6 @@ export default function SettingPage() {
               onChange={handleOnChange}
             ></textarea>
             <p className="py-2 text-sm text-gray ">説明</p>
-          </div>
-        </div>
-
-        <div className="md:flex md:items-center">
-          <div className="md:w-1/3"></div>
-          <div className="md:w-2/3">
-            <Button>Save</Button>
           </div>
         </div>
       </form>
