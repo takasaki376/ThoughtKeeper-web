@@ -77,8 +77,8 @@ export default function SettingPage() {
           </div>
         </form>
       </div>
-      <div className="pl-16">
-        <MdOutlineClose className="w-20" />
+      <div className="pl-10 text-xl">
+        <MdOutlineClose />
       </div>
     </div>
   );
