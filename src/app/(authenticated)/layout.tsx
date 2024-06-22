@@ -1,5 +1,6 @@
 import "@/styles/globals.scss";
 
+import { Provider } from "jotai";
 import { redirect } from "next/navigation";
 
 import { Header } from "@/component/Header";
@@ -26,16 +27,18 @@ export default async function RootLayout({
     return redirect("/auth/login");
   }
   return (
-    <html lang="en">
-      <body>
-        <Header />
-        <div className="flex justify-center">
-          <div className=" bg-tomato/5">
-            <Navigation />
+    <Provider>
+      <html lang="en">
+        <body>
+          <Header />
+          <div className="flex justify-center">
+            <div className=" bg-tomato/5">
+              <Navigation />
+            </div>
+            <div className="min-h-screen w-full">{children}</div>
           </div>
-          <div className="min-h-screen w-full">{children}</div>
-        </div>
-      </body>
-    </html>
+        </body>
+      </html>
+    </Provider>
   );
 }
