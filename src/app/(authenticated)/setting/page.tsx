@@ -1,9 +1,33 @@
 "use client";
+import { atom, useAtom } from "jotai";
 import { type ChangeEvent, useState } from "react";
 import { MdOutlineClose } from "react-icons/md";
 
 export default function SettingPage() {
   const [value, setValue] = useState("");
+  const countTheme = atom("10");
+  const countTime = atom("60");
+  const InputTargetCount = () => {
+    const [count, setCount] = useAtom(countTheme);
+    return (
+      <input
+        className="mr-2 block w-full bg-lightGray p-1 focus:bg-white"
+        value={count}
+        onChange={(e) => setCount(e.target.value)}
+      />
+    );
+  };
+
+  const InputTargetTime = () => {
+    const [time, setTime] = useAtom(countTime);
+    return (
+      <input
+        className="mr-2 block w-full bg-lightGray p-1 focus:bg-white"
+        value={time}
+        onChange={(e) => setTime(e.target.value)}
+      />
+    );
+  };
   const handleOnChange = (e: ChangeEvent<HTMLTextAreaElement>) => {
     setValue(e.target.value);
   };
@@ -21,14 +45,8 @@ export default function SettingPage() {
               </label>
             </div>
             <div className="md:w-2/3">
-              <div className="flex items-center">
-                <input
-                  name=""
-                  className="mr-2 block w-full bg-lightGray p-1 focus:bg-white"
-                  id="my-select"
-                  defaultValue={value}
-                />
-                件
+              <div className="flex items-center ">
+                <InputTargetCount />件
               </div>
 
               <p className="py-2 text-sm text-gray">
@@ -45,13 +63,7 @@ export default function SettingPage() {
             </div>
             <div className="md:w-2/3">
               <div className="flex items-center">
-                <input
-                  name=""
-                  className="mr-2 block w-full bg-lightGray p-1 focus:bg-white"
-                  id="my-select"
-                  defaultValue={value}
-                />
-                秒
+                <InputTargetTime />秒
               </div>
               <p className="py-2 text-sm text-gray">
                 １つのテーマに対して、入力する時間を設定します
