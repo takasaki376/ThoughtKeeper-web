@@ -1,12 +1,12 @@
 "use client";
 import { atom, useAtom } from "jotai";
-import { type ChangeEvent, useState } from "react";
 import { MdOutlineClose } from "react-icons/md";
 
 export default function SettingPage() {
-  const [value, setValue] = useState("");
   const countTheme = atom("10");
   const countTime = atom("60");
+  const initialText = atom("");
+
   const InputTargetCount = () => {
     const [count, setCount] = useAtom(countTheme);
     return (
@@ -28,9 +28,17 @@ export default function SettingPage() {
       />
     );
   };
-  const handleOnChange = (e: ChangeEvent<HTMLTextAreaElement>) => {
-    setValue(e.target.value);
+  const InputText = () => {
+    const [text, setText] = useAtom(initialText);
+    return (
+      <textarea
+        className="mr-2 block w-full bg-lightGray p-1 focus:bg-white"
+        value={text}
+        onChange={(e) => setText(e.target.value)}
+      />
+    );
   };
+
   return (
     <div
       id="section2"
@@ -78,12 +86,7 @@ export default function SettingPage() {
               </label>
             </div>
             <div className="md:w-2/3">
-              <textarea
-                className="block w-full bg-lightGray p-1 focus:bg-white"
-                id="my-textarea"
-                defaultValue={value}
-                onChange={handleOnChange}
-              ></textarea>
+              <InputText />
               <p className="py-2 text-sm text-gray ">説明</p>
             </div>
           </div>
