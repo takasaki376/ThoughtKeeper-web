@@ -1,5 +1,6 @@
 "use client";
 import { useAtom } from "jotai";
+import Link from "next/link";
 import { ChangeEvent } from "react";
 import { MdOutlineClose } from "react-icons/md";
 
@@ -104,9 +105,9 @@ export default function SettingPage() {
           </div>
         </form>
       </div>
-      <div className="pl-10 text-xl">
+      <Link className="pl-10 text-xl" href="/">
         <MdOutlineClose />
-      </div>
+      </Link>
     </div>
   );
 }
