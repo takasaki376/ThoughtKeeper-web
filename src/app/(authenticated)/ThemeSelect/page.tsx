@@ -2,11 +2,11 @@
 import { useAtom } from "jotai";
 import Link from "next/link";
 
-import { theme } from "@/mock/theme";
-import { countTheme } from "@/store/setting";
+import { countTheme, themeAtom } from "@/store/setting";
 
 export default async function ThemeSelectPage() {
   const [count] = useAtom(countTheme);
+  const [theme] = useAtom(themeAtom);
 
   const selected = randomSelect(theme.slice(), count);
 
