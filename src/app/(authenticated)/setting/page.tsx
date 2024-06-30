@@ -1,19 +1,29 @@
 "use client";
-import { atom, useAtom } from "jotai";
+import { useAtom } from "jotai";
+import { ChangeEvent } from "react";
 import { MdOutlineClose } from "react-icons/md";
 
-export default function SettingPage() {
-  const countTheme = atom("10");
-  const countTime = atom("60");
-  const initialText = atom("");
+import { countTheme, countTime, initialText } from "@/store/setting";
 
+export default function SettingPage() {
   const InputTargetCount = () => {
     const [count, setCount] = useAtom(countTheme);
+    const onCountChange = (inputCount: ChangeEvent<HTMLInputElement>) => {
+      const count = inputCount.target.value;
+      const isNaN = Number.isNaN(count);
+      if (isNaN) {
+        return;
+      } else {
+        setCount(Number(count));
+      }
+    };
+
     return (
       <input
+        placeholder="テーマの数を入力してください"
         className="mr-2 block w-full bg-lightGray p-1 focus:bg-white"
         value={count}
-        onChange={(e) => setCount(e.target.value)}
+        onChange={(e) => onCountChange(e)}
       />
     );
   };
@@ -22,6 +32,7 @@ export default function SettingPage() {
     const [time, setTime] = useAtom(countTime);
     return (
       <input
+        placeholder="テーマに対する入力時間を指定してください"
         className="mr-2 block w-full bg-lightGray p-1 focus:bg-white"
         value={time}
         onChange={(e) => setTime(e.target.value)}
@@ -32,6 +43,7 @@ export default function SettingPage() {
     const [text, setText] = useAtom(initialText);
     return (
       <textarea
+        placeholder="テーマのデフォルト値"
         className="mr-2 block w-full bg-lightGray p-1 focus:bg-white"
         value={text}
         onChange={(e) => setText(e.target.value)}

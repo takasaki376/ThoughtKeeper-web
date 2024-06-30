@@ -1,10 +1,14 @@
+"use client";
+import { useAtom } from "jotai";
 import Link from "next/link";
 
 import { theme } from "@/mock/theme";
+import { countTheme } from "@/store/setting";
 
 export default async function ThemeSelectPage() {
+  const [count] = useAtom(countTheme);
 
-  const selected = randomSelect(theme.slice(), 10);
+  const selected = randomSelect(theme.slice(), count);
 
   // 配列themeからランダムにnum個の要素を取り出す
   function randomSelect(theme: any, num: number) {
@@ -23,6 +27,7 @@ export default async function ThemeSelectPage() {
   }
   return (
     <div className="">
+      <div>テーマ数：{count}</div>
       <ul className="mx-auto w-full flex-col items-center justify-center p-3">
         {selected.map((item) => {
           return (
@@ -40,4 +45,4 @@ export default async function ThemeSelectPage() {
       </ul>
     </div>
   );
-};
+}
