@@ -32,7 +32,7 @@ export default async function ThemeSelectPage() {
         {selected.map((item) => {
           return (
             <Link
-              href="/MemoEditor"
+              href={`/MemoEditor/${item.theme}`}
               className="flex w-full items-center justify-center p-3"
               key={item.theme}
             >
