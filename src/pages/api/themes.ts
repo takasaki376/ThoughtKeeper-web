@@ -1,5 +1,3 @@
-// src/pages/api/themes.ts
-
 import { supabase } from "@/utils/supabaseClient";
 
 export const getThemes = async () => {
