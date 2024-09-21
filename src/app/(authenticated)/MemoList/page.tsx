@@ -1,13 +1,16 @@
 import Link from "next/link";
 
 import { getThemes } from "@/pages/api/themes";
-import { Memo } from "@/types/memo";
 
-const PostList = ({ memos }: { memos: Memo[] }) => {
+const PostList = ({
+  memos,
+}: {
+  memos: { id: string; title: string; theme: string }[];
+}) => {
   return (
     <div className="px-12">
-      {memos.map((memo, index) => (
-        <div className="line-clamp-1" key={index}>
+      {memos.map((memo) => (
+        <div className="line-clamp-1" key={memo.id}>
           <Link href={`/MemoViewer/${memo.id}`}>{memo.theme}</Link>
         </div>
       ))}
@@ -20,7 +23,7 @@ export default async function Home() {
 
   return (
     <div>
-      <h1>無限スクロールのデモ</h1>
+      <h1>Supabaseからデータを表示</h1>
       <PostList memos={themes} />
     </div>
   );
