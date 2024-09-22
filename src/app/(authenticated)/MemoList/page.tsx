@@ -1,31 +1,30 @@
-// pages/index.tsx
-
 import Link from "next/link";
 
-import { memos } from "@/pages/api/memos";
-import { Memo } from "@/types/memo";
+import { getThemes } from "@/pages/api/themes";
 
-const PostList = ({ memos }: { memos: Memo[] }) => {
-  if (memos) {
-    return (
-      <div className="px-12">
-        {memos.map((memo, index) => (
-          <div className="line-clamp-1" key={index}>
-            <Link href={`/MemoViewer/${memo.id}`}>{memo.theme}</Link>
-          </div>
-        ))}
-      </div>
-    );
-  } else {
-    return null;
-  }
+const PostList = ({
+  memos,
+}: {
+  memos: { id: string; title: string; theme: string }[];
+}) => {
+  return (
+    <div className="px-12">
+      {memos.map((memo) => (
+        <div className="line-clamp-1" key={memo.id}>
+          <Link href={`/MemoViewer/${memo.id}`}>{memo.theme}</Link>
+        </div>
+      ))}
+    </div>
+  );
 };
 
 export default async function Home() {
+  const themes = await getThemes(); // Supabaseからデータを取得
+
   return (
     <div>
-      <h1>無限スクロールのデモ</h1>
-      <PostList memos={memos} />
+      <h1>Supabaseからデータを表示</h1>
+      <PostList memos={themes} />
     </div>
   );
 }
