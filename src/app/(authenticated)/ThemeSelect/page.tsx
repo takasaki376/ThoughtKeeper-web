@@ -1,14 +1,17 @@
 "use client";
-import { useAtom } from "jotai";
 import Link from "next/link";
 
-import { countTheme, themeAtom } from "@/store/setting";
+import { getThemes } from "@/pages/api/themes";
+import { themes } from "@/types/database";
 
 export default async function ThemeSelectPage() {
-  const [count] = useAtom(countTheme);
-  const [theme] = useAtom(themeAtom);
+  // const [count] = useAtom(countTheme);
+  // const [theme] = useAtom(themeAtom);
+  const theme = (await getThemes()) as themes; // Supabaseからデータを取得
+  const count = theme.length;
+  console.log(theme[0]);
 
-  const selected = randomSelect(theme.slice(), count);
+  const selected = randomSelect(theme.slice(), 10);
 
   // 配列themeからランダムにnum個の要素を取り出す
   function randomSelect(theme: any, num: number) {
