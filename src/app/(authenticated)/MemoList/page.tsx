@@ -1,35 +1,20 @@
-"use client";
-import Link from "next/link";
-
+// サーバーコンポーネントでデータ取得を行う
 import { getThemes } from "@/pages/api/themes";
 import { themes } from "@/types/database";
 
-const PostList = ({
-  memos,
-}: {
-  memos: { id: string; title: string; theme: string }[];
-}) => {
-  return (
-    <div className="px-12">
-      {memos.map((memo) => (
-        <div className="line-clamp-1" key={memo.id}>
-          <Link href={`/MemoViewer/${memo.id}`}>
-            {memo.title}：{memo.theme}
-          </Link>
-        </div>
-      ))}
-    </div>
-  );
-};
+import MemoListPageClient from "./MemoListPageClient";
 
 export default async function MemoListPage() {
   const theme = (await getThemes()) as themes; // Supabaseからデータを取得
+
   const count = theme.length;
-  return (
-    <div>
-      <h1>Supabaseからデータを表示</h1>
-      <div>テーマ数：{count}</div>
-      <PostList memos={theme} />
-    </div>
-  );
+
+  console.log("Server-side fetched themes:", theme); // サーバー側でデータをログ出力
+
+  if (!theme) {
+    console.error("No themes fetched or empty theme list.");
+    return <div>Error: No themes available</div>;
+  }
+
+  return <MemoListPageClient memos={theme} count={count} />;
 }
