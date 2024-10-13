@@ -5,7 +5,7 @@ import { useGetThemes } from "@/hooks/useGetThemes";
 
 import MemoListPageClient from "./MemoListPageClient";
 
-export default async function MemoListPage() {
+export default function MemoListPage() {
   const { error, loading, themes } = useGetThemes(); // フックを使用してデータを取得
 
   if (loading) {
