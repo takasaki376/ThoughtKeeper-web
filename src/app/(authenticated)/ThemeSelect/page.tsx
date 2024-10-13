@@ -1,16 +1,24 @@
 "use client";
-import { useAtom } from "jotai";
 import Link from "next/link";
 
-import { countTheme, themeAtom } from "@/store/setting";
+import { Loader } from "@/component/Loader";
+import { useGetThemes } from "@/hooks/useGetThemes";
 
-export default async function ThemeSelectPage() {
-  const [count] = useAtom(countTheme);
-  const [theme] = useAtom(themeAtom);
+export default function ThemeSelectPage() {
+  const { error, loading, themes } = useGetThemes(); // フックを使用してデータを取得
 
-  const selected = randomSelect(theme.slice(), count);
+  if (loading) {
+    return <Loader />;
+  }
 
-  // 配列themeからランダムにnum個の要素を取り出す
+  if (error) {
+    return <div>{error}</div>;
+  }
+
+  const count = themes.length;
+  const selected = randomSelect(themes.slice(), 10);
+
+  // 配列themesからランダムにnum個の要素を取り出す
   function randomSelect(theme: any, num: number) {
     const newTheme = [];
 
@@ -25,6 +33,7 @@ export default async function ThemeSelectPage() {
 
     return newTheme;
   }
+
   return (
     <div className="">
       <div>テーマ数：{count}</div>

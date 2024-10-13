@@ -1,31 +1,19 @@
-// pages/index.tsx
+"use client";
 
-import Link from "next/link";
+import { Loader } from "@/component/Loader";
+import { useGetThemes } from "@/hooks/useGetThemes";
 
-import { memos } from "@/pages/api/memos";
-import { Memo } from "@/types/memo";
+import MemoListPageClient from "./MemoListPageClient";
 
-const PostList = ({ memos }: { memos: Memo[] }) => {
-  if (memos) {
-    return (
-      <div className="px-12">
-        {memos.map((memo, index) => (
-          <div className="line-clamp-1" key={index}>
-            <Link href={`/MemoViewer/${memo.id}`}>{memo.theme}</Link>
-          </div>
-        ))}
-      </div>
-    );
-  } else {
-    return null;
+export default function MemoListPage() {
+  const { error, loading, themes } = useGetThemes(); // フックを使用してデータを取得
+
+  if (loading) {
+    return <Loader />;
   }
-};
+  if (error) {
+    return <div>{error}</div>;
+  }
 
-export default async function Home() {
-  return (
-    <div>
-      <h1>無限スクロールのデモ</h1>
-      <PostList memos={memos} />
-    </div>
-  );
+  return <MemoListPageClient memos={themes} count={themes.length} />;
 }

@@ -175,6 +175,7 @@ url = ""
 # If enabled, the nonce check will be skipped. Required for local sign in with Google auth.
 skip_nonce_check = false
 
+
 [edge_runtime]
 enabled = true
 # Configure one of the supported request policies: `oneshot`, `per_worker`.
