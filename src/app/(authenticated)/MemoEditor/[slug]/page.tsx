@@ -1,21 +1,25 @@
 "use client";
-import { usePathname } from "next/navigation";
+import { useAtomValue } from "jotai"; // useAtomValueをインポート
 
 import { Tiptap } from "@/component/TipTap";
+import { themeAtom } from "@/store/setting"; // themeAtomをインポート
 
-export default async function MemoEditorIndividualPage() {
-  const pathname = usePathname();
-  if (pathname === null) {
-    throw new Error("this path must not be reached");
-  }
-  const replacedText = pathname.replace("/MemoEditor/", "");
-
-  const decodedTheme = decodeURI(replacedText);
+export default function MemoEditorIndividualPage() {
+  const themes = useAtomValue(themeAtom); // themeAtomの値を取得
 
   return (
     <>
-      <div className="flex justify-center pt-5">テーマ：{decodedTheme}</div>
-      <Tiptap />;
+      <div className="flex flex-col items-center justify-center pt-5">
+        テーマ
+        {themes.map((theme) => {
+          return (
+            <div className="flex flex-col" key={theme.id}>
+              {theme.title}: {theme.theme}
+            </div>
+          );
+        })}
+      </div>
+      <Tiptap />
     </>
   );
 }
