@@ -1,19 +1,24 @@
 "use client";
 import Link from "next/link";
 
-import { getThemes } from "@/pages/api/themes";
-import { themes } from "@/types/database";
+import { Loader } from "@/component/Loader";
+import { useGetThemes } from "@/hooks/useGetThemes";
 
-export default async function ThemeSelectPage() {
-  // const [count] = useAtom(countTheme);
-  // const [theme] = useAtom(themeAtom);
-  const theme = (await getThemes()) as themes; // Supabaseからデータを取得
-  const count = theme.length;
-  console.log(theme[0]);
+export default function ThemeSelectPage() {
+  const { error, loading, themes } = useGetThemes(); // フックを使用してデータを取得
 
-  const selected = randomSelect(theme.slice(), 10);
+  if (loading) {
+    return <Loader />;
+  }
 
-  // 配列themeからランダムにnum個の要素を取り出す
+  if (error) {
+    return <div>{error}</div>;
+  }
+
+  const count = themes.length;
+  const selected = randomSelect(themes.slice(), 10);
+
+  // 配列themesからランダムにnum個の要素を取り出す
   function randomSelect(theme: any, num: number) {
     const newTheme = [];
 
@@ -28,6 +33,7 @@ export default async function ThemeSelectPage() {
 
     return newTheme;
   }
+
   return (
     <div className="">
       <div>テーマ数：{count}</div>
