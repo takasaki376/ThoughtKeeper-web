@@ -1,16 +1,37 @@
 "use client";
-import { useSetAtom } from "jotai"; // jotaiのuseSetAtomをインポート
-import { useRouter } from "next/navigation"; // useRouterをインポート
+import { useSetAtom } from "jotai";
+import { useRouter } from "next/navigation";
+import { useEffect, useState } from "react";
 
 import { Loader } from "@/component/Loader";
 import { useGetThemes } from "@/hooks/useGetThemes";
 import { setThemeAtom } from "@/store/setting";
 
+interface Theme {
+  id: string;
+  title: string;
+  theme: string;
+}
+
 export default function ThemeSelectPage() {
   const ThemesToScribble = 10;
   const { error, loading, themes } = useGetThemes();
-  const setThemes = useSetAtom(setThemeAtom);
-  const router = useRouter(); // useRouterを使用してルーターを取得
+  const setThemes = useSetAtom(setThemeAtom); // jotaiのsetThemeAtomを使用
+  const router = useRouter();
+  const [selected, setSelected] = useState<Theme[]>([]); // 型をTheme[]に指定
+
+  useEffect(() => {
+    if (themes.length > 0) {
+      const selectedThemes = randomSelect(themes.slice(), ThemesToScribble);
+      setSelected(selectedThemes); // 型が一致しているためエラーが解消される
+    }
+  }, [themes]);
+
+  useEffect(() => {
+    if (selected.length > 0) {
+      setThemes(selected);
+    }
+  }, [selected, setThemes]);
 
   if (loading) {
     return <Loader />;
@@ -20,12 +41,7 @@ export default function ThemeSelectPage() {
     return <div>{error}</div>;
   }
 
-  const selected = randomSelect(themes.slice(), ThemesToScribble);
-
-  // 選択されたテーマを保存
-  setThemes(selected);
-
-  function randomSelect(theme: any, num: number) {
+  function randomSelect(theme: Theme[], num: number): Theme[] {
     const newTheme = [];
     while (newTheme.length < num && theme.length > 0) {
       const rand = Math.floor(Math.random() * theme.length);
@@ -35,9 +51,8 @@ export default function ThemeSelectPage() {
     return newTheme;
   }
 
-  // スタートボタンをクリックしたときにメモ入力画面へ遷移
   const handleStart = () => {
-    router.push("/MemoEditor"); // 遷移先のパスに応じて修正
+    router.push("/MemoEditor");
   };
 
   return (
@@ -50,7 +65,7 @@ export default function ThemeSelectPage() {
         {selected.map((item) => {
           return (
             <li key={item.id} className="grid grid-cols-3 gap-3">
-              <p className="text-right">【{item.title}】</p>{" "}
+              <p className="text-right">【{item.title}】</p>
               <p className="col-span-2">{item.theme}</p>
             </li>
           );
@@ -58,8 +73,8 @@ export default function ThemeSelectPage() {
       </ul>
       <div className="mt-4 flex justify-center">
         <button
-          className="flex justify-center rounded border bg-yellow-700 px-4 py-2 font-bold text-white shadow hover:bg-yellow-500 focus:outline-none"
-          onClick={handleStart} // ボタンをクリックしたときにページ遷移
+          className="rounded border bg-yellow-700 px-4 py-2 font-bold text-white shadow hover:bg-yellow-500"
+          onClick={handleStart}
         >
           スタート
         </button>
