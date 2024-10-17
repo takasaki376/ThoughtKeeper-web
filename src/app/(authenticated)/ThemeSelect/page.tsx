@@ -7,7 +7,7 @@ import { useGetThemes } from "@/hooks/useGetThemes";
 import { setThemeAtom } from "@/store/setting"; // setThemeAtomをインポート
 
 export default function ThemeSelectPage() {
-  const ThemesToScribble = 5;
+  const ThemesToScribble = 10;
   const { error, loading, themes } = useGetThemes();
   const setThemes = useSetAtom(setThemeAtom); // setThemeAtomを使用
 
