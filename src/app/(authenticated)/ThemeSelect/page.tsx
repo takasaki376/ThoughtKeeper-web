@@ -39,11 +39,12 @@ export default function ThemeSelectPage() {
         <p>今日のテーマ</p>
         <p>テーマ数：{ThemesToScribble}</p>
       </div>
-      <ul className="mx-auto w-full flex-col items-center justify-center p-3">
+      <ul className="p-3">
         {selected.map((item) => {
           return (
-            <li key={item.id}>
-              【{item.title}】 {item.theme}
+            <li key={item.id} className="grid grid-cols-3 gap-3">
+              <p className="text-right">【{item.title}】</p>{" "}
+              <p className="col-span-2">{item.theme}</p>
             </li>
           );
         })}
