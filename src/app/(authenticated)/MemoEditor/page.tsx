@@ -10,18 +10,26 @@ export default function MemoEditorPage() {
   const themes = useAtomValue(themeAtom); // themeAtomの値を取得
   const [currentThemeIndex, setCurrentThemeIndex] = useState(0); // 現在表示するテーマのインデックス
   const [currentTheme, setCurrentTheme] = useState(themes[0]); // 現在表示されているテーマ
+  const [remainingTime, setRemainingTime] = useState(60); // 残り時間を60秒に設定
 
   useEffect(() => {
-    // 60秒ごとにテーマを切り替える
-    const intervalId = setInterval(() => {
-      setCurrentThemeIndex((prevIndex) => {
-        const nextIndex = (prevIndex + 1) % themes.length; // インデックスを循環させる
-        setCurrentTheme(themes[nextIndex]); // 次のテーマをセット
-        return nextIndex;
+    // 1秒ごとに残り時間をカウントダウン
+    const timerId = setInterval(() => {
+      setRemainingTime((prevTime) => {
+        if (prevTime === 1) {
+          // 残り時間が0になったら次のテーマに切り替える
+          setCurrentThemeIndex((prevIndex) => {
+            const nextIndex = (prevIndex + 1) % themes.length; // インデックスを循環させる
+            setCurrentTheme(themes[nextIndex]); // 次のテーマをセット
+            return nextIndex;
+          });
+          return 60; // 残り時間を60秒にリセット
+        }
+        return prevTime - 1; // 残り時間を1秒減らす
       });
-    }, 60000); // 60000ms = 60秒
+    }, 1000); // 1000ms = 1秒
 
-    return () => clearInterval(intervalId); // クリーンアップでインターバルをクリア
+    return () => clearInterval(timerId); // クリーンアップでインターバルをクリア
   }, [themes]);
 
   return (
@@ -31,6 +39,8 @@ export default function MemoEditorPage() {
         {currentTheme && (
           <div>
             <p className="text-lg font-bold">{currentTheme.theme}</p>
+            <p className="text-right text-sm">{remainingTime} 秒</p>{" "}
+            {/* 残り秒数を表示 */}
           </div>
         )}
       </div>
