@@ -1,11 +1,11 @@
 "use client";
-import { useSetAtom } from "jotai";
+import { useAtomValue, useSetAtom } from "jotai";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 
 import { Loader } from "@/component/Loader";
 import { useGetThemes } from "@/hooks/useGetThemes";
-import { setThemeAtom } from "@/store/setting";
+import { countTheme, setThemeAtom } from "@/store/setting";
 
 interface Theme {
   id: string;
@@ -14,18 +14,18 @@ interface Theme {
 }
 
 export default function ThemeSelectPage() {
-  const ThemesToScribble = 10;
+  const ThemesToScribble = useAtomValue(countTheme); // 設定されたテーマ数を取得
   const { error, loading, themes } = useGetThemes();
-  const setThemes = useSetAtom(setThemeAtom); // jotaiのsetThemeAtomを使用
+  const setThemes = useSetAtom(setThemeAtom);
   const router = useRouter();
-  const [selected, setSelected] = useState<Theme[]>([]); // 型をTheme[]に指定
+  const [selected, setSelected] = useState<Theme[]>([]);
 
   useEffect(() => {
     if (themes.length > 0) {
       const selectedThemes = randomSelect(themes.slice(), ThemesToScribble);
-      setSelected(selectedThemes); // 型が一致しているためエラーが解消される
+      setSelected(selectedThemes);
     }
-  }, [themes]);
+  }, [themes, ThemesToScribble]);
 
   useEffect(() => {
     if (selected.length > 0) {

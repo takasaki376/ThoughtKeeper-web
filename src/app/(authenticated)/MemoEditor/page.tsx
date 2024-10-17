@@ -4,13 +4,15 @@ import { useAtomValue } from "jotai";
 import { useEffect, useState } from "react";
 
 import { Tiptap } from "@/component/TipTap";
-import { themeAtom } from "@/store/setting";
+import { countTime, themeAtom } from "@/store/setting";
 
 export default function MemoEditorPage() {
-  const themes = useAtomValue(themeAtom); // themeAtomの値を取得
+  const themes = useAtomValue(themeAtom); // テーマのリストを取得
+  const themeTime = useAtomValue(countTime); // 設定されたカウントダウン時間を取得
+
   const [currentThemeIndex, setCurrentThemeIndex] = useState(0); // 現在表示するテーマのインデックス
   const [currentTheme, setCurrentTheme] = useState(themes[0]); // 現在表示されているテーマ
-  const [remainingTime, setRemainingTime] = useState(60); // 残り時間を60秒に設定
+  const [remainingTime, setRemainingTime] = useState(Number(themeTime)); // 残り時間を設定された値に設定
 
   useEffect(() => {
     // 1秒ごとに残り時間をカウントダウン
@@ -23,14 +25,14 @@ export default function MemoEditorPage() {
             setCurrentTheme(themes[nextIndex]); // 次のテーマをセット
             return nextIndex;
           });
-          return 60; // 残り時間を60秒にリセット
+          return Number(themeTime); // 残り時間を設定された時間にリセット
         }
         return prevTime - 1; // 残り時間を1秒減らす
       });
-    }, 1000); // 1000ms = 1秒
+    }, 1000); // 1秒ごとにカウントダウン
 
     return () => clearInterval(timerId); // クリーンアップでインターバルをクリア
-  }, [themes]);
+  }, [themes, themeTime]);
 
   return (
     <>
@@ -39,7 +41,7 @@ export default function MemoEditorPage() {
         {currentTheme && (
           <div>
             <p className="text-lg font-bold">{currentTheme.theme}</p>
-            <p className="text-right text-sm">{remainingTime} 秒</p>{" "}
+            <p className="text-right text-sm"> {remainingTime} 秒</p>{" "}
             {/* 残り秒数を表示 */}
           </div>
         )}
