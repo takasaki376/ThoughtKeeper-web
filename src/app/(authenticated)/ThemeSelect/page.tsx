@@ -1,14 +1,16 @@
 "use client";
 import { useSetAtom } from "jotai"; // jotaiのuseSetAtomをインポート
+import { useRouter } from "next/navigation"; // useRouterをインポート
 
 import { Loader } from "@/component/Loader";
 import { useGetThemes } from "@/hooks/useGetThemes";
-import { setThemeAtom } from "@/store/setting"; // setThemeAtomをインポート
+import { setThemeAtom } from "@/store/setting";
 
 export default function ThemeSelectPage() {
   const ThemesToScribble = 10;
   const { error, loading, themes } = useGetThemes();
-  const setThemes = useSetAtom(setThemeAtom); // setThemeAtomを使用
+  const setThemes = useSetAtom(setThemeAtom);
+  const router = useRouter(); // useRouterを使用してルーターを取得
 
   if (loading) {
     return <Loader />;
@@ -33,6 +35,11 @@ export default function ThemeSelectPage() {
     return newTheme;
   }
 
+  // スタートボタンをクリックしたときにメモ入力画面へ遷移
+  const handleStart = () => {
+    router.push("/MemoEditor"); // 遷移先のパスに応じて修正
+  };
+
   return (
     <div className="">
       <div className="my-3 flex justify-around">
@@ -49,6 +56,14 @@ export default function ThemeSelectPage() {
           );
         })}
       </ul>
+      <div className="mt-4 flex justify-center">
+        <button
+          className="flex justify-center rounded border bg-yellow-700 px-4 py-2 font-bold text-white shadow hover:bg-yellow-500 focus:outline-none"
+          onClick={handleStart} // ボタンをクリックしたときにページ遷移
+        >
+          スタート
+        </button>
+      </div>
     </div>
   );
 }
