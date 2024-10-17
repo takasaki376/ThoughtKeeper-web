@@ -1,6 +1,5 @@
 "use client";
 import { useSetAtom } from "jotai"; // jotaiのuseSetAtomをインポート
-import Link from "next/link";
 
 import { Loader } from "@/component/Loader";
 import { useGetThemes } from "@/hooks/useGetThemes";
@@ -43,15 +42,9 @@ export default function ThemeSelectPage() {
       <ul className="mx-auto w-full flex-col items-center justify-center p-3">
         {selected.map((item) => {
           return (
-            <Link
-              href={`/MemoEditor/${item.theme}`}
-              className="flex w-full items-center justify-center p-3"
-              key={item.theme}
-            >
-              <li>
-                【{item.title}】 {item.theme}
-              </li>
-            </Link>
+            <li key={item.id}>
+              【{item.title}】 {item.theme}
+            </li>
           );
         })}
       </ul>
