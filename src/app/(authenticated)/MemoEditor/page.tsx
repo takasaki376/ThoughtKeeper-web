@@ -37,14 +37,30 @@ export default function MemoEditorPage() {
   return (
     <>
       <div className="flex flex-col items-center justify-center pt-5">
-        <h2 className="py-5">テーマ</h2>
-        {currentTheme && (
-          <div>
-            <p className="text-lg font-bold">{currentTheme.theme}</p>
-            <p className="text-right text-sm"> {remainingTime} 秒</p>{" "}
-            {/* 残り秒数を表示 */}
+        <h2>テーマ</h2>
+        <div className="flex flex-row items-baseline justify-center">
+          {/* 全テーマを小さい文字で表示 */}
+          <div className="mb-4 text-sm text-lightGray">
+            {themes.map((theme, index) => (
+              <p
+                key={index}
+                className={`${
+                  index === currentThemeIndex
+                    ? "text-base font-semibold text-yellow-700"
+                    : "text-sm"
+                }`} // 現在のテーマは大きく、色を変更
+              >
+                {theme.theme}
+              </p>
+            ))}
           </div>
-        )}
+          <div className="">
+            <p className="text-sm">
+              残り {currentThemeIndex + 1}/{themes.length} 個
+            </p>
+            <p className="text-right text-sm"> {remainingTime} 秒</p>
+          </div>
+        </div>
       </div>
       <Tiptap />
     </>
