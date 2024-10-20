@@ -1,8 +1,5 @@
 "use client"
 import BulletList from "@tiptap/extension-bullet-list";
-import Document from "@tiptap/extension-document";
-import TaskItem from "@tiptap/extension-task-item";
-import TaskList from "@tiptap/extension-task-list";
 import { EditorContent, useEditor } from "@tiptap/react";
 import StarterKit from "@tiptap/starter-kit";
 
@@ -18,15 +15,7 @@ export const Tiptap = () => {
         class: "m-5 focus:outline-none",
       },
     },
-    extensions: [
-      StarterKit,
-      Document,
-      TaskList,
-      TaskItem.configure({
-        nested: true,
-      }),
-      BulletList,
-    ],
+    extensions: [StarterKit, BulletList],
   });
 
   if (!editor) {
