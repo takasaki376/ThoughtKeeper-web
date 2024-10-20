@@ -1,11 +1,37 @@
 "use client";
-import Link from "next/link";
+import { useAtomValue, useSetAtom } from "jotai";
+import { useRouter } from "next/navigation";
+import { useEffect, useState } from "react";
 
 import { Loader } from "@/component/Loader";
 import { useGetThemes } from "@/hooks/useGetThemes";
+import { countTheme, setThemeAtom } from "@/store/setting";
+
+interface Theme {
+  id: string;
+  title: string;
+  theme: string;
+}
 
 export default function ThemeSelectPage() {
-  const { error, loading, themes } = useGetThemes(); // フックを使用してデータを取得
+  const ThemesToScribble = useAtomValue(countTheme); // 設定されたテーマ数を取得
+  const { error, loading, themes } = useGetThemes();
+  const setThemes = useSetAtom(setThemeAtom);
+  const router = useRouter();
+  const [selected, setSelected] = useState<Theme[]>([]);
+
+  useEffect(() => {
+    if (themes.length > 0) {
+      const selectedThemes = randomSelect(themes.slice(), ThemesToScribble);
+      setSelected(selectedThemes);
+    }
+  }, [themes, ThemesToScribble]);
+
+  useEffect(() => {
+    if (selected.length > 0) {
+      setThemes(selected);
+    }
+  }, [selected, setThemes]);
 
   if (loading) {
     return <Loader />;
@@ -15,43 +41,44 @@ export default function ThemeSelectPage() {
     return <div>{error}</div>;
   }
 
-  const count = themes.length;
-  const selected = randomSelect(themes.slice(), 10);
-
-  // 配列themesからランダムにnum個の要素を取り出す
-  function randomSelect(theme: any, num: number) {
+  function randomSelect(theme: Theme[], num: number): Theme[] {
     const newTheme = [];
-
     while (newTheme.length < num && theme.length > 0) {
-      // 配列からランダムな要素を選ぶ
       const rand = Math.floor(Math.random() * theme.length);
-      // 選んだ要素を別の配列に登録する
       newTheme.push(theme[rand]);
-      // もとの配列からは削除する
       theme.splice(rand, 1);
     }
-
     return newTheme;
   }
 
+  const handleStart = () => {
+    router.push("/MemoEditor");
+  };
+
   return (
     <div className="">
-      <div>テーマ数：{count}</div>
-      <ul className="mx-auto w-full flex-col items-center justify-center p-3">
+      <div className="my-3 flex justify-around">
+        <p>今日のテーマ</p>
+        <p>テーマ数：{ThemesToScribble}</p>
+      </div>
+      <ul className="p-3">
         {selected.map((item) => {
           return (
-            <Link
-              href={`/MemoEditor/${item.theme}`}
-              className="flex w-full items-center justify-center p-3"
-              key={item.theme}
-            >
-              <li>
-                【{item.title}】 {item.theme}
-              </li>
-            </Link>
+            <li key={item.id} className="grid grid-cols-3 gap-3">
+              <p className="text-right">【{item.title}】</p>
+              <p className="col-span-2">{item.theme}</p>
+            </li>
           );
         })}
       </ul>
+      <div className="mt-4 flex justify-center">
+        <button
+          className="rounded border bg-yellow-700 px-4 py-2 font-bold text-white shadow hover:bg-yellow-500"
+          onClick={handleStart}
+        >
+          スタート
+        </button>
+      </div>
     </div>
   );
 }
