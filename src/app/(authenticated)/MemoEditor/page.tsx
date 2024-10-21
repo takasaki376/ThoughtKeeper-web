@@ -1,12 +1,14 @@
 /* eslint-disable no-unused-vars */
 "use client";
 import { useAtomValue, useSetAtom } from "jotai";
+import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 
 import { Tiptap } from "@/component/TipTap";
 import { countTime, memoListAtom, themeAtom } from "@/store/setting";
 
 export default function MemoEditorPage() {
+  const router = useRouter(); // useRouterを初期化
   const themes = useAtomValue(themeAtom); // テーマのリストを取得
   const themeTime = useAtomValue(countTime); // 設定されたカウントダウン時間を取得
 
@@ -43,6 +45,11 @@ export default function MemoEditorPage() {
 
             // 入力フィールドをクリア
             setInputContent("");
+
+            // 全テーマを一巡したらページ遷移
+            if (nextIndex === 0) {
+              router.push("/MemoList"); // ページ遷移
+            }
             return nextIndex;
           });
           return Number(themeTime); // 残り時間を設定された時間にリセット
