@@ -1,26 +1,38 @@
-"use client"
+"use client";
 import BulletList from "@tiptap/extension-bullet-list";
+import ListItem from "@tiptap/extension-list-item";
 import { EditorContent, useEditor } from "@tiptap/react";
 import StarterKit from "@tiptap/starter-kit";
+import { useEffect } from "react";
 
-export const Tiptap = () => {
+interface TiptapProps {
+  onChange: (value: string) => void;
+  value: string;
+}
+
+export const Tiptap = ({ onChange, value }: TiptapProps) => {
   const editor = useEditor({
-    content: `
+    content:
+      value ||
+      `
       <ul>
         <li></li>
       </ul>
-    `,
-    editorProps: {
-      attributes: {
-        class: "m-5 focus:outline-none",
-      },
+    `, // 初期コンテンツとして箇条書きを設定
+    extensions: [StarterKit, BulletList, ListItem],
+    onUpdate: ({ editor }) => {
+      // エディタの内容が更新されたときに呼ばれる
+      const updatedContent = editor.getHTML();
+      onChange(updatedContent);
     },
-    extensions: [StarterKit, BulletList],
   });
 
-  if (!editor) {
-    return null;
-  }
+  // 外部から `value` が変更された場合にエディタ内容を更新する
+  useEffect(() => {
+    if (editor && editor.getHTML() !== value) {
+      editor.commands.setContent(value);
+    }
+  }, [value, editor]);
 
   return (
     <div className="mx-auto mt-10 w-2/3 border-2">

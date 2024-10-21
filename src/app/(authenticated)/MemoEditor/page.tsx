@@ -1,19 +1,22 @@
 /* eslint-disable no-unused-vars */
 "use client";
-import { useAtomValue } from "jotai";
+import { useAtomValue, useSetAtom } from "jotai";
 import { useEffect, useState } from "react";
 
 import { Tiptap } from "@/component/TipTap";
-import { countTime, themeAtom } from "@/store/setting";
+import { countTime, memoListAtom, themeAtom } from "@/store/setting";
 
 export default function MemoEditorPage() {
   const themes = useAtomValue(themeAtom); // テーマのリストを取得
   const themeTime = useAtomValue(countTime); // 設定されたカウントダウン時間を取得
 
   const [currentThemeIndex, setCurrentThemeIndex] = useState(0); // 現在表示するテーマのインデックス
-  const [currentTheme, setCurrentTheme] = useState(themes[0]); // 現在表示されているテーマ
+  const [currentTheme, setCurrentTheme] = useState(themes[0] || null); // 初期値として最初のテーマを設定、テーマがない場合はnull
   const [remainingTime, setRemainingTime] = useState(Number(themeTime)); // 残り時間を設定された値に設定
+  const [inputContent, setInputContent] = useState(""); // ユーザーの入力内容を保持
+  const setMemoList = useSetAtom(memoListAtom); // メモリストを更新するためのJotai関数
 
+  // タイマー処理
   useEffect(() => {
     // 1秒ごとに残り時間をカウントダウン
     const timerId = setInterval(() => {
@@ -21,8 +24,25 @@ export default function MemoEditorPage() {
         if (prevTime === 1) {
           // 残り時間が0になったら次のテーマに切り替える
           setCurrentThemeIndex((prevIndex) => {
-            const nextIndex = (prevIndex + 1) % themes.length; // インデックスを循環させる
-            setCurrentTheme(themes[nextIndex]); // 次のテーマをセット
+            const nextIndex = (prevIndex + 1) % themes.length;
+            const nextTheme = themes[nextIndex];
+            setCurrentTheme(nextTheme);
+
+            // 現在のテーマが有効な場合のみメモを保存
+            if (currentTheme) {
+              const currentDate = new Date().toLocaleDateString(); // 現在の日付
+              setMemoList((prev) => [
+                ...prev,
+                {
+                  content: inputContent,
+                  date: currentDate,
+                  theme: currentTheme.theme, // 現在のテーマを保存
+                },
+              ]);
+            }
+
+            // 入力フィールドをクリア
+            setInputContent("");
             return nextIndex;
           });
           return Number(themeTime); // 残り時間を設定された時間にリセット
@@ -32,7 +52,7 @@ export default function MemoEditorPage() {
     }, 1000); // 1秒ごとにカウントダウン
 
     return () => clearInterval(timerId); // クリーンアップでインターバルをクリア
-  }, [themes, themeTime]);
+  }, [themes, themeTime, setMemoList, currentTheme, inputContent]);
 
   return (
     <>
@@ -54,15 +74,16 @@ export default function MemoEditorPage() {
               </p>
             ))}
           </div>
-          <div className="">
-            <p className="text-sm">
+          <div className="ml-3 text-sm">
+            <p>
               残り {currentThemeIndex + 1}/{themes.length} 個
             </p>
-            <p className="text-right text-sm"> {remainingTime} 秒</p>
+            <p className="text-right"> {remainingTime} 秒</p>
           </div>
         </div>
       </div>
-      <Tiptap />
+      <Tiptap value={inputContent} onChange={setInputContent} />
+      {/* Tiptapの内容を保持 */}
     </>
   );
 }
