@@ -11,23 +11,22 @@ interface TiptapProps {
 }
 
 export const Tiptap = ({ onChange, value }: TiptapProps) => {
-  const editor = useEditor({
-    content:
-      value ||
-      `
+  // value に箇条書きを代入
+  value = `
       <ul>
         <li></li>
       </ul>
-    `, // 初期コンテンツとして箇条書きを設定
+    `;
+  const editor = useEditor({
+    content: value, // 初期コンテンツを設定
+    editable: true, // エディタがすぐに入力可能
     extensions: [StarterKit, BulletList, ListItem],
     onUpdate: ({ editor }) => {
-      // エディタの内容が更新されたときに呼ばれる
       const updatedContent = editor.getHTML();
       onChange(updatedContent);
     },
   });
 
-  // 外部から `value` が変更された場合にエディタ内容を更新する
   useEffect(() => {
     if (editor && editor.getHTML() !== value) {
       editor.commands.setContent(value);
@@ -37,7 +36,8 @@ export const Tiptap = ({ onChange, value }: TiptapProps) => {
   return (
     <div className="mx-auto mt-10 w-2/3 border-2">
       <div className="mt-3 h-[70vh] overflow-hidden overflow-y-scroll p-3">
-        <EditorContent editor={editor} />
+        {/* エディタが設定されるまでは表示を一時停止する */}
+        {editor ? <EditorContent editor={editor} /> : <p>Loading...</p>}
       </div>
     </div>
   );
