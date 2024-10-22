@@ -33,12 +33,14 @@ export default function MemoEditorPage() {
             // 現在のテーマが有効な場合のみメモを保存
             if (currentTheme) {
               const currentDate = new Date().toLocaleDateString(); // 現在の日付
+              const currentTime = new Date().toLocaleTimeString(); // 現在の日付
               setMemoList((prev) => [
                 ...prev,
                 {
                   content: inputContent,
                   date: currentDate,
                   theme: currentTheme.theme, // 現在のテーマを保存
+                  time: currentTime,
                 },
               ]);
             }
@@ -59,7 +61,7 @@ export default function MemoEditorPage() {
     }, 1000); // 1秒ごとにカウントダウン
 
     return () => clearInterval(timerId); // クリーンアップでインターバルをクリア
-  }, [themes, themeTime, setMemoList, currentTheme, inputContent]);
+  }, [themes, themeTime, setMemoList, currentTheme, inputContent, router]);
 
   return (
     <>
