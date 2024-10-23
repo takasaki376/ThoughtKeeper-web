@@ -24,7 +24,7 @@ export default function MemoListPage() {
             </p>
             <p className="text-base font-semibold">テーマ: {memo.theme}</p>
             {/* HTMLタグを除去したメモの内容を表示 */}
-            <p>{stripHTML(memo.content)} / </p>
+            <p>{stripHTML(memo.content)}</p>
           </li>
         ))}
       </ul>
