@@ -39,6 +39,7 @@ export default function MemoEditorPage() {
                 time: currentTime,
               },
             ]);
+            console.log("Memo saved:", inputContent);
           }
 
           // 次のテーマに切り替える
@@ -86,7 +87,7 @@ export default function MemoEditorPage() {
                     : "text-sm"
                 }`}
               >
-                {theme.theme}
+                {theme.title} : {theme.theme}
               </p>
             ))}
           </div>
