@@ -18,16 +18,11 @@ export default function MemoEditorPage() {
   const setMemoList = useSetAtom(memoListAtom);
 
   useEffect(() => {
-    // タイマー処理
     const timerId = setInterval(() => {
       setRemainingTime((prevTime) => {
         if (prevTime === 1) {
-          // 残り時間が0になったら次のテーマに切り替え
-          const nextIndex = (currentThemeIndex + 1) % themes.length;
-          const nextTheme = themes[nextIndex];
-
           // メモを保存
-          if (currentTheme && inputContent) {
+          if (currentTheme && inputContent.trim()) {
             const currentDate = new Date().toLocaleDateString();
             const currentTime = new Date().toLocaleTimeString();
             setMemoList((prev) => [
@@ -42,26 +37,28 @@ export default function MemoEditorPage() {
             console.log("Memo saved:", inputContent);
           }
 
-          // 次のテーマに切り替える
-          setCurrentTheme(nextTheme);
-          setCurrentThemeIndex(nextIndex);
-
-          // 入力フィールドをクリア
-          setInputContent("");
+          // 次のテーマに切り替え
+          const nextIndex = (currentThemeIndex + 1) % themes.length;
 
           // 全テーマを一巡したらページ遷移
           if (nextIndex === 0) {
             router.push("/MemoList");
+          } else {
+            setCurrentTheme(themes[nextIndex]);
+            setCurrentThemeIndex(nextIndex);
           }
 
-          return Number(themeTime); // 残り時間をリセット
-        }
+          // 入力フィールドをクリア
+          setInputContent("");
 
-        return prevTime - 1;
+          // 残り時間をリセット
+          return Number(themeTime);
+        }
+        return prevTime - 1; // 時間を減少
       });
     }, 1000);
 
-    return () => clearInterval(timerId);
+    return () => clearInterval(timerId); // クリーンアップ処理
   }, [
     currentTheme,
     currentThemeIndex,
@@ -71,6 +68,12 @@ export default function MemoEditorPage() {
     router,
     setMemoList,
   ]);
+
+  useEffect(() => {
+    if (themes.length > 0) {
+      setCurrentTheme(themes[currentThemeIndex]);
+    }
+  }, [themes, currentThemeIndex]);
 
   return (
     <>
