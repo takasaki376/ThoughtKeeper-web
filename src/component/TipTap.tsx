@@ -11,12 +11,6 @@ interface TiptapProps {
 }
 
 export const Tiptap = ({ onChange, value }: TiptapProps) => {
-  // value に箇条書きを代入
-  value = `
-      <ul>
-        <li></li>
-      </ul>
-    `;
   const editor = useEditor({
     content: value, // 初期コンテンツを設定
     editable: true, // エディタがすぐに入力可能
@@ -28,7 +22,7 @@ export const Tiptap = ({ onChange, value }: TiptapProps) => {
   });
 
   useEffect(() => {
-    if (editor && editor.getHTML() !== value) {
+    if (editor && !editor.isDestroyed && editor.getHTML() !== value) {
       editor.commands.setContent(value);
     }
   }, [value, editor]);
