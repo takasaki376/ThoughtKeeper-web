@@ -3,10 +3,17 @@ import { useAtomValue } from "jotai";
 
 import { memoListAtom } from "@/store/setting";
 
-// HTMLタグを除去する関数
-const stripHTML = (html: string) => {
+// HTMLタグを除去し、改行を「/」で置き換える関数
+const formatContent = (html: string) => {
   const doc = new DOMParser().parseFromString(html, "text/html");
-  return doc.body.textContent || "";
+
+  // <p> タグを取り除いてテキストのみを抽出
+  const paragraphs = Array.from(doc.body.querySelectorAll("p"))
+    .map((p) => p.textContent || "")
+    .filter((line) => line.trim() !== "");
+
+  // 改行を「/」で結合
+  return paragraphs.join(" / ");
 };
 
 export default function MemoListPage() {
@@ -23,8 +30,8 @@ export default function MemoListPage() {
               日付: {memo.date}: {memo.time}
             </p>
             <p className="text-base font-semibold">テーマ: {memo.theme}</p>
-            {/* HTMLタグを除去したメモの内容を表示 */}
-            <p>{stripHTML(memo.content)}</p>
+            {/* メモの内容をフォーマットして表示 */}
+            <p>{formatContent(memo.content)}</p>
           </li>
         ))}
       </ul>
