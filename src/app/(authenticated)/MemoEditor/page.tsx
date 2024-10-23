@@ -21,59 +21,68 @@ export default function MemoEditorPage() {
     const timerId = setInterval(() => {
       setRemainingTime((prevTime) => {
         if (prevTime === 1) {
+          // 残り時間が0になったら次のテーマに切り替え
+          const nextIndex = (currentThemeIndex + 1) % themes.length;
+          const nextTheme = themes[nextIndex];
+
           // メモを保存
-          if (currentTheme && inputContent.trim()) {
+          if (currentTheme && inputContent) {
             const currentDate = new Date().toLocaleDateString();
             const currentTime = new Date().toLocaleTimeString();
-            setMemoList((prev) => [
-              ...prev,
-              {
-                content: inputContent,
-                date: currentDate,
-                theme: currentTheme.theme,
-                time: currentTime,
-              },
-            ]);
-            console.log("Memo saved:", inputContent);
+
+            // メモの重複を確認
+            setMemoList((prev) => {
+              const isAlreadySaved = prev.some(
+                (memo) =>
+                  memo.theme === currentTheme.theme &&
+                  memo.content === inputContent
+              );
+
+              if (!isAlreadySaved) {
+                console.log("Memo saved:", inputContent); // メモ保存時にログを出力
+                return [
+                  ...prev,
+                  {
+                    content: inputContent,
+                    date: currentDate,
+                    theme: currentTheme.theme,
+                    time: currentTime,
+                  },
+                ];
+              }
+              return prev; // 重複している場合はそのまま返す
+            });
           }
 
-          // 次のテーマに切り替え
-          const nextIndex = (currentThemeIndex + 1) % themes.length;
-
-          // 全テーマを一巡したらページ遷移
-          if (nextIndex === 0) {
-            router.push("/MemoList");
-          } else {
-            setCurrentTheme(themes[nextIndex]);
-            setCurrentThemeIndex(nextIndex);
-          }
+          // 次のテーマに切り替える
+          setCurrentTheme(nextTheme);
+          setCurrentThemeIndex(nextIndex);
 
           // 入力フィールドをクリア
           setInputContent("");
 
-          // 残り時間をリセット
-          return Number(themeTime);
+          // 全テーマを一巡したらページ遷移
+          if (nextIndex === 0) {
+            router.push("/MemoList");
+          }
+
+          return Number(themeTime); // 残り時間をリセット
         }
-        return prevTime - 1; // 時間を減少
+
+        return prevTime - 1;
       });
     }, 1000);
 
-    return () => clearInterval(timerId); // クリーンアップ処理
+    return () => clearInterval(timerId);
   }, [
     currentTheme,
     currentThemeIndex,
-    inputContent,
     themeTime,
     themes,
     router,
     setMemoList,
+    inputContent,
   ]);
-
-  useEffect(() => {
-    if (themes.length > 0) {
-      setCurrentTheme(themes[currentThemeIndex]);
-    }
-  }, [themes, currentThemeIndex]);
 
   return (
     <>
