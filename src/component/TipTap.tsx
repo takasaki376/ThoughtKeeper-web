@@ -1,6 +1,4 @@
 "use client";
-import BulletList from "@tiptap/extension-bullet-list";
-import ListItem from "@tiptap/extension-list-item";
 import { EditorContent, useEditor } from "@tiptap/react";
 import StarterKit from "@tiptap/starter-kit";
 import { useEffect } from "react";
@@ -14,15 +12,15 @@ export const Tiptap = ({ onChange, value }: TiptapProps) => {
   const editor = useEditor({
     content: value, // 初期コンテンツを設定
     editable: true, // エディタがすぐに入力可能
-    extensions: [StarterKit, BulletList, ListItem],
+    extensions: [StarterKit],
     onUpdate: ({ editor }) => {
       const updatedContent = editor.getHTML();
-      onChange(updatedContent);
+      onChange(updatedContent); // 正しく更新された内容を呼び出し元に渡す
     },
   });
 
   useEffect(() => {
-    if (editor && !editor.isDestroyed && editor.getHTML() !== value) {
+    if (editor && editor.getHTML() !== value) {
       editor.commands.setContent(value);
     }
   }, [value, editor]);
