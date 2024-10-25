@@ -1,7 +1,7 @@
 "use client";
 import { useAtomValue, useSetAtom } from "jotai";
 import { useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
 import { Tiptap } from "@/component/TipTap";
 import { countTime, memoListAtom, themeAtom } from "@/store/setting";
@@ -17,6 +17,10 @@ export default function MemoEditorPage() {
   const [inputContent, setInputContent] = useState("");
   const setMemoList = useSetAtom(memoListAtom);
 
+  // 入力内容を保存するための参照を使用
+  const inputContentRef = useRef(inputContent);
+  inputContentRef.current = inputContent;
+
   useEffect(() => {
     const timerId = setInterval(() => {
       setRemainingTime((prevTime) => {
@@ -26,7 +30,7 @@ export default function MemoEditorPage() {
           const nextTheme = themes[nextIndex];
 
           // メモを保存
-          if (currentTheme && inputContent) {
+          if (currentTheme && inputContentRef.current) {
             const currentDate = new Date().toLocaleDateString();
             const currentTime = new Date().toLocaleTimeString();
 
@@ -35,15 +39,15 @@ export default function MemoEditorPage() {
               const isAlreadySaved = prev.some(
                 (memo) =>
                   memo.theme === currentTheme.theme &&
-                  memo.content === inputContent
+                  memo.content === inputContentRef.current
               );
 
               if (!isAlreadySaved) {
-                console.log("Memo saved:", inputContent); // メモ保存時にログを出力
+                console.log("Memo saved:", inputContentRef.current); // メモ保存時にログを出力
                 return [
                   ...prev,
                   {
-                    content: inputContent,
+                    content: inputContentRef.current,
                     date: currentDate,
                     theme: currentTheme.theme,
                     time: currentTime,
@@ -74,15 +78,7 @@ export default function MemoEditorPage() {
     }, 1000);
 
     return () => clearInterval(timerId);
-  }, [
-    currentTheme,
-    currentThemeIndex,
-    themeTime,
-    themes,
-    router,
-    setMemoList,
-    inputContent,
-  ]);
+  }, [currentTheme, currentThemeIndex, themeTime, themes, router, setMemoList]);
 
   return (
     <>
