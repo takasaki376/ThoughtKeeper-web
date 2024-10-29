@@ -1,19 +1,97 @@
 "use client";
 import { useAtom } from "jotai";
 import Link from "next/link";
-import { ChangeEvent } from "react";
+import { ChangeEvent, useEffect, useState } from "react";
 import { MdOutlineClose } from "react-icons/md";
 
 import { countTheme, countTime } from "@/store/setting";
+import { supabase } from "@/utils/supabase/supabase";
 
 export default function SettingPage() {
+  const [userId, setUserId] = useState<string | null>(null);
+  const [count, setCount] = useAtom(countTheme);
+  const [time, setTime] = useAtom(countTime);
+
+  // 認証ユーザーの取得
+  useEffect(() => {
+    const getUser = async () => {
+      const { data, error } = await supabase.auth.getSession();
+      if (error) {
+        console.error("Failed to get user session:", error);
+        return;
+      }
+      const user = data?.session?.user;
+      if (user) {
+        setUserId(user.id);
+      }
+    };
+
+    getUser();
+  }, []);
+
+  // 設定の取得およびデフォルト値の設定
+  useEffect(() => {
+    if (!userId) return;
+
+    const fetchSettings = async () => {
+      const { data, error } = await supabase
+        .from("user_settings")
+        .select("theme_count, time_limit")
+        .eq("user_id", userId)
+        .single();
+
+      if (error) {
+        console.error("Failed to fetch settings:", error);
+        return;
+      }
+
+      if (data) {
+        setCount(data.theme_count);
+        setTime(data.time_limit);
+      } else {
+        // デフォルト設定がない場合は新規に挿入
+        const defaultCount = 10;
+        const defaultTime = "60";
+
+        const { error: insertError } = await supabase
+          .from("user_settings")
+          .insert({
+            theme_count: defaultCount,
+            time_limit: defaultTime,
+            user_id: userId,
+          });
+
+        if (insertError) {
+          console.error("Failed to insert default settings:", insertError);
+        } else {
+          // 値を状態に反映
+          setCount(defaultCount);
+          setTime(defaultTime);
+        }
+      }
+    };
+
+    fetchSettings();
+  }, [userId, setCount, setTime]);
+
   // テーマ数の入力
   const InputTargetCount = () => {
-    const [count, setCount] = useAtom(countTheme);
-    const onCountChange = (e: ChangeEvent<HTMLInputElement>) => {
+    const onCountChange = async (e: ChangeEvent<HTMLInputElement>) => {
       const value = e.target.value;
       if (!isNaN(Number(value))) {
-        setCount(Number(value)); // 数値として保存
+        const updatedCount = Number(value);
+        setCount(updatedCount);
+
+        // DBに更新を反映
+        if (userId) {
+          const { error } = await supabase
+            .from("user_settings")
+            .upsert({ theme_count: updatedCount, user_id: userId });
+
+          if (error) {
+            console.error("Failed to update theme count:", error);
+          }
+        }
       }
     };
 
@@ -23,17 +101,29 @@ export default function SettingPage() {
         className="mr-2 block w-full bg-lightGray p-1 focus:bg-white"
         value={count}
         onChange={onCountChange}
+        onBlur={onCountChange} // onBlurでの反映を追加
       />
     );
   };
 
   // 制限時間の入力
   const InputTargetTime = () => {
-    const [time, setTime] = useAtom(countTime);
-    const onTimeChange = (e: ChangeEvent<HTMLInputElement>) => {
+    const onTimeChange = async (e: ChangeEvent<HTMLInputElement>) => {
       const value = e.target.value;
       if (!isNaN(Number(value))) {
-        setTime(value); // 文字列として保存
+        const updatedTime = value;
+        setTime(updatedTime);
+
+        // DBに更新を反映
+        if (userId) {
+          const { error } = await supabase
+            .from("user_settings")
+            .upsert({ time_limit: String(updatedTime), user_id: userId });
+
+          if (error) {
+            console.error("Failed to update time limit:", error);
+          }
+        }
       }
     };
 
@@ -43,6 +133,7 @@ export default function SettingPage() {
         className="mr-2 block w-full bg-lightGray p-1 focus:bg-white"
         value={time}
         onChange={onTimeChange}
+        onBlur={onTimeChange} // フォーカスが外れたときに保存
       />
     );
   };
