@@ -1,78 +1,30 @@
 "use client";
 import { useAtom } from "jotai";
 import Link from "next/link";
-import { ChangeEvent, useEffect, useState } from "react";
+import { ChangeEvent, useEffect } from "react";
 import { MdOutlineClose } from "react-icons/md";
 
 import { countTheme, countTime } from "@/store/setting";
-import { supabase } from "@/utils/supabase/supabase";
 
 export default function SettingPage() {
-  const [userId, setUserId] = useState<string | null>(null);
   const [count, setCount] = useAtom(countTheme);
   const [time, setTime] = useAtom(countTime);
 
-  // 認証ユーザーの取得
+  // 設定の取得
   useEffect(() => {
-    const getUser = async () => {
-      const { data, error } = await supabase.auth.getSession();
-      if (error) {
-        console.error("Failed to get user session:", error);
-        return;
-      }
-      const user = data?.session?.user;
-      if (user) {
-        setUserId(user.id);
-      }
-    };
-
-    getUser();
-  }, []);
-
-  // 設定の取得およびデフォルト値の設定
-  useEffect(() => {
-    if (!userId) return;
-
     const fetchSettings = async () => {
-      const { data, error } = await supabase
-        .from("user_settings")
-        .select("theme_count, time_limit")
-        .eq("user_id", userId)
-        .single();
-
-      if (error) {
-        console.error("Failed to fetch settings:", error);
+      const response = await fetch("/api/settings");
+      if (!response.ok) {
+        console.error("Failed to fetch settings");
         return;
       }
-
-      if (data) {
-        setCount(data.theme_count);
-        setTime(data.time_limit);
-      } else {
-        // デフォルト設定がない場合は新規に挿入
-        const defaultCount = 10;
-        const defaultTime = "60";
-
-        const { error: insertError } = await supabase
-          .from("user_settings")
-          .insert({
-            theme_count: defaultCount,
-            time_limit: defaultTime,
-            user_id: userId,
-          });
-
-        if (insertError) {
-          console.error("Failed to insert default settings:", insertError);
-        } else {
-          // 値を状態に反映
-          setCount(defaultCount);
-          setTime(defaultTime);
-        }
-      }
+      const data = await response.json();
+      setCount(data.theme_count);
+      setTime(data.time_limit);
     };
 
     fetchSettings();
-  }, [userId, setCount, setTime]);
+  }, [setCount, setTime]);
 
   // テーマ数の入力
   const InputTargetCount = () => {
@@ -82,15 +34,18 @@ export default function SettingPage() {
         const updatedCount = Number(value);
         setCount(updatedCount);
 
-        // DBに更新を反映
-        if (userId) {
-          const { error } = await supabase
-            .from("user_settings")
-            .upsert({ theme_count: updatedCount, user_id: userId });
+        // APIを通じて更新
+        const response = await fetch("/api/settings", {
+          body: JSON.stringify({
+            theme_count: updatedCount,
+            time_limit: time,
+          }),
+          headers: { "Content-Type": "application/json" },
+          method: "PUT",
+        });
 
-          if (error) {
-            console.error("Failed to update theme count:", error);
-          }
+        if (!response.ok) {
+          console.error("Failed to update settings");
         }
       }
     };
@@ -114,15 +69,18 @@ export default function SettingPage() {
         const updatedTime = value;
         setTime(updatedTime);
 
-        // DBに更新を反映
-        if (userId) {
-          const { error } = await supabase
-            .from("user_settings")
-            .upsert({ time_limit: String(updatedTime), user_id: userId });
+        // APIを通じて更新
+        const response = await fetch("/api/settings", {
+          body: JSON.stringify({
+            theme_count: count,
+            time_limit: updatedTime,
+          }),
+          headers: { "Content-Type": "application/json" },
+          method: "PUT",
+        });
 
-          if (error) {
-            console.error("Failed to update time limit:", error);
-          }
+        if (!response.ok) {
+          console.error("Failed to update settings");
         }
       }
     };
