@@ -1,19 +1,52 @@
 "use client";
 import { useAtom } from "jotai";
 import Link from "next/link";
-import { ChangeEvent } from "react";
+import { ChangeEvent, useEffect } from "react";
 import { MdOutlineClose } from "react-icons/md";
 
 import { countTheme, countTime } from "@/store/setting";
 
 export default function SettingPage() {
+  const [count, setCount] = useAtom(countTheme);
+  const [time, setTime] = useAtom(countTime);
+
+  // 設定の取得
+  useEffect(() => {
+    const fetchSettings = async () => {
+      const response = await fetch("/api/settings");
+      if (!response.ok) {
+        console.error("Failed to fetch settings");
+        return;
+      }
+      const data = await response.json();
+      setCount(data.theme_count);
+      setTime(data.time_limit);
+    };
+
+    fetchSettings();
+  }, [setCount, setTime]);
+
   // テーマ数の入力
   const InputTargetCount = () => {
-    const [count, setCount] = useAtom(countTheme);
-    const onCountChange = (e: ChangeEvent<HTMLInputElement>) => {
+    const onCountChange = async (e: ChangeEvent<HTMLInputElement>) => {
       const value = e.target.value;
       if (!isNaN(Number(value))) {
-        setCount(Number(value)); // 数値として保存
+        const updatedCount = Number(value);
+        setCount(updatedCount);
+
+        // APIを通じて更新
+        const response = await fetch("/api/settings", {
+          body: JSON.stringify({
+            theme_count: updatedCount,
+            time_limit: time,
+          }),
+          headers: { "Content-Type": "application/json" },
+          method: "PUT",
+        });
+
+        if (!response.ok) {
+          console.error("Failed to update settings");
+        }
       }
     };
 
@@ -23,17 +56,32 @@ export default function SettingPage() {
         className="mr-2 block w-full bg-lightGray p-1 focus:bg-white"
         value={count}
         onChange={onCountChange}
+        onBlur={onCountChange} // onBlurでの反映を追加
       />
     );
   };
 
   // 制限時間の入力
   const InputTargetTime = () => {
-    const [time, setTime] = useAtom(countTime);
-    const onTimeChange = (e: ChangeEvent<HTMLInputElement>) => {
+    const onTimeChange = async (e: ChangeEvent<HTMLInputElement>) => {
       const value = e.target.value;
       if (!isNaN(Number(value))) {
-        setTime(value); // 文字列として保存
+        const updatedTime = value;
+        setTime(updatedTime);
+
+        // APIを通じて更新
+        const response = await fetch("/api/settings", {
+          body: JSON.stringify({
+            theme_count: count,
+            time_limit: updatedTime,
+          }),
+          headers: { "Content-Type": "application/json" },
+          method: "PUT",
+        });
+
+        if (!response.ok) {
+          console.error("Failed to update settings");
+        }
       }
     };
 
@@ -43,6 +91,7 @@ export default function SettingPage() {
         className="mr-2 block w-full bg-lightGray p-1 focus:bg-white"
         value={time}
         onChange={onTimeChange}
+        onBlur={onTimeChange} // フォーカスが外れたときに保存
       />
     );
   };
