@@ -7,6 +7,7 @@
   },
   "dependencies": {
     "@mantine/core": "^7.14.0",
+    "@mantine/hooks": "^7.14.0",
     "@supabase/auth-helpers-nextjs": "^0.10.0",
     "@supabase/ssr": "latest",
     "@supabase/supabase-js": "latest",
