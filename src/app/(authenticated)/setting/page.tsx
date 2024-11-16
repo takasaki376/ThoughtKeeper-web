@@ -92,7 +92,8 @@ export default function SettingPage() {
               <label className="mb-3 block pr-4 font-bold">テーマの件数</label>
             </div>
             <div className="md:w-2/3">
-              <InputTargetCount />件
+              <InputTargetCount />
+              &nbsp;件
               <p className="py-2 text-sm text-gray">テーマの数を設定します</p>
             </div>
           </div>
@@ -102,7 +103,8 @@ export default function SettingPage() {
               <label className="mb-3 block pr-4 font-bold">入力する時間</label>
             </div>
             <div className="md:w-2/3">
-              <InputTargetTime />秒
+              <InputTargetTime />
+              &nbsp;秒
               <p className="py-2 text-sm text-gray">
                 テーマごとの制限時間を設定します
               </p>
