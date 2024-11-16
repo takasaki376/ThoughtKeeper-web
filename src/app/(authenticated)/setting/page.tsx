@@ -1,8 +1,9 @@
 "use client";
 import { useAtom } from "jotai";
 import Link from "next/link";
-import { ChangeEvent, useEffect } from "react";
+import { useEffect } from "react";
 import { MdOutlineClose } from "react-icons/md";
+import NumericInput from "react-numeric-input";
 
 import { countTheme, countTime } from "@/store/setting";
 
@@ -28,16 +29,12 @@ export default function SettingPage() {
 
   // テーマ数の入力
   const InputTargetCount = () => {
-    const onCountChange = async (e: ChangeEvent<HTMLInputElement>) => {
-      const value = e.target.value;
-      if (!isNaN(Number(value))) {
-        const updatedCount = Number(value);
-        setCount(updatedCount);
-
-        // APIを通じて更新
+    const onChange = async (valueAsNumber: number | null) => {
+      if (valueAsNumber !== null) {
+        setCount(valueAsNumber);
         const response = await fetch("/api/settings", {
           body: JSON.stringify({
-            theme_count: updatedCount,
+            theme_count: valueAsNumber,
             time_limit: time,
           }),
           headers: { "Content-Type": "application/json" },
@@ -51,28 +48,19 @@ export default function SettingPage() {
     };
 
     return (
-      <input
-        className="mr-2 block w-full bg-lightGray p-1 focus:bg-white"
-        value={count}
-        onChange={onCountChange}
-        onBlur={onCountChange} // onBlurでの反映を追加
-      />
+      <NumericInput min={1} max={100} value={count} onChange={onChange} style />
     );
   };
 
   // 制限時間の入力
   const InputTargetTime = () => {
-    const onTimeChange = async (e: ChangeEvent<HTMLInputElement>) => {
-      const value = e.target.value;
-      if (!isNaN(Number(value))) {
-        const updatedTime = value;
-        setTime(updatedTime);
-
-        // APIを通じて更新
+    const onTimeChange = async (valueAsNumber: number | null) => {
+      if (valueAsNumber !== null) {
+        setTime(String(valueAsNumber));
         const response = await fetch("/api/settings", {
           body: JSON.stringify({
             theme_count: count,
-            time_limit: updatedTime,
+            time_limit: String(valueAsNumber),
           }),
           headers: { "Content-Type": "application/json" },
           method: "PUT",
@@ -85,11 +73,12 @@ export default function SettingPage() {
     };
 
     return (
-      <input
-        className="mr-2 block w-full bg-lightGray p-1 focus:bg-white"
-        value={time}
+      <NumericInput
+        min={1}
+        max={3600}
+        value={Number(time)}
         onChange={onTimeChange}
-        onBlur={onTimeChange} // フォーカスが外れたときに保存
+        style
       />
     );
   };
