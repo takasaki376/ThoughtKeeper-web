@@ -52,7 +52,6 @@ export default function SettingPage() {
 
     return (
       <input
-        placeholder="テーマの数を入力してください"
         className="mr-2 block w-full bg-lightGray p-1 focus:bg-white"
         value={count}
         onChange={onCountChange}
@@ -87,7 +86,6 @@ export default function SettingPage() {
 
     return (
       <input
-        placeholder="テーマに対する入力時間を指定してください"
         className="mr-2 block w-full bg-lightGray p-1 focus:bg-white"
         value={time}
         onChange={onTimeChange}
