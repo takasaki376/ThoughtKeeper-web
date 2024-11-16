@@ -1,9 +1,9 @@
 "use client";
+import { NumberInput } from "@mantine/core";
 import { useAtom } from "jotai";
 import Link from "next/link";
 import { useEffect } from "react";
 import { MdOutlineClose } from "react-icons/md";
-import NumericInput from "react-numeric-input";
 
 import { countTheme, countTime } from "@/store/setting";
 
@@ -29,56 +29,30 @@ export default function SettingPage() {
 
   // テーマ数の入力
   const InputTargetCount = () => {
-    const onChange = async (valueAsNumber: number | null) => {
-      if (valueAsNumber !== null) {
-        setCount(valueAsNumber);
-        const response = await fetch("/api/settings", {
-          body: JSON.stringify({
-            theme_count: valueAsNumber,
-            time_limit: time,
-          }),
-          headers: { "Content-Type": "application/json" },
-          method: "PUT",
-        });
-
-        if (!response.ok) {
-          console.error("Failed to update settings");
-        }
-      }
-    };
-
     return (
-      <NumericInput min={1} max={100} value={count} onChange={onChange} style />
+      <NumberInput
+        value={count}
+        onChange={(val) => setCount(Number(val))}
+        min={1}
+        max={100}
+        clampBehavior="strict"
+        allowDecimal={false}
+        hideControls
+      />
     );
   };
 
   // 制限時間の入力
   const InputTargetTime = () => {
-    const onTimeChange = async (valueAsNumber: number | null) => {
-      if (valueAsNumber !== null) {
-        setTime(String(valueAsNumber));
-        const response = await fetch("/api/settings", {
-          body: JSON.stringify({
-            theme_count: count,
-            time_limit: String(valueAsNumber),
-          }),
-          headers: { "Content-Type": "application/json" },
-          method: "PUT",
-        });
-
-        if (!response.ok) {
-          console.error("Failed to update settings");
-        }
-      }
-    };
-
     return (
-      <NumericInput
+      <NumberInput
         min={1}
         max={3600}
         value={Number(time)}
-        onChange={onTimeChange}
-        style
+        onChange={(val) => setTime(String(val))}
+        clampBehavior="strict"
+        allowDecimal={false}
+        hideControls
       />
     );
   };
