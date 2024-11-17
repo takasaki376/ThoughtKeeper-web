@@ -1,5 +1,6 @@
 import "@/styles/globals.scss";
 
+import { MantineProvider } from "@mantine/core";
 import { Provider } from "jotai";
 import { redirect } from "next/navigation";
 
@@ -28,17 +29,19 @@ export default async function RootLayout({
   }
   return (
     <Provider>
-      <html lang="en">
-        <body>
-          <Header />
-          <div className="flex justify-center">
-            <div className=" bg-tomato/5">
-              <Navigation />
+      <MantineProvider>
+        <html lang="en">
+          <body>
+            <Header />
+            <div className="flex justify-center">
+              <div className=" bg-tomato/5">
+                <Navigation />
+              </div>
+              <div className="min-h-screen w-full">{children}</div>
             </div>
-            <div className="min-h-screen w-full">{children}</div>
-          </div>
-        </body>
-      </html>
+          </body>
+        </html>
+      </MantineProvider>
     </Provider>
   );
 }
