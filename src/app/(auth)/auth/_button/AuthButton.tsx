@@ -22,7 +22,11 @@ export default async function AuthButton() {
   return user ? (
     <div className="flex items-center gap-4">
       <form action={signOut}>
-        <button className="rounded-md bg-btn-background pr-2 no-underline hover:bg-btn-background-hover">
+        <button
+          type="submit"
+          aria-label="サインアウト"
+          className="rounded-md bg-btn-background pr-2 no-underline hover:bg-btn-background-hover"
+        >
           <FaArrowRightFromBracket />
         </button>
       </form>
