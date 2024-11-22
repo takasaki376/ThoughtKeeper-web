@@ -37,7 +37,6 @@ export default function SettingPage() {
         max={100}
         clampBehavior="strict"
         allowDecimal={false}
-        hideControls
       />
     );
   };
@@ -52,13 +51,12 @@ export default function SettingPage() {
         onChange={(val) => setTime(String(val))}
         clampBehavior="strict"
         allowDecimal={false}
-        hideControls
       />
     );
   };
 
   return (
-    <div className="mx-3 mt-6 flex justify-between bg-white p-8 shadow lg:mt-0">
+    <div className="mx-3 mt-6 flex justify-between p-8 shadow lg:mt-0 dark:shadow-lightGray">
       <div className="flex-1">
         <form>
           <div className="mb-6 md:flex">
@@ -66,8 +64,10 @@ export default function SettingPage() {
               <label className="mb-3 block pr-4 font-bold">テーマの件数</label>
             </div>
             <div className="md:w-2/3">
-              <InputTargetCount />
-              &nbsp;件
+              <div className="flex">
+                <InputTargetCount />
+                &nbsp;件
+              </div>
               <p className="py-2 text-sm text-gray">テーマの数を設定します</p>
             </div>
           </div>
@@ -77,8 +77,10 @@ export default function SettingPage() {
               <label className="mb-3 block pr-4 font-bold">入力する時間</label>
             </div>
             <div className="md:w-2/3">
-              <InputTargetTime />
-              &nbsp;秒
+              <div className="flex">
+                <InputTargetTime />
+                &nbsp;秒
+              </div>
               <p className="py-2 text-sm text-gray">
                 テーマごとの制限時間を設定します
               </p>
