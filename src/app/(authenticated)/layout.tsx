@@ -31,7 +31,7 @@ export default async function AuthenticatedLayout({
       <body>
         <Header />
         <div className="flex justify-center">
-          <div className=" bg-tomato/5">
+          <div className=" bg-lightGray/20">
             <Navigation />
           </div>
           <div className="min-h-screen w-full">{children}</div>
