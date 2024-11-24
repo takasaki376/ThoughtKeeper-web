@@ -13,7 +13,7 @@ export async function GET() {
     const userId = user?.id;
 
     // user_settings テーブルからユーザー設定を取得
-    const { data: userSettings, error: settingsError } = await supabase
+    const { data: userSettings } = await supabase
       .from('user_settings')
       .select('*')
       .eq('user_id', userId)
@@ -27,10 +27,6 @@ export async function GET() {
 
         if (insertError) {
           console.error("Error inserting initial user settings:", insertError);
-          return NextResponse.json({ error: "Internal Server Error" }, { status: 500 });
-        }
-        if (settingsError) {
-          console.error("Error fetching user settings:", settingsError);
           return NextResponse.json({ error: "Internal Server Error" }, { status: 500 });
         }
 
