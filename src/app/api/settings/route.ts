@@ -52,31 +52,6 @@ export async function PUT(request: Request) {
 
     const userId = user?.id;
 
-    // user_settings テーブルからユーザー設定を取得
-    const { data: userSettings, error: settingsError } = await supabase
-      .from('user_settings')
-      .select('*')
-      .eq('user_id', userId)
-      .single();
-      // ユーザー設定が存在しない場合、初期値を登録
-      if (!userSettings) {
-        const { error: insertError } = await supabase
-          .from('user_settings')
-          .insert([{ theme_count: 10, time_limit:60, user_id: userId }]);
-
-        if (insertError) {
-          console.error("Error inserting initial user settings:", insertError);
-          return NextResponse.json({ error: "Internal Server Error" }, { status: 500 });
-        }
-
-        return NextResponse.json({ message: "Initial settings created" }, { status: 201 });
-      }
-
-    if (settingsError) {
-      console.error("Error fetching user settings:", settingsError);
-      return NextResponse.json({ error: "Internal Server Error" }, { status: 500 });
-    }
-
 
     const body = await request.json();
     const { theme_count, time_limit } = body;
