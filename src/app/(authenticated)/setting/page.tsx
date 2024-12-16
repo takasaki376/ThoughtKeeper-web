@@ -5,6 +5,7 @@ import Link from "next/link";
 import { useEffect } from "react";
 import { MdOutlineClose } from "react-icons/md";
 
+import { fetchSettings } from "@/services/settingsService";
 import { countTheme, countTime } from "@/store/setting";
 
 export default function SettingPage() {
@@ -13,18 +14,17 @@ export default function SettingPage() {
 
   // 設定の取得
   useEffect(() => {
-    const fetchSettings = async () => {
-      const response = await fetch("/api/settings");
-      if (!response.ok) {
-        console.error("Failed to fetch settings");
-        return;
+    const fetchSettingsData = async () => {
+      try {
+        const data = await fetchSettings();
+        setCount(data.theme_count);
+        setTime(data.time_limit);
+      } catch (error) {
+        console.error(error);
       }
-      const data = await response.json();
-      setCount(data.theme_count);
-      setTime(data.time_limit);
     };
 
-    fetchSettings();
+    fetchSettingsData();
   }, [setCount, setTime]);
 
   // テーマ数の入力
