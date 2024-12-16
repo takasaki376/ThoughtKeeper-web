@@ -32,6 +32,7 @@
     "typescript": "5.3.3"
   },
   "devDependencies": {
+    "@biomejs/biome": "^1.9.4",
     "@types/node": "20.11.5",
     "@types/react": "18.2.48",
     "@types/react-dom": "18.2.18",
@@ -52,5 +53,10 @@
   "volta": {
     "node": "20.11.1",
     "yarn": "1.22.19"
+  },
+  "msw": {
+    "workerDirectory": [
+      "public"
+    ]
   }
 }
