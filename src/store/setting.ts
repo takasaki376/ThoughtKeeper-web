@@ -1,5 +1,7 @@
 import { atom } from "jotai";
 
+import { updateSettings } from "@/services/settingsService";
+
 export const themeAtom = atom<any[]>([]); // 初期値を空の配列に設定
 export const memoListAtom = atom<{ content: string; date: string; theme: string; time: string }[]>([]);
 
@@ -13,15 +15,24 @@ export const setThemeAtom = atom(
   (get, set, newThemes: any[]) => set(themeAtom, newThemes) // 書き込み時
 );
 
-// 書き込み可能な atom を追加
+
+// 既存のatomの設定用関数
 export const setCountThemeAtom = atom(
-  null, // 読み込み時の値は不要
-  (get, set, newCount: number) => set(countTheme, newCount) // 新しいテーマ数を設定
+  null,
+  (get, set, newCount: number) => {
+    set(countTheme, newCount);
+    // 設定を更新
+    updateSettings(newCount, get(countTime)).catch(console.error);
+  }
 );
 
 export const setCountTimeAtom = atom(
-  null, // 読み込み時の値は不要
-  (get, set, newTime: string) => set(countTime, newTime) // 新しい時間を設定
+  null,
+  (get, set, newTime: string) => {
+    set(countTime, newTime);
+    // 設定を更新
+    updateSettings(get(countTheme), newTime).catch(console.error);
+  }
 );
 
 export const initialText = atom("");

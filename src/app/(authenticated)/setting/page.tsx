@@ -6,11 +6,18 @@ import { useEffect } from "react";
 import { MdOutlineClose } from "react-icons/md";
 
 import { fetchSettings } from "@/services/settingsService";
-import { countTheme, countTime } from "@/store/setting";
+import {
+  countTheme,
+  countTime,
+  setCountThemeAtom,
+  setCountTimeAtom,
+} from "@/store/setting";
 
 export default function SettingPage() {
-  const [count, setCount] = useAtom(countTheme);
-  const [time, setTime] = useAtom(countTime);
+  const [count] = useAtom(countTheme);
+  const [time] = useAtom(countTime);
+  const [, setCount] = useAtom(setCountThemeAtom);
+  const [, setTime] = useAtom(setCountTimeAtom);
 
   // 設定の取得
   useEffect(() => {
