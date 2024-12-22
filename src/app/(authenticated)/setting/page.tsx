@@ -2,7 +2,7 @@
 import { NumberInput } from "@mantine/core";
 import { useAtom } from "jotai";
 import Link from "next/link";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { MdOutlineClose } from "react-icons/md";
 
 import { fetchSettings } from "@/services/settingsService";
@@ -36,10 +36,23 @@ export default function SettingPage() {
 
   // テーマ数の入力
   const InputTargetCount = () => {
+    const [localCount, setLocalCount] = useState(count);
+
+    const handleChange = (val: number | string) => {
+      setLocalCount(Number(val));
+    };
+
+    const handleBlur = () => {
+      if (localCount !== count) {
+        setCount(localCount);
+      }
+    };
+
     return (
       <NumberInput
-        value={count}
-        onChange={(val) => setCount(Number(val))}
+        value={localCount}
+        onChange={handleChange}
+        onBlur={handleBlur}
         min={1}
         max={100}
         clampBehavior="strict"
@@ -50,12 +63,25 @@ export default function SettingPage() {
 
   // 制限時間の入力
   const InputTargetTime = () => {
+    const [localTime, setLocalTime] = useState(time);
+
+    const handleChange = (val: number | string) => {
+      setLocalTime(String(val));
+    };
+
+    const handleBlur = () => {
+      if (localTime !== time) {
+        setTime(localTime);
+      }
+    };
+
     return (
       <NumberInput
         min={1}
         max={3600}
-        value={Number(time)}
-        onChange={(val) => setTime(String(val))}
+        value={Number(localTime)}
+        onChange={handleChange}
+        onBlur={handleBlur}
         clampBehavior="strict"
         allowDecimal={false}
       />
