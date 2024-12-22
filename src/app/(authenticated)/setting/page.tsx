@@ -1,103 +1,95 @@
 "use client";
+import { NumberInput } from "@mantine/core";
 import { useAtom } from "jotai";
 import Link from "next/link";
-import { ChangeEvent, useEffect } from "react";
+import { useEffect, useState } from "react";
 import { MdOutlineClose } from "react-icons/md";
 
-import { countTheme, countTime } from "@/store/setting";
+import { fetchSettings } from "@/services/settingsService";
+import {
+  countTheme,
+  countTime,
+  setCountThemeAtom,
+  setCountTimeAtom,
+} from "@/store/setting";
 
 export default function SettingPage() {
-  const [count, setCount] = useAtom(countTheme);
-  const [time, setTime] = useAtom(countTime);
+  const [count] = useAtom(countTheme);
+  const [time] = useAtom(countTime);
+  const [, setCount] = useAtom(setCountThemeAtom);
+  const [, setTime] = useAtom(setCountTimeAtom);
 
   // 設定の取得
   useEffect(() => {
-    const fetchSettings = async () => {
-      const response = await fetch("/api/settings");
-      if (!response.ok) {
-        console.error("Failed to fetch settings");
-        return;
+    const fetchSettingsData = async () => {
+      try {
+        const data = await fetchSettings();
+        setCount(data.theme_count);
+        setTime(data.time_limit);
+      } catch (error) {
+        console.error(error);
       }
-      const data = await response.json();
-      setCount(data.theme_count);
-      setTime(data.time_limit);
     };
 
-    fetchSettings();
+    fetchSettingsData();
   }, [setCount, setTime]);
 
   // テーマ数の入力
   const InputTargetCount = () => {
-    const onCountChange = async (e: ChangeEvent<HTMLInputElement>) => {
-      const value = e.target.value;
-      if (!isNaN(Number(value))) {
-        const updatedCount = Number(value);
-        setCount(updatedCount);
+    const [localCount, setLocalCount] = useState(count);
 
-        // APIを通じて更新
-        const response = await fetch("/api/settings", {
-          body: JSON.stringify({
-            theme_count: updatedCount,
-            time_limit: time,
-          }),
-          headers: { "Content-Type": "application/json" },
-          method: "PUT",
-        });
+    const handleChange = (val: number | string) => {
+      setLocalCount(Number(val));
+    };
 
-        if (!response.ok) {
-          console.error("Failed to update settings");
-        }
+    const handleBlur = () => {
+      if (localCount !== count) {
+        setCount(localCount);
       }
     };
 
     return (
-      <input
-        placeholder="テーマの数を入力してください"
-        className="mr-2 block w-full bg-lightGray p-1 focus:bg-white"
-        value={count}
-        onChange={onCountChange}
-        onBlur={onCountChange} // onBlurでの反映を追加
+      <NumberInput
+        value={localCount}
+        onChange={handleChange}
+        onBlur={handleBlur}
+        min={1}
+        max={100}
+        clampBehavior="strict"
+        allowDecimal={false}
       />
     );
   };
 
   // 制限時間の入力
   const InputTargetTime = () => {
-    const onTimeChange = async (e: ChangeEvent<HTMLInputElement>) => {
-      const value = e.target.value;
-      if (!isNaN(Number(value))) {
-        const updatedTime = value;
-        setTime(updatedTime);
+    const [localTime, setLocalTime] = useState(time);
 
-        // APIを通じて更新
-        const response = await fetch("/api/settings", {
-          body: JSON.stringify({
-            theme_count: count,
-            time_limit: updatedTime,
-          }),
-          headers: { "Content-Type": "application/json" },
-          method: "PUT",
-        });
+    const handleChange = (val: number | string) => {
+      setLocalTime(String(val));
+    };
 
-        if (!response.ok) {
-          console.error("Failed to update settings");
-        }
+    const handleBlur = () => {
+      if (localTime !== time) {
+        setTime(localTime);
       }
     };
 
     return (
-      <input
-        placeholder="テーマに対する入力時間を指定してください"
-        className="mr-2 block w-full bg-lightGray p-1 focus:bg-white"
-        value={time}
-        onChange={onTimeChange}
-        onBlur={onTimeChange} // フォーカスが外れたときに保存
+      <NumberInput
+        min={1}
+        max={3600}
+        value={Number(localTime)}
+        onChange={handleChange}
+        onBlur={handleBlur}
+        clampBehavior="strict"
+        allowDecimal={false}
       />
     );
   };
 
   return (
-    <div className="mx-3 mt-6 flex justify-between bg-white p-8 shadow lg:mt-0">
+    <div className="mx-3 mt-6 flex justify-between p-8 shadow lg:mt-0 dark:shadow-lightGray">
       <div className="flex-1">
         <form>
           <div className="mb-6 md:flex">
@@ -105,7 +97,10 @@ export default function SettingPage() {
               <label className="mb-3 block pr-4 font-bold">テーマの件数</label>
             </div>
             <div className="md:w-2/3">
-              <InputTargetCount />件
+              <div className="flex">
+                <InputTargetCount />
+                &nbsp;件
+              </div>
               <p className="py-2 text-sm text-gray">テーマの数を設定します</p>
             </div>
           </div>
@@ -115,7 +110,10 @@ export default function SettingPage() {
               <label className="mb-3 block pr-4 font-bold">入力する時間</label>
             </div>
             <div className="md:w-2/3">
-              <InputTargetTime />秒
+              <div className="flex">
+                <InputTargetTime />
+                &nbsp;秒
+              </div>
               <p className="py-2 text-sm text-gray">
                 テーマごとの制限時間を設定します
               </p>

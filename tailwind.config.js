@@ -6,7 +6,7 @@ module.exports = {
     extend: {
       colors: {
         background: "hsl(var(--background))",
-        black: "#1A1523",
+        black: "#363140",
         btn: {
           background: "hsl(var(--btn-background))",
           "background-hover": "hsl(var(--btn-background-hover))",

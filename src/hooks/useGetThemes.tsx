@@ -1,7 +1,6 @@
 "use client";
 import { useEffect, useState } from "react";
 
-import { getThemes } from "@/pages/api/themes";
 import { themes } from "@/types/database";
 
 export function useGetThemes() {
@@ -13,9 +12,15 @@ export function useGetThemes() {
     const fetchThemes = async () => {
       try {
         setLoading(true);
-        const result = (await getThemes()) as themes;
+        const response = await fetch("/api/themes");
+        if (!response.ok) {
+          const errorMessage = await response.text();
+          throw new Error(`Network response was not ok: ${errorMessage}`);
+        }
+        const result = (await response.json()) as themes;
         setThemes(result);
       } catch (err) {
+        console.error(err);
         setError("Failed to fetch themes");
       } finally {
         setLoading(false);
