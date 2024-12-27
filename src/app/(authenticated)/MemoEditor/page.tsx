@@ -58,12 +58,12 @@ export default function MemoEditorPage() {
             });
           }
 
+          // 入力フィールドをクリア
+          setInputContent("");
+
           // 次のテーマに切り替える
           setCurrentTheme(nextTheme);
           setCurrentThemeIndex(nextIndex);
-
-          // 入力フィールドをクリア
-          setInputContent("");
 
           // 全テーマを一巡したらページ遷移
           if (nextIndex === 0) {
