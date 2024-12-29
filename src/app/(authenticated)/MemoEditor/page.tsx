@@ -31,31 +31,48 @@ export default function MemoEditorPage() {
 
           // メモを保存
           if (currentTheme && inputContentRef.current) {
-            const currentDate = new Date().toLocaleDateString();
-            const currentTime = new Date().toLocaleTimeString();
+            const response = fetch(`/api/memos`, {
+              body: JSON.stringify({
+                content: inputContentRef.current,
+                theme: currentTheme.theme,
+              }),
+              headers: {
+                'Content-Type': 'application/json',
+              },
+              method: 'POST',
+            }).then(response => response.json());
 
-            // メモの重複を確認
-            setMemoList((prev) => {
-              const isAlreadySaved = prev.some(
-                (memo) =>
-                  memo.theme === currentTheme.theme &&
-                  memo.content === inputContentRef.current
-              );
+            if (response) {
+              // created_atからDateオブジェクトを作成
+              const createdAt = new Date(response.created_at);
+              
+              // 日付と時刻を日本のフォーマットで取得
+              const currentDate = createdAt.toLocaleDateString('ja-JP');
+              const currentTime = createdAt.toLocaleTimeString('ja-JP');
 
-              if (!isAlreadySaved) {
-                console.log("Memo saved:", inputContentRef.current); // メモ保存時にログを出力
-                return [
-                  ...prev,
-                  {
-                    content: inputContentRef.current,
-                    date: currentDate,
-                    theme: currentTheme.theme,
-                    time: currentTime,
-                  },
-                ];
-              }
-              return prev; // 重複している場合はそのまま返す
-            });
+              // 状態を更新
+              setMemoList((prev) => {
+                const isAlreadySaved = prev.some(
+                  (memo) =>
+                    memo.theme === currentTheme.theme &&
+                    memo.content === inputContentRef.current
+                );
+
+                if (!isAlreadySaved) {
+                  console.log("Memo saved to DB:", inputContentRef.current);
+                  return [
+                    ...prev,
+                    {
+                      content: inputContentRef.current,
+                      date: currentDate,
+                      theme: currentTheme.theme,
+                      time: currentTime,
+                    },
+                  ];
+                }
+                return prev;
+              });
+            }
           }
 
           // 入力フィールドをクリア
