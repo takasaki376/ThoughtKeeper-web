@@ -2,10 +2,9 @@
 import { NumberInput } from "@mantine/core";
 import { useAtom } from "jotai";
 import Link from "next/link";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { MdOutlineClose } from "react-icons/md";
 
-import { fetchSettings } from "@/services/settingsService";
 import {
   countTheme,
   countTime,
@@ -18,21 +17,6 @@ export default function SettingPage() {
   const [time] = useAtom(countTime);
   const [, setCount] = useAtom(setCountThemeAtom);
   const [, setTime] = useAtom(setCountTimeAtom);
-
-  // 設定の取得
-  useEffect(() => {
-    const fetchSettingsData = async () => {
-      try {
-        const data = await fetchSettings();
-        setCount(data.theme_count);
-        setTime(data.time_limit);
-      } catch (error) {
-        console.error(error);
-      }
-    };
-
-    fetchSettingsData();
-  }, [setCount, setTime]);
 
   // テーマ数の入力
   const InputTargetCount = () => {
