@@ -5,8 +5,9 @@ import { useEffect, useRef, useState } from "react";
 
 import { Tiptap } from "@/component/TipTap";
 import { countTime, memoListAtom, themeAtom } from "@/store/setting";
+import { Memo } from "@/types/database";
 
-export default function MemoEditorPage() {
+const MemoEditorPage = () => {
   const router = useRouter();
   const themes = useAtomValue(themeAtom);
   const themeTime = useAtomValue(countTime);
@@ -21,6 +22,62 @@ export default function MemoEditorPage() {
   const inputContentRef = useRef(inputContent);
   inputContentRef.current = inputContent;
 
+  const saveMemo = async () => {
+    if (currentTheme && inputContentRef.current) {
+      const response = await fetch(`/api/memos`, {
+        body: JSON.stringify({
+          content: inputContentRef.current,
+          theme_id: currentTheme.id,
+        }),
+        headers: {
+          "Content-Type": "application/json",
+        },
+        method: "PUT",
+      });
+
+      if (!response.ok) {
+        throw new Error("メモの保存に失敗しました");
+      }
+
+      const responseText = await response.text();
+      if (!responseText) {
+        throw new Error("空のレスポンスが返されました");
+      }
+
+      const responseData: Memo = JSON.parse(responseText);
+
+      // created_atからDateオブジェクトを作成
+      const createdAt = new Date(responseData.created_at);
+
+      // 日付と時刻を日本のフォーマットで取得
+      const currentDate = createdAt.toLocaleDateString("ja-JP");
+      const currentTime = createdAt.toLocaleTimeString("ja-JP");
+
+      // 状態を更新
+      setMemoList((prev) => {
+        const isAlreadySaved = prev.some(
+          (memo) =>
+            memo.theme === currentTheme.theme &&
+            memo.content === inputContentRef.current
+        );
+
+        if (!isAlreadySaved) {
+          console.log("Memo saved to DB:", inputContentRef.current);
+          return [
+            ...prev,
+            {
+              content: inputContentRef.current,
+              date: currentDate,
+              theme: currentTheme.theme,
+              time: currentTime,
+            },
+          ];
+        }
+        return prev;
+      });
+    }
+  };
+
   useEffect(() => {
     const timerId = setInterval(() => {
       setRemainingTime((prevTime) => {
@@ -30,50 +87,7 @@ export default function MemoEditorPage() {
           const nextTheme = themes[nextIndex];
 
           // メモを保存
-          if (currentTheme && inputContentRef.current) {
-            const response = fetch(`/api/memos`, {
-              body: JSON.stringify({
-                content: inputContentRef.current,
-                theme: currentTheme.theme,
-              }),
-              headers: {
-                'Content-Type': 'application/json',
-              },
-              method: 'POST',
-            }).then(response => response.json());
-
-            if (response) {
-              // created_atからDateオブジェクトを作成
-              const createdAt = new Date(response.created_at);
-              
-              // 日付と時刻を日本のフォーマットで取得
-              const currentDate = createdAt.toLocaleDateString('ja-JP');
-              const currentTime = createdAt.toLocaleTimeString('ja-JP');
-
-              // 状態を更新
-              setMemoList((prev) => {
-                const isAlreadySaved = prev.some(
-                  (memo) =>
-                    memo.theme === currentTheme.theme &&
-                    memo.content === inputContentRef.current
-                );
-
-                if (!isAlreadySaved) {
-                  console.log("Memo saved to DB:", inputContentRef.current);
-                  return [
-                    ...prev,
-                    {
-                      content: inputContentRef.current,
-                      date: currentDate,
-                      theme: currentTheme.theme,
-                      time: currentTime,
-                    },
-                  ];
-                }
-                return prev;
-              });
-            }
-          }
+          saveMemo();
 
           // 入力フィールドをクリア
           setInputContent("");
@@ -89,13 +103,12 @@ export default function MemoEditorPage() {
 
           return Number(themeTime); // 残り時間をリセット
         }
-
         return prevTime - 1;
       });
     }, 1000);
 
     return () => clearInterval(timerId);
-  }, [currentTheme, currentThemeIndex, themeTime, themes, router, setMemoList]);
+  }, [themeTime, currentThemeIndex]);
 
   return (
     <>
@@ -127,4 +140,5 @@ export default function MemoEditorPage() {
       <Tiptap value={inputContent} onChange={setInputContent} />
     </>
   );
-}
+};
+export default MemoEditorPage;

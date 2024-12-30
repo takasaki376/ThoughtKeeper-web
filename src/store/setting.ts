@@ -1,8 +1,9 @@
 import { atom } from "jotai";
 
 import { updateSettings } from "@/services/settingsService";
+import { themes } from "@/types/database";
 
-export const themeAtom = atom<any[]>([]); // 初期値を空の配列に設定
+export const themeAtom = atom<themes>([]); // 初期値を空の配列に設定
 export const memoListAtom = atom<{ content: string; date: string; theme: string; time: string }[]>([]);
 
 // countTheme と countTime の atom を正しく定義

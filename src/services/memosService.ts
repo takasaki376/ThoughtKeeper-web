@@ -24,7 +24,12 @@ export const updateMemos = async (content: string, theme_id: string) => {
       throw new Error("メモの更新に失敗しました");
     }
 
-    return await response.json();
+    const responseText = await response.text();
+    if (!responseText) {
+      throw new Error("空のレスポンスが返されました");
+    }
+
+    return JSON.parse(responseText);
   } catch (error) {
     console.error("メモ更新エラー:", error);
     throw error;
