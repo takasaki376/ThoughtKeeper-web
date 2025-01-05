@@ -1,6 +1,6 @@
 import { atom } from "jotai";
 
-import { updateSettings } from "@/services/settingsService";
+import { fetchSettings, updateSettings } from "@/services/settingsService";
 import { themes } from "@/types/database";
 
 export const themeAtom = atom<themes>([]); // 初期値を空の配列に設定
@@ -16,6 +16,14 @@ export const setThemeAtom = atom(
   (get, set, newThemes: any[]) => set(themeAtom, newThemes) // 書き込み時
 );
 
+export const getSetting = atom(
+  null,
+  async (_get, set) => {
+    const setting = await fetchSettings();
+    set(countTheme, setting.theme_count);
+    set(countTime, setting.time_limit);
+  }
+);
 
 // 既存のatomの設定用関数
 export const setCountThemeAtom = atom(

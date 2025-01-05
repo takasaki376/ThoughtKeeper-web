@@ -5,3 +5,8 @@ export type Memo = {
     created_at: string;
     theme_id: string;
   }
+
+  export type Setting = {
+    theme_count: number,
+    time_limit :string,
+  }

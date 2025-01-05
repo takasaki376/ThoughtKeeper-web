@@ -1,24 +1,29 @@
+"use client";
+
+import { useAtomValue, useSetAtom } from "jotai";
 import Link from "next/link";
+import { Suspense, useEffect } from "react";
 
 import Button from "@/component/Button";
-import { createClient } from "@/utils/supabase/server";
+import { Loader } from "@/component/Loader";
+import { countTheme, countTime, getSetting } from "@/store/setting";
 
 import { InitializeSettings } from "./InitializeSettings";
 
-export default async function Home() {
-  const supabase = createClient();
+export default function Home() {
+  const theme_count = useAtomValue(countTheme);
+  const time_limit = useAtomValue(countTime);
+  const setSettings = useSetAtom(getSetting);
 
-  // ユーザー設定を取得
-  const { data: userSettings } = await supabase
-    .from("user_settings")
-    .select("*")
-    .single();
+  useEffect(() => {
+    setSettings().catch(console.error);
+  }, [setSettings]);
 
   return (
-    <>
+    <Suspense fallback={<Loader />}>
       <InitializeSettings
-        theme_count={userSettings?.theme_count ?? 10}
-        time_limit={userSettings?.time_limit ?? "60"}
+        theme_count={theme_count ?? 10}
+        time_limit={time_limit ?? "60"}
       />
       <div className="mx-auto flex h-1/2 w-40 flex-col content-center justify-around">
         <Button>
@@ -31,6 +36,6 @@ export default async function Home() {
           <Link href="/setting">設定</Link>
         </Button>
       </div>
-    </>
+    </Suspense>
   );
 }

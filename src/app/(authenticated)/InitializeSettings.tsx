@@ -1,9 +1,14 @@
 "use client";
 
-import { useSetAtom } from "jotai";
+import { useAtomValue, useSetAtom } from "jotai";
 import { useEffect } from "react";
 
-import { setCountThemeAtom, setCountTimeAtom } from "@/store/setting";
+import {
+  countTheme,
+  countTime,
+  setCountThemeAtom,
+  setCountTimeAtom,
+} from "@/store/setting";
 
 type Props = {
   theme_count: number;
@@ -13,11 +18,17 @@ type Props = {
 export function InitializeSettings({ theme_count, time_limit }: Props) {
   const setCount = useSetAtom(setCountThemeAtom);
   const setTime = useSetAtom(setCountTimeAtom);
+  const currentCount = useAtomValue(countTheme);
+  const currentTime = useAtomValue(countTime);
 
   useEffect(() => {
-    setCount(theme_count);
-    setTime(time_limit);
-  }, [theme_count, time_limit, setCount, setTime]);
+    if (currentCount !== theme_count) {
+      setCount(theme_count);
+    }
+    if (currentTime !== time_limit) {
+      setTime(time_limit);
+    }
+  }, [theme_count, time_limit, currentCount, currentTime, setCount, setTime]);
 
   return null;
 }
