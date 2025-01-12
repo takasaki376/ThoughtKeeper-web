@@ -1,20 +1,18 @@
 "use client";
 import { useAtomValue, useSetAtom } from "jotai";
-import { useRouter } from "next/navigation";
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 
 import { Tiptap } from "@/component/TipTap";
+import { useThemeTimer } from "@/hooks/useThemeTimer";
 import { countTime, memoListAtom, themeAtom } from "@/store/setting";
 import { Memo } from "@/types/database";
 
 const MemoEditorPage = () => {
-  const router = useRouter();
   const themes = useAtomValue(themeAtom);
   const themeTime = useAtomValue(countTime);
 
   const [currentThemeIndex, setCurrentThemeIndex] = useState(0);
   const [currentTheme, setCurrentTheme] = useState(themes[0] || null);
-  const [remainingTime, setRemainingTime] = useState(Number(themeTime));
   const [inputContent, setInputContent] = useState("");
   const setMemoList = useSetAtom(memoListAtom);
 
@@ -22,7 +20,16 @@ const MemoEditorPage = () => {
   const inputContentRef = useRef(inputContent);
   inputContentRef.current = inputContent;
 
-  const saveMemo = async () => {
+  const handleThemeChange = useCallback(
+    (nextIndex: number) => {
+      setInputContent("");
+      setCurrentTheme(themes[nextIndex]);
+      setCurrentThemeIndex(nextIndex);
+    },
+    [themes]
+  );
+
+  const saveMemo = useCallback(async () => {
     if (currentTheme && inputContentRef.current) {
       const response = await fetch(`/api/memos`, {
         body: JSON.stringify({
@@ -76,39 +83,20 @@ const MemoEditorPage = () => {
         return prev;
       });
     }
-  };
+  }, [currentTheme, setMemoList]);
+
+  const { remainingTime, startTimer } = useThemeTimer(
+    Number(themeTime),
+    themes.length,
+    currentThemeIndex,
+    saveMemo,
+    handleThemeChange
+  );
 
   useEffect(() => {
-    const timerId = setInterval(() => {
-      setRemainingTime((prevTime) => {
-        if (prevTime === 1) {
-          // 残り時間が0になったら次のテーマに切り替え
-          const nextIndex = (currentThemeIndex + 1) % themes.length;
-          const nextTheme = themes[nextIndex];
-
-          // メモを保存
-          saveMemo();
-
-          // 入力フィールドをクリア
-          setInputContent("");
-
-          // 次のテーマに切り替える
-          setCurrentTheme(nextTheme);
-          setCurrentThemeIndex(nextIndex);
-
-          // 全テーマを一巡したらページ遷移
-          if (nextIndex === 0) {
-            router.push("/MemoList");
-          }
-
-          return Number(themeTime); // 残り時間をリセット
-        }
-        return prevTime - 1;
-      });
-    }, 1000);
-
-    return () => clearInterval(timerId);
-  }, [themeTime, currentThemeIndex]);
+    const cleanup = startTimer();
+    return cleanup;
+  }, [startTimer]);
 
   return (
     <>
@@ -141,4 +129,5 @@ const MemoEditorPage = () => {
     </>
   );
 };
+
 export default MemoEditorPage;

@@ -13,7 +13,7 @@ export const countTime = atom("60"); // 初期値を設定
 // 書き込み可能な atom にするための設定
 export const setThemeAtom = atom(
   (get) => get(themeAtom), // 読み込み時
-  (get, set, newThemes: any[]) => set(themeAtom, newThemes) // 書き込み時
+  (get, set, newThemes: themes) => set(themeAtom, newThemes) // 書き込み時
 );
 
 export const getSetting = atom(
