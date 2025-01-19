@@ -13,7 +13,7 @@ const formatContent = (html: string) => {
     .filter((line) => line.trim() !== "");
 
   // 改行を「/」で結合
-  return paragraphs.join(" / ");
+  return paragraphs.join(" ｜ ");
 };
 
 interface Memo {
