@@ -18,10 +18,8 @@ export async function GET() {
 
       // メモが存在しない場合は空配列を返す
       return NextResponse.json(memos || []);
-
-    } else {
-      return NextResponse.json({ error: "no user" }, { status: 401 });
     }
+    return NextResponse.json({ error: "no user" }, { status: 401 });
   } catch (error) {
     console.error("Error in GET /api/memos:", error as Error);
     return NextResponse.json(
@@ -58,11 +56,10 @@ export async function PUT(request: Request) {
         message: "Memos updated successfully",
         ...data
       });
-    } else {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   } catch (error) {
-    console.error("Error in PUT /api/memos:", error as any);
+    console.error("Error in PUT /api/memos:", error as Error);
     return NextResponse.json({ details: (error as Error).message, error: "Internal Server Error" }, { status: 500 });
   }
 }
