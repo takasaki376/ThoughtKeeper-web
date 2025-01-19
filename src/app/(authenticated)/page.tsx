@@ -30,7 +30,7 @@ export default function Home() {
           <Link href="/ThemeSelect">今日のメモ書き</Link>
         </Button>
         <Button>
-          <Link href="/MemoList">過去のメモ書き</Link>
+          <Link href="/MemoListAll">過去のメモ書き</Link>
         </Button>
         <Button>
           <Link href="/setting">設定</Link>
