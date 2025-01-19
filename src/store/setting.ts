@@ -1,7 +1,7 @@
 import { atom } from "jotai";
 
 import { fetchSettings, updateSettings } from "@/services/settingsService";
-import { themes } from "@/types/database";
+import type { themes } from "@/types/database";
 
 export const themeAtom = atom<themes>([]); // 初期値を空の配列に設定
 export const memoListAtom = atom<{ content: string; date: string; theme: string; time: string }[]>([]);
