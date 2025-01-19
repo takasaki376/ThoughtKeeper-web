@@ -24,8 +24,8 @@ export default function MemoListPage() {
     <div className="flex flex-col items-center justify-center">
       <h1 className="mb-5 text-xl font-bold">保存されたメモ</h1>
       <ul className="w-2/3 list-disc">
-        {reversedList.map((memo, index) => (
-          <li key={index} className="mb-4">
+        {reversedList.map((memo) => (
+          <li key={`${memo.date}-${memo.time}-${memo.theme}`} className="mb-4">
             <p className="text-sm text-gray">
               日付: {memo.date}: {memo.time}
             </p>
