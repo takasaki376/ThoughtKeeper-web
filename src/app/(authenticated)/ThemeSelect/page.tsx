@@ -73,6 +73,7 @@ export default function ThemeSelectPage() {
       </ul>
       <div className="mt-4 flex justify-center">
         <button
+          type="button"
           className="rounded border bg-yellow-700 px-4 py-2 font-bold text-white shadow hover:bg-yellow-500"
           onClick={handleStart}
         >
