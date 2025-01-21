@@ -1,6 +1,8 @@
 "use client";
 import { type FC, useEffect, useState } from "react";
 
+import type { Memo } from "@/types/database";
+
 // HTMLタグを除去し、改行を「/」で置き換える関数
 const formatContent = (html: string) => {
   const doc = new DOMParser().parseFromString(html, "text/html");
@@ -30,16 +32,6 @@ const formatDate = (dateString: string) => {
   return `${year}/${month}/${day} ${time}`; // フォーマットを「YYYY/MM/DD HH:mm」に
 };
 
-interface Memo {
-  id: string;
-  title: string;
-  content: string;
-  created_at: string;
-  theme: {
-    id: string;
-    theme: string;
-  };
-}
 
 const MemoListAll: FC = () => {
   const [memoList, setMemoList] = useState<Memo[]>([]); // メモのリストを管理

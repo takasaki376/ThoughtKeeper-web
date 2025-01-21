@@ -6,12 +6,9 @@ import { useEffect, useState } from "react";
 import { Loader } from "@/component/Loader";
 import { useGetThemes } from "@/hooks/useGetThemes";
 import { countTheme, setThemeAtom } from "@/store/setting";
+import type { Theme } from "@/types/database";
 
-interface Theme {
-  id: string;
-  title: string;
-  theme: string;
-}
+
 
 export default function ThemeSelectPage() {
   const ThemesToScribble = useAtomValue(countTheme); // 設定されたテーマ数を取得
@@ -42,7 +39,7 @@ export default function ThemeSelectPage() {
   }
 
   function randomSelect(theme: Theme[], num: number): Theme[] {
-    const newTheme = [];
+    const newTheme: Theme[] = [];
     while (newTheme.length < num && theme.length > 0) {
       const rand = Math.floor(Math.random() * theme.length);
       newTheme.push(theme[rand]);
@@ -54,7 +51,6 @@ export default function ThemeSelectPage() {
   const handleStart = () => {
     router.push("/MemoEditor");
   };
-
   return (
     <div className="">
       <div className="my-3 flex justify-around">

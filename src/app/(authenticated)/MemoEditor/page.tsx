@@ -5,7 +5,8 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { Tiptap } from "@/component/TipTap";
 import { useThemeTimer } from "@/hooks/useThemeTimer";
 import { countTime, memoListAtom, themeAtom } from "@/store/setting";
-import type { Memo } from "@/types/database";
+import type { Memo, Theme } from "@/types/database";
+
 
 const MemoEditorPage = () => {
   const themes = useAtomValue(themeAtom);
@@ -104,9 +105,9 @@ const MemoEditorPage = () => {
         <h2>テーマ</h2>
         <div className="flex flex-row items-baseline justify-center">
           <div className="mb-4 text-sm text-lightGray">
-            {themes.map((theme, index) => (
+            {themes.map((theme: Theme, index: number) => (
               <p
-                key={theme.id}
+                key={theme.theme}
                 className={`${
                   index === currentThemeIndex
                     ? "text-base font-semibold text-yellow-700"
