@@ -25,11 +25,14 @@ export default function MemoListPage() {
       <h1 className="mb-5 text-xl font-bold">保存されたメモ</h1>
       <ul className="w-2/3 list-disc">
         {reversedList.map((memo) => (
-          <li key={`${memo.date}-${memo.time}-${memo.theme}`} className="mb-4">
+          <li
+            key={`${memo.date}-${memo.time}-${memo.theme}`}
+            className="mb-4 list-none"
+          >
             <p className="text-sm text-gray">
-              日付: {memo.date}: {memo.time}
+              {memo.date}: {memo.time}
             </p>
-            <p className="text-base font-semibold">テーマ: {memo.theme}</p>
+            <p className="text-sm text-gray">{memo.theme}</p>
             {/* メモの内容をフォーマットして表示 */}
             <p>{formatContent(memo.content)}</p>
           </li>

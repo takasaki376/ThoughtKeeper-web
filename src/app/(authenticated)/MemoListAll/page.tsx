@@ -36,7 +36,12 @@ interface Memo {
   content: string;
   created_at: string;
   date: string;
-  theme: string;
+  theme: {
+    id: string;
+    title: string;
+    theme: string;
+  };
+  theme_id: string;
   time: string;
 }
 
@@ -86,11 +91,16 @@ export default function MemoListAllPage() {
 
       <ul className="w-2/3 list-disc">
         {reversedList.map((memo) => (
-          <li key={`${memo.date}-${memo.time}-${memo.theme}`} className="mb-4">
-            <p className="text-sm text-gray">
-              日付: {formatDate(memo.created_at)}
+          <li
+            key={`${memo.date}-${memo.time}-${memo.theme.title}`}
+            className="mb-4 list-none"
+          >
+            <p className="text-center text-xs font-extralight text-gray">
+              {formatDate(memo.created_at)}
             </p>
-            <p className="text-base font-semibold">テーマ: {memo.theme}</p>
+            <p className="my-2 text-xs font-thin">
+              {memo.theme.title} - {memo.theme.theme}
+            </p>
             <p>{formatContent(memo.content)}</p>
           </li>
         ))}
