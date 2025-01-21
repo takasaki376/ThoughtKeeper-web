@@ -30,6 +30,16 @@ export default function ThemeSelectPage() {
     }
   }, [selected, setThemes]);
 
+  useEffect(() => {
+    const fetchThemes = async () => {
+      const response = await fetch("/api/themes");
+      const data = await response.json();
+      setThemes(data);
+    };
+
+    fetchThemes();
+  }, [setThemes]); // setThemesを依存配列に追加
+
   if (loading) {
     return <Loader />;
   }
