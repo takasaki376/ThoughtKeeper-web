@@ -1,10 +1,10 @@
 "use client";
 import { useEffect, useState } from "react";
 
-import { themes } from "@/types/database";
+import type { Themes } from "@/types/database";
 
 export function useGetThemes() {
-  const [themes, setThemes] = useState<themes>([]);
+  const [themes, setThemes] = useState<Themes>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<null | string>(null);
 
@@ -17,7 +17,7 @@ export function useGetThemes() {
           const errorMessage = await response.text();
           throw new Error(`Network response was not ok: ${errorMessage}`);
         }
-        const result = (await response.json()) as themes;
+        const result = (await response.json()) as Themes;
         setThemes(result);
       } catch (err) {
         console.error(err);
