@@ -16,8 +16,15 @@ const formatContent = (html: string) => {
   return paragraphs.join(" ｜ ");
 };
 
+interface Memo {
+  content: string;
+  date: string;
+  theme: string;
+  time: string;
+}
+
 export default function MemoListPage() {
-  const memoList = useAtomValue(memoListAtom); // 保存されたメモを取得
+  const memoList = useAtomValue<Memo[]>(memoListAtom); // 保存されたメモを取得
   const reversedList = memoList.toReversed();
 
   return (
