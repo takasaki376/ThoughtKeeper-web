@@ -29,7 +29,7 @@ export const useThemeTimer = (
       setRemainingTime((prevTime) => {
         if ((prevTime === 1 ) && !isSavingRef.current) {
           isSavingRef.current = true;
-          
+
           // 非同期で保存処理を実行
           Promise.resolve()
             .then(() => onSave())
@@ -48,7 +48,6 @@ export const useThemeTimer = (
               console.error("保存処理でエラーが発生しました:", error);
               isSavingRef.current = false;
             });
-
           
           return initialTime;
         }
