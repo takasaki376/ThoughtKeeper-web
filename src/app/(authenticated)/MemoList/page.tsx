@@ -13,23 +13,27 @@ const formatContent = (html: string) => {
     .filter((line) => line.trim() !== "");
 
   // 改行を「/」で結合
-  return paragraphs.join(" / ");
+  return paragraphs.join(" ｜ ");
 };
+
 
 export default function MemoListPage() {
   const memoList = useAtomValue(memoListAtom); // 保存されたメモを取得
-  const reversedList = memoList.toReversed();
+  const reversedList = [...memoList].reverse(); // 配列を逆順にする
 
   return (
     <div className="flex flex-col items-center justify-center">
       <h1 className="mb-5 text-xl font-bold">保存されたメモ</h1>
       <ul className="w-2/3 list-disc">
-        {reversedList.map((memo, index) => (
-          <li key={index} className="mb-4">
+        {reversedList.map((memo) => (
+          <li
+            key={`${memo.date}-${memo.time}-${memo.theme}`}
+            className="mb-4 list-none"
+          >
             <p className="text-sm text-gray">
-              日付: {memo.date}: {memo.time}
+              {memo.date}: {memo.time}
             </p>
-            <p className="text-base font-semibold">テーマ: {memo.theme}</p>
+            <p className="text-sm text-gray">{memo.theme}</p>
             {/* メモの内容をフォーマットして表示 */}
             <p>{formatContent(memo.content)}</p>
           </li>

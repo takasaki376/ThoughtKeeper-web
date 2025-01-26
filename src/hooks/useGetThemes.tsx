@@ -1,12 +1,15 @@
 "use client";
+import { useSetAtom } from "jotai";
 import { useEffect, useState } from "react";
 
-import { themes } from "@/types/database";
+import { setThemeAtom } from "@/store/setting";
+import type { Themes } from "@/types/database";
 
 export function useGetThemes() {
-  const [themes, setThemes] = useState<themes>([]);
+  const [allThemes, setAllThemes] = useState<Themes>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<null | string>(null);
+  const setThemes = useSetAtom(setThemeAtom);
 
   useEffect(() => {
     const fetchThemes = async () => {
@@ -17,8 +20,8 @@ export function useGetThemes() {
           const errorMessage = await response.text();
           throw new Error(`Network response was not ok: ${errorMessage}`);
         }
-        const result = (await response.json()) as themes;
-        setThemes(result);
+        const result = (await response.json()) as Themes;
+        setAllThemes(result);
       } catch (err) {
         console.error(err);
         setError("Failed to fetch themes");
@@ -30,5 +33,16 @@ export function useGetThemes() {
     fetchThemes();
   }, []);
 
-  return { error, loading, themes };
+  const randomSelect = (theme: Themes, num: number): Themes => {
+    const newTheme: Themes = [];
+    while (newTheme.length < num && theme.length > 0) {
+      const rand = Math.floor(Math.random() * theme.length);
+      newTheme.push(theme[rand]);
+      theme.splice(rand, 1);
+    }
+    setThemes(newTheme);
+    return newTheme;
+  };
+
+  return { allThemes, error, loading, randomSelect };
 }

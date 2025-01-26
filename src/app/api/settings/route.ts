@@ -32,9 +32,8 @@ export async function GET() {
 
       // ユーザー設定が存在する場合はそれを返す
       return NextResponse.json(userSettings);
-    } else {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   } catch (error) {
     console.error("Error in GET /api/settings:", error as Error);
     return NextResponse.json({ details: (error as Error).message, error: "Internal Server Error" }, { status: 500 });
@@ -68,11 +67,10 @@ export async function PUT(request: Request) {
         message: "Settings updated successfully",
         ...data
       });
-    } else {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   } catch (error) {
-    console.error("Error in PUT /api/settings:", error as any);
+    console.error("Error in PUT /api/settings:", error as Error);
     return NextResponse.json({ details: (error as Error).message, error: "Internal Server Error" }, { status: 500 });
   }
 }
