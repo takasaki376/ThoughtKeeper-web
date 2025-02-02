@@ -119,7 +119,12 @@ export default function SettingPage() {
           alert("パスワードがリセットされました。");
           setNewPassword(""); // 入力フィールドをクリア
         } else {
-          alert("パスワードのリセットに失敗しました。");
+          if (response.status === 400 || response.status === 500) {
+            const errorData = await response.json();
+            alert(errorData.message || "パスワードのリセットに失敗しました。");
+          } else {
+            alert("パスワードのリセットに失敗しました。");
+          }
         }
       } catch (error) {
         console.error("パスワードリセット中にエラーが発生しました:", error);
