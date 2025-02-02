@@ -1,5 +1,6 @@
 "use client";
 import { NumberInput } from "@mantine/core";
+import { createClientComponentClient } from "@supabase/auth-helpers-nextjs";
 import { useAtom } from "jotai";
 import Link from "next/link";
 import { useEffect, useState } from "react";
@@ -103,6 +104,7 @@ export default function SettingPage() {
   // パスワードリセットの入力
   const InputResetPassword = () => {
     const [newPassword, setNewPassword] = useState("");
+    const supabase = createClientComponentClient();
 
     const handleChange = (val: string) => {
       setNewPassword(val);
@@ -110,21 +112,26 @@ export default function SettingPage() {
 
     const handleReset = async () => {
       try {
-        const response = await fetch("/api/reset-password", {
-          body: JSON.stringify({ password: newPassword }),
-          headers: { "Content-Type": "application/json" },
-          method: "POST",
-        });
-        if (response.ok) {
-          alert("パスワードがリセットされました。");
-          setNewPassword(""); // 入力フィールドをクリア
-        } else {
-          if (response.status === 400 || response.status === 500) {
-            const errorData = await response.json();
-            alert(errorData.message || "パスワードのリセットに失敗しました。");
+        const {
+          data: { user },
+        } = await supabase.auth.getUser();
+
+        if (user) {
+          const { data, error } = await supabase.auth.updateUser({
+            password: newPassword,
+          });
+
+          if (error) {
+            console.error("パスワードの更新に失敗しました:", error.message);
+            alert("パスワードの更新に失敗しました。");
           } else {
-            alert("パスワードのリセットに失敗しました。");
+            console.log("パスワードが更新されました:", data);
+            alert("パスワードが更新されました。");
+            setNewPassword(""); // 入力フィールドをクリア
           }
+        } else {
+          console.error("ユーザーがサインインしていません。");
+          alert("ユーザーがサインインしていません。");
         }
       } catch (error) {
         console.error("パスワードリセット中にエラーが発生しました:", error);
