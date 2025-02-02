@@ -5,9 +5,11 @@ import Link from "next/link";
 import { useEffect, useState } from "react";
 import { MdOutlineClose } from "react-icons/md";
 
+import { useUser } from "@/hooks/useUser";
 import { countTheme, countTime } from "@/store/setting";
 
 export default function SettingPage() {
+  const { user } = useUser();
   const [count, setCount] = useAtom(countTheme);
   const [time, setTime] = useAtom(countTime);
 
@@ -26,6 +28,12 @@ export default function SettingPage() {
     };
     fetchSettings();
   }, [setCount, setTime]);
+
+  useEffect(() => {
+    if (!user) {
+      console.error("User is not authenticated");
+    }
+  }, [user]);
 
   // テーマ数の入力
   const InputTargetCount = () => {
@@ -92,6 +100,52 @@ export default function SettingPage() {
     );
   };
 
+  // パスワードリセットの入力
+  const InputResetPassword = () => {
+    const [newPassword, setNewPassword] = useState("");
+
+    const handleChange = (val: string) => {
+      setNewPassword(val);
+    };
+
+    const handleReset = async () => {
+      try {
+        const response = await fetch("/api/reset-password", {
+          body: JSON.stringify({ password: newPassword }),
+          headers: { "Content-Type": "application/json" },
+          method: "POST",
+        });
+        if (response.ok) {
+          alert("パスワードがリセットされました。");
+          setNewPassword(""); // 入力フィールドをクリア
+        } else {
+          alert("パスワードのリセットに失敗しました。");
+        }
+      } catch (error) {
+        console.error("パスワードリセット中にエラーが発生しました:", error);
+      }
+    };
+
+    return (
+      <div>
+        <input
+          type="password"
+          value={newPassword}
+          onChange={(e) => handleChange(e.target.value)}
+          placeholder="新しいパスワード"
+          className="border p-2"
+        />
+        <button
+          type="button"
+          onClick={handleReset}
+          className="ml-2 bg-blue-500 p-2 text-white"
+        >
+          パスワードリセット
+        </button>
+      </div>
+    );
+  };
+
   return (
     <div className="mx-3 mt-6 flex justify-between p-8 shadow lg:mt-0 dark:shadow-lightGray">
       <div className="flex-1">
@@ -124,6 +178,26 @@ export default function SettingPage() {
               </div>
               <p className="py-2 text-sm text-gray">
                 テーマごとの制限時間を設定します
+              </p>
+            </div>
+          </div>
+
+          <div className="mb-6 md:flex">
+            <div className="md:w-1/3">
+              <label
+                htmlFor="resetPassword"
+                className="mb-3 block pr-4 font-bold"
+              >
+                パスワードリセット
+              </label>
+            </div>
+            <div className="md:w-2/3">
+              <span className="mb-3 block pr-4 text-xs">
+                email: {user?.email}
+              </span>
+              <InputResetPassword />
+              <p className="py-2 text-sm text-gray">
+                新しいパスワードを設定します
               </p>
             </div>
           </div>
