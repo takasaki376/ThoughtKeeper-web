@@ -111,6 +111,25 @@ export default function SettingPage() {
     };
 
     const handleReset = async () => {
+      // パスワードの検証
+      if (newPassword.length < 8) {
+        alert("パスワードは8文字以上である必要があります。");
+        return;
+      }
+
+      // 文字種の要件チェック
+      const hasNumber = /\d/.test(newPassword);
+      const hasLower = /[a-z]/.test(newPassword);
+      const hasUpper = /[A-Z]/.test(newPassword);
+      const hasSymbol = /[!@#$%^&*(),.?":{}|<>]/.test(newPassword);
+
+      if (!(hasNumber && hasLower && hasUpper && hasSymbol)) {
+        alert(
+          "パスワードには数字、小文字、大文字、記号を含める必要があります。"
+        );
+        return;
+      }
+
       try {
         const {
           data: { user },
@@ -127,14 +146,20 @@ export default function SettingPage() {
           } else {
             console.log("パスワードが更新されました:", data);
             alert("パスワードが更新されました。");
-            setNewPassword(""); // 入力フィールドをクリア
+            setNewPassword("");
           }
-        } else {
-          console.error("ユーザーがサインインしていません。");
-          alert("ユーザーがサインインしていません。");
         }
-      } catch (error) {
-        console.error("パスワードリセット中にエラーが発生しました:", error);
+      } catch (error: unknown) {
+        const errorMessage =
+          error instanceof Error
+            ? error.message
+            : "予期せぬエラーが発生しました";
+
+        console.error(
+          "パスワードリセット中にエラーが発生しました:",
+          errorMessage
+        );
+        alert(errorMessage);
       }
     };
 
@@ -157,6 +182,18 @@ export default function SettingPage() {
       </div>
     );
   };
+
+  // パスワードの要件を表示
+  const passwordRequirements = (
+    <div>
+      <p>新しいパスワードの要件:</p>
+      <ul>
+        <li>最小文字数: 8文字以上</li>
+        <li>使用文字の要件: 数字、小文字、大文字、記号を含めること</li>
+        <li>漏洩パスワードは使用禁止</li>
+      </ul>
+    </div>
+  );
 
   return (
     <div className="mx-3 mt-6 flex justify-between p-8 shadow lg:mt-0 dark:shadow-lightGray">
@@ -208,9 +245,7 @@ export default function SettingPage() {
                 email: {user?.email}
               </span>
               <InputResetPassword />
-              <p className="py-2 text-sm text-gray">
-                新しいパスワードを設定します
-              </p>
+              <p className="py-2 text-sm text-gray">{passwordRequirements}</p>
             </div>
           </div>
         </form>
