@@ -59,15 +59,21 @@ const MemoListAll: FC = () => {
     fetchMemoList(); // メモリストを取得
   }, []); // コンポーネントのマウント時にデータを取得
 
-  const handleFilterChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+  const handleFilterChange = async (
+    event: React.ChangeEvent<HTMLInputElement>
+  ) => {
     const date = event.target.value;
     setFilterDate(date);
-    // 日付でフィルタリング
-    const filtered = memoList.filter((memo: Memo) => {
-      const memoDate = new Date(memo.created_at).toISOString().split("T")[0];
-      return memoDate === date;
-    });
-    setFilteredMemos(filtered);
+
+    if (date) {
+      fetchMemos(new Date(date));
+    } else {
+      // 日付フィルターがクリアされた場合
+      const response = await fetch("/api/memos");
+      const data = await response.json();
+      setMemoList(data);
+      setFilteredMemos(data); // filteredMemosも更新
+    }
   };
 
   const handleThemeChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
@@ -81,7 +87,35 @@ const MemoListAll: FC = () => {
     setFilteredMemos(filtered); // フィルタリングされたメモを更新
   };
 
-  const reversedList = filteredMemos.toReversed();
+  // 配列であることを確認
+  const reversedList = Array.isArray(filteredMemos)
+    ? [...filteredMemos].reverse()
+    : [];
+
+  const fetchMemos = async (selectedDate: Date) => {
+    try {
+      const startOfDay = new Date(selectedDate);
+      startOfDay.setHours(0, 0, 0, 0);
+
+      const endOfDay = new Date(selectedDate);
+      endOfDay.setHours(23, 59, 59, 999);
+
+      const startUTC = startOfDay.toISOString();
+      const endUTC = endOfDay.toISOString();
+
+      const response = await fetch(
+        `/api/memos?start=${startUTC}&end=${endUTC}`,
+        {
+          method: "GET",
+        }
+      );
+      const data = await response.json();
+      setMemoList(data);
+      setFilteredMemos(data); // filteredMemosも更新
+    } catch (error) {
+      console.error("メモの取得に失敗しました:", error);
+    }
+  };
 
   return (
     <div className="flex flex-col items-center justify-center">
