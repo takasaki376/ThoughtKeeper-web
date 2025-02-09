@@ -32,7 +32,6 @@ const formatDate = (dateString: string) => {
   return `${year}/${month}/${day} ${time}`; // フォーマットを「YYYY/MM/DD HH:mm」に
 };
 
-
 const MemoListAll: FC = () => {
   const [memoList, setMemoList] = useState<Memo[]>([]); // メモのリストを管理
   const [filteredMemos, setFilteredMemos] = useState<Memo[]>([]); // フィルタリングされたメモのリストを管理
@@ -122,15 +121,24 @@ const MemoListAll: FC = () => {
       <h1 className="mb-5 text-xl font-bold">保存されたメモ</h1>
       <div className="flex items-center justify-center">
         {/* 日付フィルター入力 */}
+        <label htmlFor="date-filter" className="sr-only">
+          日付フィルター
+        </label>
         <input
+          id="date-filter"
           type="date"
           value={filterDate}
           onChange={handleFilterChange}
           className="mr-2 rounded border border-lightGray p-2"
+          placeholder="日付を選択"
         />
 
         {/* テーマ選択ドロップボックス */}
+        <label htmlFor="theme-select" className="sr-only">
+          テーマ選択
+        </label>
         <select
+          id="theme-select"
           className="my-4 rounded border border-lightGray p-2"
           onChange={handleThemeChange}
           value={selectedTheme}
