@@ -4,6 +4,8 @@ import { useState } from "react";
 
 import { useUser } from "@/hooks/useUser";
 
+import { passwordRequirements } from "./passwordRequirements";
+
 export default function ResetPassword() {
   const { user } = useUser();
 
@@ -92,18 +94,6 @@ export default function ResetPassword() {
       </div>
     );
   };
-
-  // パスワードの要件を表示
-  const passwordRequirements = (
-    <div>
-      <p>新しいパスワードの要件:</p>
-      <ul>
-        <li>最小文字数: 8文字以上</li>
-        <li>使用文字の要件: 数字、小文字、大文字、記号を含めること</li>
-        <li>漏洩パスワードは使用禁止</li>
-      </ul>
-    </div>
-  );
 
   return (
     <div className="mb-6 md:flex">

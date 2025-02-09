@@ -6,7 +6,7 @@ import { useState } from "react";
 import { useUser } from "@/hooks/useUser";
 import { countTheme, countTime } from "@/store/setting";
 
-import ResetPassword from "./resetPassword";
+import ResetPassword from "./ResetPassword";
 
 export default function SettingPage() {
   const { user } = useUser();
