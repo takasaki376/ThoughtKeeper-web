@@ -27,20 +27,18 @@ export const useThemeTimer = (
 
     timerRef.current = setInterval(async () => {
       setRemainingTime((prevTime) => {
-        if (prevTime === 1 && !isSavingRef.current) {
+        if ((prevTime === 1 ) && !isSavingRef.current) {
           isSavingRef.current = true;
-          
-          const nextIndex = (currentIndex + 1) % themeCount;
 
           // 非同期で保存処理を実行
           Promise.resolve()
             .then(() => onSave())
             .then(() => {
               // 保存完了後にテーマを切り替え
-              onThemeChange(nextIndex);
+              onThemeChange(currentIndex + 1);
               
               // 全テーマを一巡したらページ遷移
-              if (nextIndex === 0) {
+              if (currentIndex + 1 === themeCount) {
                 router.push("/MemoList");
               }
               
@@ -50,10 +48,10 @@ export const useThemeTimer = (
               console.error("保存処理でエラーが発生しました:", error);
               isSavingRef.current = false;
             });
-
+          
           return initialTime;
         }
-        return prevTime - 1;
+        return (prevTime === 1 ? initialTime : prevTime - 1);
       });
     }, 1000);
 
