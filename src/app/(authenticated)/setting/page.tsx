@@ -1,31 +1,39 @@
 "use client";
 import { NumberInput } from "@mantine/core";
 import { useAtom } from "jotai";
-import Link from "next/link";
-import { useEffect, useState } from "react";
-import { MdOutlineClose } from "react-icons/md";
+import { useCallback, useEffect, useState } from "react";
 
+import { useUser } from "@/hooks/useUser";
 import { countTheme, countTime } from "@/store/setting";
 
+import ResetPassword from "./ResetPassword";
+
 export default function SettingPage() {
+  const { user } = useUser();
   const [count, setCount] = useAtom(countTheme);
   const [time, setTime] = useAtom(countTime);
 
-  useEffect(() => {
-    const fetchSettings = async () => {
-      try {
-        const response = await fetch("/api/settings");
-        const data = await response.json();
-        if (data) {
-          setCount(data.theme_count || 10);
-          setTime(data.time_limit || "60");
-        }
-      } catch (error) {
-        console.error("設定の取得に失敗しました:", error);
+  const fetchSettings = useCallback(async () => {
+    try {
+      const response = await fetch("/api/settings");
+      if (!response.ok) {
+        throw new Error("設定の取得に失敗しました");
       }
-    };
-    fetchSettings();
+      const data = await response.json();
+      setCount(data.theme_count || 10);
+      setTime(data.time_limit || "60");
+    } catch (error) {
+      console.error("設定の取得中にエラーが発生しました:", error);
+    }
   }, [setCount, setTime]);
+
+  useEffect(() => {
+    if (user) {
+      fetchSettings();
+    } else {
+      console.error("User is not authenticated");
+    }
+  }, [user, fetchSettings]);
 
   // テーマ数の入力
   const InputTargetCount = () => {
@@ -127,11 +135,10 @@ export default function SettingPage() {
               </p>
             </div>
           </div>
+
+          <ResetPassword />
         </form>
       </div>
-      <Link className="pl-10 text-xl" href="/">
-        <MdOutlineClose />
-      </Link>
     </div>
   );
 }
