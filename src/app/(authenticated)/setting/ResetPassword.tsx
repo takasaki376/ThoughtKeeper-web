@@ -1,21 +1,13 @@
 "use client";
 import { createClientComponentClient } from "@supabase/auth-helpers-nextjs";
-import { useCallback, useEffect, useState } from "react";
+import { useState } from "react";
 
 import { useUser } from "@/hooks/useUser";
 
 import { passwordRequirements } from "./passwordRequirements";
 
-interface UserSettings {
-  theme_count: number;
-  time_limit: string;
-  user_id: string;
-}
-
 export default function ResetPassword() {
   const { user } = useUser();
-  const supabase = createClientComponentClient();
-  const [userSettings, setUserSettings] = useState<UserSettings[] | null>(null);
 
   if (!user) {
     console.error("User is not authenticated");
@@ -24,13 +16,13 @@ export default function ResetPassword() {
   // パスワードリセットの入力
   const InputResetPassword = () => {
     const [newPassword, setNewPassword] = useState("");
+    const supabase = createClientComponentClient();
 
     const handleChange = (val: string) => {
       setNewPassword(val);
     };
 
-    const handleReset = async (e: React.FormEvent) => {
-      e.preventDefault();
+    const handleReset = async () => {
       // パスワードの検証
       if (newPassword.length < 8) {
         alert("パスワードは8文字以上である必要があります。");
@@ -56,7 +48,7 @@ export default function ResetPassword() {
         } = await supabase.auth.getUser();
 
         if (user) {
-          const { error } = await supabase.auth.updateUser({
+          const { data, error } = await supabase.auth.updateUser({
             password: newPassword,
           });
 
@@ -64,9 +56,9 @@ export default function ResetPassword() {
             console.error("パスワードの更新に失敗しました:", error.message);
             alert("パスワードの更新に失敗しました。");
           } else {
+            console.log("パスワードが更新されました:", data);
             alert("パスワードが更新されました。");
             setNewPassword("");
-            // サインイン処理を削除（セッションは維持されます）
           }
         }
       } catch (error: unknown) {
@@ -93,7 +85,7 @@ export default function ResetPassword() {
           className="border p-2"
         />
         <button
-          type="submit"
+          type="button"
           onClick={handleReset}
           className="ml-2 bg-blue-500 p-2 text-white"
         >
@@ -102,34 +94,6 @@ export default function ResetPassword() {
       </div>
     );
   };
-
-  const fetchUserSettings = useCallback(
-    async (userId: string) => {
-      const { data, error } = await supabase
-        .from("settings")
-        .select("*")
-        .eq("user_id", userId);
-      if (error) {
-        console.error("設定の取得エラー:", error.message);
-        return null;
-      }
-      setUserSettings(data);
-    },
-    [supabase]
-  );
-
-  useEffect(() => {
-    const fetchSession = async () => {
-      const {
-        data: { session },
-      } = await supabase.auth.getSession();
-      if (session) {
-        fetchUserSettings(session.user.id);
-      }
-    };
-
-    fetchSession();
-  }, [supabase, fetchUserSettings]);
 
   return (
     <div className="mb-6 md:flex">
@@ -142,12 +106,6 @@ export default function ResetPassword() {
         <span className="mb-3 block pr-4 text-xs">email: {user?.email}</span>
         <InputResetPassword />
         <p className="py-2 text-sm text-gray">{passwordRequirements}</p>
-        {userSettings && (
-          <div>
-            <h3>ユーザー設定</h3>
-            <pre>{JSON.stringify(userSettings, null, 2)}</pre>
-          </div>
-        )}
       </div>
     </div>
   );
