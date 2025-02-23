@@ -13,7 +13,7 @@ interface UserSettings {
 }
 
 export default function ResetPassword() {
-  const { user } = useUser();
+  const { setUser, user } = useUser();
   const supabase = createClientComponentClient();
   const [userSettings, setUserSettings] = useState<UserSettings[] | null>(null);
 
@@ -51,35 +51,37 @@ export default function ResetPassword() {
       }
 
       try {
-        const {
-          data: { user },
-        } = await supabase.auth.getUser();
+        const response = await fetch("/api/auth/reset-password", {
+          body: JSON.stringify({ email: user?.email, newPassword }),
+          headers: {
+            "Content-Type": "application/json",
+          },
+          method: "POST",
+        });
 
-        if (user) {
-          const { error } = await supabase.auth.updateUser({
-            password: newPassword,
-          });
-
-          if (error) {
-            console.error("パスワードの更新に失敗しました:", error.message);
-            alert("パスワードの更新に失敗しました。");
-          } else {
-            alert("パスワードが更新されました。");
-            setNewPassword("");
-            // サインイン処理を削除（セッションは維持されます）
-          }
+        if (!response.ok) {
+          throw new Error("パスワードリセットに失敗しました");
         }
-      } catch (error: unknown) {
-        const errorMessage =
-          error instanceof Error
-            ? error.message
-            : "予期せぬエラーが発生しました";
 
-        console.error(
-          "パスワードリセット中にエラーが発生しました:",
-          errorMessage
-        );
-        alert(errorMessage);
+        const tokenResponse = await fetch("/api/auth/login", {
+          body: JSON.stringify({ email: user?.email, password: newPassword }),
+          headers: {
+            "Content-Type": "application/json",
+          },
+          method: "POST",
+        });
+
+        if (!tokenResponse.ok) {
+          throw new Error("ログインに失敗しました");
+        }
+
+        const tokenData = await tokenResponse.json();
+        localStorage.setItem("token", tokenData.token);
+        setUser(tokenData.user);
+
+        await fetchSettings();
+      } catch (error) {
+        console.error("エラー:", error);
       }
     };
 
@@ -117,6 +119,12 @@ export default function ResetPassword() {
     },
     [supabase]
   );
+
+  const fetchSettings = async () => {
+    if (user?.id) {
+      await fetchUserSettings(user.id);
+    }
+  };
 
   useEffect(() => {
     const fetchSession = async () => {

@@ -29,5 +29,5 @@ export function useUser() {
     };
   }, [supabase.auth]);
 
-  return { user };
+  return { setUser, user };
 }
