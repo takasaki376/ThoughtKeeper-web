@@ -1,10 +1,19 @@
-export const fetchSettings = async () => {
-  const response = await fetch("/api/settings");
-  if (!response.ok) {
-    throw new Error("Failed to fetch settings");
+
+import { Setting } from "@/types/database";
+
+import api from "./api";
+
+const fetchSettings = async () => {
+  try {
+    const data = await api.get<Setting>('settings').json();
+    return data;
+  } catch (error) {
+    console.error("設定の取得中にエラーが発生しました:", error);
+    throw error;
   }
-  return response.json();
 };
+
+export { fetchSettings };
 
 // 設定更新用の関数を追加
 export const updateSettings = async (theme_count: number, time_limit: string) => {
