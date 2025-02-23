@@ -1,8 +1,8 @@
 "use client";
-import { createClientComponentClient } from "@supabase/auth-helpers-nextjs";
 import { useCallback, useEffect, useState } from "react";
 
 import { useUser } from "@/hooks/useUser";
+import { createClient } from "@/utils/supabase/client";
 
 import { passwordRequirements } from "./passwordRequirements";
 
@@ -14,7 +14,7 @@ interface UserSettings {
 
 export default function ResetPassword() {
   const { user } = useUser();
-  const supabase = createClientComponentClient();
+  const supabase = createClient();
   const [userSettings, setUserSettings] = useState<UserSettings[] | null>(null);
 
   if (!user) {
