@@ -9,7 +9,7 @@
     "@mantine/core": "^7.14.0",
     "@mantine/hooks": "^7.14.0",
     "@supabase/auth-helpers-nextjs": "^0.10.0",
-    "@supabase/ssr": "latest",
+    "@supabase/ssr": "^0.5.2",
     "@supabase/supabase-js": "latest",
     "@tiptap/extension-highlight": "^2.1.12",
     "@tiptap/extension-task-item": "^2.1.12",

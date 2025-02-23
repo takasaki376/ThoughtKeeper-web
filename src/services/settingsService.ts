@@ -1,8 +1,11 @@
+
+import { Setting } from "@/types/database";
+
 import api from "./api";
 
 const fetchSettings = async () => {
   try {
-    const data = await api.get('settings').json();
+    const data = await api.get<Setting>('settings').json();
     return data;
   } catch (error) {
     console.error("設定の取得中にエラーが発生しました:", error);

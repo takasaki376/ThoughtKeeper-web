@@ -1,10 +1,6 @@
 import ky from 'ky';
 
 const api = ky.create({
-  headers: {
-    Authorization: `Bearer ${localStorage.getItem('token')}`, // トークンを自動的に追加
-    'Content-Type': 'application/json',
-  },
   prefixUrl: '/api/', // 相対URLを使用
   retry: {
     limit: 3, // 最大リトライ回数
