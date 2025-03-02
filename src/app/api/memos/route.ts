@@ -1,8 +1,9 @@
 import { NextResponse } from "next/server";
 
-import { supabase } from "@/utils/supabase/supabase";
+import { createClient } from "@/utils/supabase/server";
 
 export async function GET(request: Request) {
+  const supabase = createClient();
   const { searchParams } = new URL(request.url);
   const start = searchParams.get('start');
   const end = searchParams.get('end');
@@ -46,10 +47,11 @@ export async function GET(request: Request) {
 }
 
 export async function PUT(request: Request) {
+  const supabase = createClient();
   try {
-    const user = await supabase.auth.getUser();
+    const { data: { user } } = await supabase.auth.getUser();
     if (user) {
-      const userId = user?.data?.user?.id;
+      const userId = user?.id;
 
       const body = await request.json();
       const { content, theme_id } = body;
