@@ -2,42 +2,56 @@ import { NextResponse } from "next/server";
 
 import { createClient } from "@/utils/supabase/server";
 
-export async function GET() {
+export async function GET(request: Request) {
+  const supabase = createClient();
+  const { searchParams } = new URL(request.url);
+  const start = searchParams.get('start');
+  const end = searchParams.get('end');
+
+  const { data: { user } } = await supabase.auth.getUser();
+
+  if (!user) {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
+
   try {
-    const supabase = createClient();
-    const user = await supabase.auth.getUser();
-    if (user) {
-      const userId = user?.data?.user?.id;
+    let query = supabase
+      .from('memos')
+      .select(`
+        *,
+        theme:themes(id, title, theme)
+      `)
+      .eq('user_id', user.id);
 
-      const { data: memos, error } = await supabase
-        .from('memos')
-        .select(`
-          *,
-          theme:themes(id, title, theme)
-        `)
-        .eq('user_id', userId);
-
-      if (error) throw error;
-
-      // メモが存在しない場合は空配列を返す
-      return NextResponse.json(memos || []);
+    // 日付フィルターが指定されている場合
+    if (start && end) {
+      query = query
+        .gte('created_at', start)
+        .lte('created_at', end);
     }
-    return NextResponse.json({ error: "no user" }, { status: 401 });
+
+    const { data, error } = await query.order('created_at', { ascending: false });
+
+    if (error) {
+      throw error;
+    }
+
+    return NextResponse.json(data);
   } catch (error) {
-    console.error("Error in GET /api/memos:", error as Error);
+    console.error("Error fetching memos:", error);
     return NextResponse.json(
-      { details: (error as Error).message, error: "Internal Server Error" },
+      { error: "Internal Server Error" },
       { status: 500 }
     );
   }
 }
 
 export async function PUT(request: Request) {
+  const supabase = createClient();
   try {
-    const supabase = createClient();
-    const user = await supabase.auth.getUser();
+    const { data: { user } } = await supabase.auth.getUser();
     if (user) {
-      const userId = user?.data?.user?.id;
+      const userId = user?.id;
 
       const body = await request.json();
       const { content, theme_id } = body;
