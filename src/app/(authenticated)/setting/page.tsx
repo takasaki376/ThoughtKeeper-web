@@ -1,6 +1,5 @@
 "use client";
 import { NumberInput } from "@mantine/core";
-import { createClientComponentClient } from "@supabase/auth-helpers-nextjs";
 import { useAtom } from "jotai";
 import Link from "next/link";
 import { useState } from "react";
@@ -8,6 +7,7 @@ import { MdOutlineClose } from "react-icons/md";
 
 import { useUser } from "@/hooks/useUser";
 import { countTheme, countTime } from "@/store/setting";
+import { createClient } from "@/utils/supabase/client";
 
 export default function SettingPage() {
   const { user } = useUser();
@@ -102,7 +102,7 @@ export default function SettingPage() {
   // パスワードリセットの入力
   const InputResetPassword = () => {
     const [newPassword, setNewPassword] = useState("");
-    const supabase = createClientComponentClient();
+    const supabase = createClient();
 
     const handleChange = (val: string) => {
       setNewPassword(val);
