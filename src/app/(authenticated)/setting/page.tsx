@@ -2,30 +2,36 @@
 import { NumberInput } from "@mantine/core";
 import { useAtom } from "jotai";
 import Link from "next/link";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { MdOutlineClose } from "react-icons/md";
 
+import { useUser } from "@/hooks/useUser";
 import { countTheme, countTime } from "@/store/setting";
 
 export default function SettingPage() {
+  const { user } = useUser();
   const [count, setCount] = useAtom(countTheme);
   const [time, setTime] = useAtom(countTime);
 
-  useEffect(() => {
-    const fetchSettings = async () => {
-      try {
-        const response = await fetch("/api/settings");
-        const data = await response.json();
-        if (data) {
-          setCount(data.theme_count || 10);
-          setTime(data.time_limit || "60");
-        }
-      } catch (error) {
-        console.error("設定の取得に失敗しました:", error);
+  const fetchSettings = async () => {
+    try {
+      const response = await fetch("/api/settings");
+      const data = await response.json();
+      if (data) {
+        setCount(data.theme_count || 10);
+        setTime(data.time_limit || "60");
       }
-    };
-    fetchSettings();
-  }, [setCount, setTime]);
+    } catch (error) {
+      console.error("設定の取得に失敗しました:", error);
+    }
+  };
+
+  // コンポーネントがマウントされたときに設定を取得
+  fetchSettings();
+
+  if (!user) {
+    console.error("User is not authenticated");
+  }
 
   // テーマ数の入力
   const InputTargetCount = () => {
