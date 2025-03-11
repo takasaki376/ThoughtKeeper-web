@@ -101,7 +101,12 @@ const MemoListAllPage: FC = () => {
 
   return (
     <div className="flex flex-col items-center justify-center">
-      <h1 className="mb-5 text-xl font-bold">保存されたメモ</h1>
+      <div className="mb-5 flex items-center">
+        <h1 className="text-xl font-bold">保存されたメモ</h1>
+        <span className="ml-3 text-sm text-gray">
+          ({filteredMemos.length}/{memoList.length})
+        </span>
+      </div>
       <div className="flex items-center justify-center">
         {/* 日付フィルター入力 */}
         <label htmlFor="date-filter" className="sr-only">
@@ -155,4 +160,4 @@ const MemoListAllPage: FC = () => {
   );
 };
 
-export default MemoListAll;
+export default MemoListAllPage;
