@@ -32,8 +32,7 @@ const formatDate = (dateString: string) => {
   return `${year}/${month}/${day} ${time}`; // フォーマットを「YYYY/MM/DD HH:mm」に
 };
 
-
-const MemoListAll: FC = () => {
+const MemoListAllPage: FC = () => {
   const [memoList, setMemoList] = useState<Memo[]>([]); // メモのリストを管理
   const [filteredMemos, setFilteredMemos] = useState<Memo[]>([]); // フィルタリングされたメモのリストを管理
   const [filterDate, setFilterDate] = useState(""); // フィルタリング用の日付
@@ -59,15 +58,29 @@ const MemoListAll: FC = () => {
     fetchMemoList(); // メモリストを取得
   }, []); // コンポーネントのマウント時にデータを取得
 
-  const handleFilterChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+  const handleFilterChange = async (
+    event: React.ChangeEvent<HTMLInputElement>
+  ) => {
     const date = event.target.value;
     setFilterDate(date);
-    // 日付でフィルタリング
-    const filtered = memoList.filter((memo: Memo) => {
-      const memoDate = new Date(memo.created_at).toISOString().split("T")[0];
-      return memoDate === date;
-    });
-    setFilteredMemos(filtered);
+
+    if (date) {
+      // 選択された日付の開始と終了を設定
+      const selectedDate = new Date(date);
+      selectedDate.setHours(0, 0, 0, 0);
+      const nextDate = new Date(selectedDate);
+      nextDate.setDate(selectedDate.getDate() + 1);
+
+      // フィルタリングを実行
+      const filtered = memoList.filter((memo) => {
+        const memoDate = new Date(memo.created_at);
+        return memoDate >= selectedDate && memoDate < nextDate;
+      });
+      setFilteredMemos(filtered);
+    } else {
+      // 日付フィルターがクリアされた場合は全てのメモを表示
+      setFilteredMemos(memoList);
+    }
   };
 
   const handleThemeChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
@@ -81,22 +94,39 @@ const MemoListAll: FC = () => {
     setFilteredMemos(filtered); // フィルタリングされたメモを更新
   };
 
-  const reversedList = filteredMemos.toReversed();
+  // 配列であることを確認
+  const reversedList = Array.isArray(filteredMemos)
+    ? [...filteredMemos].reverse()
+    : [];
 
   return (
     <div className="flex flex-col items-center justify-center">
-      <h1 className="mb-5 text-xl font-bold">保存されたメモ</h1>
+      <div className="mb-5 flex items-center">
+        <h1 className="text-xl font-bold">保存されたメモ</h1>
+        <span className="ml-3 text-sm text-gray">
+          ({filteredMemos.length}/{memoList.length})
+        </span>
+      </div>
       <div className="flex items-center justify-center">
         {/* 日付フィルター入力 */}
+        <label htmlFor="date-filter" className="sr-only">
+          日付フィルター
+        </label>
         <input
+          id="date-filter"
           type="date"
           value={filterDate}
           onChange={handleFilterChange}
           className="mr-2 rounded border border-lightGray p-2"
+          placeholder="日付を選択"
         />
 
         {/* テーマ選択ドロップボックス */}
+        <label htmlFor="theme-select" className="sr-only">
+          テーマ選択
+        </label>
         <select
+          id="theme-select"
           className="my-4 rounded border border-lightGray p-2"
           onChange={handleThemeChange}
           value={selectedTheme}
@@ -130,4 +160,4 @@ const MemoListAll: FC = () => {
   );
 };
 
-export default MemoListAll;
+export default MemoListAllPage;
