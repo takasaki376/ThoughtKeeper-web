@@ -7,7 +7,9 @@ export type Memo = {
   title: string;
   content: string;
   created_at: string;
+  date: string;
   theme: Theme;
+  time: Theme;
 }
 
 export type Setting = {

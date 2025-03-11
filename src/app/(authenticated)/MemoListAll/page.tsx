@@ -65,13 +65,21 @@ const MemoListAll: FC = () => {
     setFilterDate(date);
 
     if (date) {
-      fetchMemos(new Date(date));
+      // 選択された日付の開始と終了を設定
+      const selectedDate = new Date(date);
+      selectedDate.setHours(0, 0, 0, 0);
+      const nextDate = new Date(selectedDate);
+      nextDate.setDate(selectedDate.getDate() + 1);
+
+      // フィルタリングを実行
+      const filtered = memoList.filter((memo) => {
+        const memoDate = new Date(memo.created_at);
+        return memoDate >= selectedDate && memoDate < nextDate;
+      });
+      setFilteredMemos(filtered);
     } else {
-      // 日付フィルターがクリアされた場合
-      const response = await fetch("/api/memos");
-      const data = await response.json();
-      setMemoList(data);
-      setFilteredMemos(data); // filteredMemosも更新
+      // 日付フィルターがクリアされた場合は全てのメモを表示
+      setFilteredMemos(memoList);
     }
   };
 
@@ -90,31 +98,6 @@ const MemoListAll: FC = () => {
   const reversedList = Array.isArray(filteredMemos)
     ? [...filteredMemos].reverse()
     : [];
-
-  const fetchMemos = async (selectedDate: Date) => {
-    try {
-      const startOfDay = new Date(selectedDate);
-      startOfDay.setHours(0, 0, 0, 0);
-
-      const endOfDay = new Date(selectedDate);
-      endOfDay.setHours(23, 59, 59, 999);
-
-      const startUTC = startOfDay.toISOString();
-      const endUTC = endOfDay.toISOString();
-
-      const response = await fetch(
-        `/api/memos?start=${startUTC}&end=${endUTC}`,
-        {
-          method: "GET",
-        }
-      );
-      const data = await response.json();
-      setMemoList(data);
-      setFilteredMemos(data); // filteredMemosも更新
-    } catch (error) {
-      console.error("メモの取得に失敗しました:", error);
-    }
-  };
 
   return (
     <div className="flex flex-col items-center justify-center">
