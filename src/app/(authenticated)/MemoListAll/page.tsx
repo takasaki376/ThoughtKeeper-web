@@ -32,7 +32,7 @@ const formatDate = (dateString: string) => {
   return `${year}/${month}/${day} ${time}`; // フォーマットを「YYYY/MM/DD HH:mm」に
 };
 
-const MemoListAll: FC = () => {
+const MemoListAllPage: FC = () => {
   const [memoList, setMemoList] = useState<Memo[]>([]); // メモのリストを管理
   const [filteredMemos, setFilteredMemos] = useState<Memo[]>([]); // フィルタリングされたメモのリストを管理
   const [filterDate, setFilterDate] = useState(""); // フィルタリング用の日付
