@@ -5,7 +5,7 @@ import { redirect } from "next/navigation";
 
 import { Header } from "@/component/Header";
 import { Navigation } from "@/component/Navigation";
-import { createClient } from "@/utils/supabase/server";
+import { create_ServerClient } from "@/utils/supabase/server";
 
 export const metadata = {
   title: "Tought Keeper",
@@ -17,7 +17,7 @@ export default async function AuthenticatedLayout({
 }: {
   children: React.ReactNode;
 }) {
-  const supabase = createClient();
+  const supabase = create_ServerClient();
 
   const {
     data: { user },
