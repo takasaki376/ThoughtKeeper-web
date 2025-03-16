@@ -2,10 +2,10 @@ import Link from "next/link";
 import { redirect } from "next/navigation";
 import { FaArrowRightFromBracket, FaRegCircleUser } from "react-icons/fa6";
 
-import { createClient } from "@/utils/supabase/server";
+import { create_ServerClient } from "@/utils/supabase/server";
 
 export default async function AuthButton() {
-  const supabase = createClient();
+  const supabase = create_ServerClient();
 
   const {
     data: { user },
@@ -14,7 +14,7 @@ export default async function AuthButton() {
   const signOut = async () => {
     "use server";
 
-    const supabase = createClient();
+    const supabase = create_ServerClient();
     await supabase.auth.signOut();
     user ? redirect("/") : redirect("/auth/login");
   };

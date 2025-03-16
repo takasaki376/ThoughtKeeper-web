@@ -1,10 +1,10 @@
 import { NextResponse } from "next/server";
 
-import { createClient } from "@/utils/supabase/server";
+import { create_ServerClient } from "@/utils/supabase/server";
 
 export async function GET() {
   try {
-    const supabase = createClient();
+    const supabase = create_ServerClient();
     console.log("Supabase client created");
 
     // テーマを取得
@@ -23,7 +23,7 @@ export async function GET() {
 
 export async function POST(request: Request) {
   try {
-    const supabase = createClient();
+    const supabase = create_ServerClient();
     console.log("Supabase client created");
     const { data: { user }, error: userError } = await supabase.auth.getUser();
     console.log("User fetched:", user);

@@ -1,10 +1,10 @@
 import { NextResponse } from "next/server";
 
-import { createClient } from "@/utils/supabase/server";
+import { create_ServerClient } from "@/utils/supabase/server";
 
 export async function GET() {
   try {
-    const supabase = createClient();
+    const supabase = create_ServerClient();
     const user = await supabase.auth.getUser();
     if (user) {
       const userId = user?.data?.user?.id;
@@ -42,7 +42,7 @@ export async function GET() {
 
 export async function PUT(request: Request) {
   try {
-    const supabase = createClient();
+    const supabase = create_ServerClient();
     const user = await supabase.auth.getUser();
     if (user) {
       const userId = user?.data?.user?.id;
