@@ -2,7 +2,7 @@
 import { useSetAtom } from "jotai";
 import { useEffect, useState } from "react";
 
-import { setThemeAtom } from "@/store/setting";
+import { setThemeAtom } from "@/store/themes";
 import type { Themes } from "@/types/database";
 
 export function useGetThemes() {
