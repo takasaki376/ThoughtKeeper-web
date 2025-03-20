@@ -5,24 +5,25 @@ import { create_ServerClient } from "@/utils/supabase/server";
 export async function GET() {
   try {
     const supabase = create_ServerClient();
-    const user = await supabase.auth.getUser();
-    if (user) {
-      const userId = user?.data?.user?.id;
+    const { data: { user } } = await supabase.auth.getUser();
 
-      const { data: memos, error } = await supabase
-        .from('memos')
-        .select(`
-          *,
-          theme:themes(id, title, theme)
-        `)
-        .eq('user_id', userId);
-
-      if (error) throw error;
-
-      // メモが存在しない場合は空配列を返す
-      return NextResponse.json(memos || []);
+    if (!user) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
-    return NextResponse.json({ error: "no user" }, { status: 401 });
+
+    const { data: memos, error } = await supabase
+      .from('memos')
+      .select(`
+        *,
+        theme:themes(id, title, theme)
+      `)
+      .eq('user_id', user.id);
+
+    if (error) {
+      throw error;
+    }
+
+    return NextResponse.json(memos || []);
   } catch (error) {
     console.error("Error in GET /api/memos:", error as Error);
     return NextResponse.json(
@@ -35,43 +36,50 @@ export async function GET() {
 export async function PUT(request: Request) {
   try {
     const supabase = create_ServerClient();
-    const user = await supabase.auth.getUser();
-    if (user) {
-      const userId = user?.data?.user?.id;
+    const { data: { user } } = await supabase.auth.getUser();
 
-      const body = await request.json();
-      const { content, theme_id } = body;
-
-      // themesテーブルからtheme_idを取得
-      const { data: theme, error: themeError } = await supabase
-        .from('themes')
-        .select('id')
-        .eq('id', theme_id)
-        .single();
-
-      if (themeError || !theme) throw new Error("Theme not found");
-
-      // upsertを使用して、レコードが存在しない場合は挿入、存在する場合は更新
-      const { data, error } = await supabase
-        .from('memos')
-        .upsert({
-          content: content,
-          theme_id: theme.id, // themesから取得したtheme_idを使用
-          user_id: userId,
-        })
-        .select()
-        .single();
-
-      if (error) throw error;
-
-      return NextResponse.json({
-        message: "Memos updated successfully",
-        ...data
-      });
+    if (!user) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+
+    const body = await request.json();
+    const { content, theme_id } = body;
+
+    // themesテーブルからtheme_idを取得
+    const { data: theme, error: themeError } = await supabase
+      .from('themes')
+      .select('id')
+      .eq('id', theme_id)
+      .single();
+
+    if (themeError || !theme) {
+      throw new Error("Theme not found");
+    }
+
+    // upsertを使用して、レコードが存在しない場合は挿入、存在する場合は更新
+    const { data, error } = await supabase
+      .from('memos')
+      .upsert({
+        content,
+        theme_id: theme.id,
+        user_id: user.id,
+      })
+      .select()
+      .single();
+
+    if (error) {
+      throw error;
+    }
+
+    return NextResponse.json({
+      message: "Memos updated successfully",
+      ...data
+    });
   } catch (error) {
     console.error("Error in PUT /api/memos:", error as Error);
-    return NextResponse.json({ details: (error as Error).message, error: "Internal Server Error" }, { status: 500 });
+    return NextResponse.json(
+      { details: (error as Error).message, error: "Internal Server Error" },
+      { status: 500 }
+    );
   }
 }

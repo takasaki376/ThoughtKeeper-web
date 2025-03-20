@@ -5,19 +5,27 @@ import { create_ServerClient } from "@/utils/supabase/server";
 export async function GET() {
   try {
     const supabase = create_ServerClient();
-    console.log("Supabase client created");
+    const { data: { user } } = await supabase.auth.getUser();
 
-    // テーマを取得
-    const { data, error } = await supabase
+    if (!user) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+
+    const { data: themes, error } = await supabase
       .from('themes')
       .select('*');
 
-    if (error) throw error;
+    if (error) {
+      throw error;
+    }
 
-    return NextResponse.json(data);
+    return NextResponse.json(themes || []);
   } catch (error) {
-    console.error("Error in GET /api/themes:", error as any);
-    return NextResponse.json({ details: (error as any).message, error: "Internal Server Error" }, { status: 500 });
+    console.error("Error in GET /api/themes:", error as Error);
+    return NextResponse.json(
+      { details: (error as Error).message, error: "Internal Server Error" },
+      { status: 500 }
+    );
   }
 }
 
@@ -55,7 +63,10 @@ export async function POST(request: Request) {
       ...data
     });
   } catch (error) {
-    console.error("Error in POST /api/themes:", error as any);
-    return NextResponse.json({ details: (error as any).message, error: "Internal Server Error" }, { status: 500 });
+    console.error("Error in POST /api/themes:", error as Error);
+    return NextResponse.json(
+      { details: (error as Error).message, error: "Internal Server Error" },
+      { status: 500 }
+    );
   }
 }
