@@ -22,7 +22,7 @@ export default function MemoListPage() {
   const reversedList = [...memoList].reverse(); // 配列を逆順にする
 
   return (
-    <div className="flex flex-col items-center justify-center">
+    <div className="mx-auto flex max-w-4xl flex-col items-center justify-center">
       <h1 className="mb-5 text-xl font-bold">保存されたメモ</h1>
       <ul className="w-2/3 list-disc">
         {reversedList.map((memo) => (
@@ -35,7 +35,7 @@ export default function MemoListPage() {
             </p>
             <p className="text-sm text-gray">{memo.theme}</p>
             {/* メモの内容をフォーマットして表示 */}
-            <p>{formatContent(memo.content)}</p>
+            <p className="break-words">{formatContent(memo.content)}</p>
           </li>
         ))}
       </ul>
