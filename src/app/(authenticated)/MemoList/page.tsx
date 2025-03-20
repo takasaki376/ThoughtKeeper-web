@@ -1,7 +1,7 @@
 "use client";
 import { useAtomValue } from "jotai";
 
-import { memoListAtom } from "@/store/setting";
+import { memoListAtom } from "@/store/memos";
 
 // HTMLタグを除去し、改行を「/」で置き換える関数
 const formatContent = (html: string) => {

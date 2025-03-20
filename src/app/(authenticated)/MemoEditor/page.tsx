@@ -4,9 +4,10 @@ import { useCallback, useEffect, useRef, useState } from "react";
 
 import { Tiptap } from "@/component/TipTap";
 import { useThemeTimer } from "@/hooks/useThemeTimer";
-import { countTime, memoListAtom, themeAtom } from "@/store/setting";
+import { memoListAtom } from "@/store/memos";
+import { countTime } from "@/store/setting";
+import { themeAtom } from "@/store/themes";
 import type { Memo, Theme } from "@/types/database";
-
 
 const MemoEditorPage = () => {
   const themes = useAtomValue(themeAtom);

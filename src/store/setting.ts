@@ -1,20 +1,12 @@
 import { atom } from "jotai";
 
 import { fetchSettings, updateSettings } from "@/services/settingsService";
-import type { Themes } from "@/types/database";
-
-export const themeAtom = atom<Themes>([]); // 初期値を空の配列に設定
-export const memoListAtom = atom<{ content: string; date: string; theme: string; time: string }[]>([]);
 
 // countTheme と countTime の atom を正しく定義
 export const countTheme = atom(10); // ここは初期値を設定
 export const countTime = atom("60"); // 初期値を設定
 
-// 書き込み可能な atom にするための設定
-export const setThemeAtom = atom(
-  (get) => get(themeAtom), // 読み込み時
-  (get, set, newThemes: Themes) => set(themeAtom, newThemes) // 書き込み時
-);
+
 
 export const getSetting = atom(
   null,
@@ -43,5 +35,3 @@ export const setCountTimeAtom = atom(
     updateSettings(get(countTheme), newTime).catch(console.error);
   }
 );
-
-export const initialText = atom("");
