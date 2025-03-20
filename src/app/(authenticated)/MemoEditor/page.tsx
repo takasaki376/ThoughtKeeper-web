@@ -1,16 +1,16 @@
 "use client";
-import { useAtomValue, useSetAtom } from "jotai";
+import { useAtom, useAtomValue, useSetAtom } from "jotai";
 import { useCallback, useEffect, useRef, useState } from "react";
 
 import { Tiptap } from "@/component/TipTap";
 import { useThemeTimer } from "@/hooks/useThemeTimer";
 import { memoListAtom } from "@/store/memos";
 import { countTime } from "@/store/setting";
-import { themeAtom } from "@/store/themes";
+import { fetchThemes, themeAtom } from "@/store/themes";
 import type { Memo, Theme } from "@/types/database";
 
 const MemoEditorPage = () => {
-  const themes = useAtomValue(themeAtom);
+  const [themes, setThemes] = useAtom(themeAtom);
   const themeTime = useAtomValue(countTime);
 
   const [currentThemeIndex, setCurrentThemeIndex] = useState(0);
@@ -55,32 +55,17 @@ const MemoEditorPage = () => {
 
       const responseData: Memo = JSON.parse(responseText);
 
-      // created_atからDateオブジェクトを作成
-      const createdAt = new Date(responseData.created_at);
-
-      // 日付と時刻を日本のフォーマットで取得
-      const currentDate = createdAt.toLocaleDateString("ja-JP");
-      const currentTime = createdAt.toLocaleTimeString("ja-JP");
-
       // 状態を更新
       setMemoList((prev) => {
         const isAlreadySaved = prev.some(
           (memo) =>
-            memo.theme === currentTheme.theme &&
+            memo.theme.id === currentTheme.id &&
             memo.content === inputContentRef.current
         );
 
         if (!isAlreadySaved) {
           console.log("Memo saved to DB:", inputContentRef.current);
-          return [
-            ...prev,
-            {
-              content: inputContentRef.current,
-              date: currentDate,
-              theme: currentTheme.theme,
-              time: currentTime,
-            },
-          ];
+          return [...prev, responseData];
         }
         return prev;
       });
@@ -94,6 +79,14 @@ const MemoEditorPage = () => {
     saveMemo,
     handleThemeChange
   );
+
+  useEffect(() => {
+    const loadThemes = async () => {
+      const data = await fetchThemes();
+      setThemes(data);
+    };
+    loadThemes();
+  }, [setThemes]);
 
   useEffect(() => {
     const cleanup = startTimer();

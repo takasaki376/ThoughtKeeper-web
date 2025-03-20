@@ -84,7 +84,7 @@ const MemoListAll: FC = () => {
   const reversedList = filteredMemos.toReversed();
 
   return (
-    <div className="flex flex-col items-center justify-center">
+    <div className="flex max-w-4xl flex-col items-center justify-center">
       <h1 className="mb-5 text-xl font-bold">保存されたメモ</h1>
       <div className="flex items-center justify-center">
         {/* 日付フィルター入力 */}

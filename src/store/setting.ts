@@ -1,12 +1,11 @@
 import { atom } from "jotai";
 
-import { fetchSettings, updateSettings } from "@/services/settingsService";
+import { createGet, createPut } from "@/services/api";
+import type { UserSettings } from "@/types/database";
 
 // countTheme と countTime の atom を正しく定義
-export const countTheme = atom(10); // ここは初期値を設定
-export const countTime = atom("60"); // 初期値を設定
-
-
+export const countTheme = atom<number>(10); // ここは初期値を設定
+export const countTime = atom<string>("60"); // 初期値を設定
 
 export const getSetting = atom(
   null,
@@ -35,3 +34,16 @@ export const setCountTimeAtom = atom(
     updateSettings(get(countTheme), newTime).catch(console.error);
   }
 );
+
+export const fetchSettings = async () => {
+  const { data } = await createGet<UserSettings>('settings');
+  return data;
+};
+
+export const updateSettings = async (theme_count: number, time_limit: string) => {
+  const { data } = await createPut<UserSettings>('settings', {
+    theme_count,
+    time_limit,
+  });
+  return data;
+};

@@ -14,3 +14,9 @@ export type Setting = {
   theme_count: number,
   time_limit :string,
 }
+
+export interface UserSettings {
+  theme_count: number;
+  time_limit: string;
+  user_id: string;
+}
