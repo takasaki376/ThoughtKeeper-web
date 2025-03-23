@@ -4,7 +4,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 
 import { Tiptap } from "@/component/TipTap";
 import { useThemeTimer } from "@/hooks/useThemeTimer";
-import { countTime, memoListAtom, themeAtom } from "@/store/setting";
+import { countTime, memoListAtom, themeAtom } from "@/store/";
 import type { Memo, Theme } from "@/types/database";
 
 
