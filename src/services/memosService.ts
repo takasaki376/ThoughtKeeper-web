@@ -1,37 +1,15 @@
-export const fetchMemos = async () => {
-  const response = await fetch("/api/memos");
-  if (!response.ok) {
-    throw new Error("Failed to fetch Memos");
-  }
-  return response.json();
+import { createGet, createPut } from "@/services/api";
+import type { Memo } from "@/types/database";
+
+export const fetchMemo = async () => {
+  const { data } = await createGet<Memo>('memo');
+  return data;
 };
 
-// 設定更新用の関数を追加
-export const updateMemos = async (content: string, theme_id: string) => {
-  try {
-    const response = await fetch("/api/memos", {
-      body: JSON.stringify({
-        content,
-        theme_id,
-      }),
-      headers: {
-        "Content-Type": "application/json",
-      },
-      method: "PUT",
-    });
-
-    if (!response.ok) {
-      throw new Error("メモの更新に失敗しました");
-    }
-
-    const responseText = await response.text();
-    if (!responseText) {
-      throw new Error("空のレスポンスが返されました");
-    }
-
-    return JSON.parse(responseText);
-  } catch (error) {
-    console.error("メモ更新エラー:", error);
-    throw error;
-  }
+export const updateMemo = async (content: string, theme_id: string) => {
+  const { data } = await createPut<Memo>('memo', {
+    content,
+    theme_id,
+  });
+  return data;
 };
