@@ -2,6 +2,8 @@ import { NextResponse } from "next/server";
 
 import { create_ServerClient } from "@/utils/supabase/server";
 
+export const dynamic = 'force-dynamic';
+
 export async function GET() {
   try {
     const supabase = create_ServerClient();
