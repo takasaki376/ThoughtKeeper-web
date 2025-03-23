@@ -18,26 +18,36 @@ const formatContent = (html: string) => {
 
 
 export default function MemoListPage() {
-  const memoList = useAtomValue(memoListAtom); // 保存されたメモを取得
-  const reversedList = [...memoList].reverse(); // 配列を逆順にする
+  const memoList = useAtomValue(memoListAtom);
+  const reversedList = [...memoList].reverse();
+
+  const formatDateTime = (dateStr: string) => {
+    const date = new Date(dateStr);
+    return {
+      date: date.toLocaleDateString("ja-JP"),
+      time: date.toLocaleTimeString("ja-JP"),
+    };
+  };
 
   return (
     <div className="mx-auto flex max-w-4xl flex-col items-center justify-center">
       <h1 className="mb-5 text-xl font-bold">保存されたメモ</h1>
       <ul className="w-2/3 list-disc">
-        {reversedList.map((memo) => (
-          <li
-            key={`${memo.date}-${memo.time}-${memo.theme}`}
-            className="mb-4 list-none"
-          >
-            <p className="text-sm text-gray">
-              {memo.date}: {memo.time}
-            </p>
-            <p className="text-sm text-gray">{memo.theme}</p>
-            {/* メモの内容をフォーマットして表示 */}
-            <p className="break-words">{formatContent(memo.content)}</p>
-          </li>
-        ))}
+        {reversedList.map((memo) => {
+          const { date, time } = formatDateTime(memo.created_at);
+          return (
+            <li
+              key={`${memo.id}-${memo.created_at}`}
+              className="mb-4 list-none"
+            >
+              <p className="text-sm text-gray">
+                {date}: {time}
+              </p>
+              <p className="text-sm text-gray">{memo.theme.theme}</p>
+              <p className="break-words">{formatContent(memo.content)}</p>
+            </li>
+          );
+        })}
       </ul>
     </div>
   );
