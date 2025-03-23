@@ -6,18 +6,7 @@ export const api = ky.create({
   headers: {
     'Content-Type': 'application/json',
   },
-  hooks: {
-    beforeRequest: [
-      async (request) => {
-        // クライアントサイドでセッションからトークンを取得
-        const { data: { session } } = await fetch('/api/auth/session').then(res => res.json());
-        if (session?.access_token) {
-          request.headers.set('Authorization', `Bearer ${session.access_token}`);
-        }
-        return request;
-      },
-    ],
-  },
+
   prefixUrl: '/api/',
   retry: {
     limit: 3,
