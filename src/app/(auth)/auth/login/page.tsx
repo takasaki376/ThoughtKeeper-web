@@ -57,7 +57,7 @@ export default function SignInPage({
   return (
     <div className="flex justify-center gap-2 px-8">
       <form className="flex w-full flex-col gap-2 text-foreground md:w-1/2">
-        <label className="text-md" htmlFor="email">
+        <label className="text-base" htmlFor="email">
           Email
         </label>
         <input
@@ -66,7 +66,7 @@ export default function SignInPage({
           placeholder="you@example.com"
           required
         />
-        <label className="text-md" htmlFor="password">
+        <label className="text-base" htmlFor="password">
           Password
         </label>
         <input
