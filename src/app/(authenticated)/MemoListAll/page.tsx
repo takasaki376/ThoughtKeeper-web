@@ -3,6 +3,8 @@ import { type FC, useEffect, useState } from "react";
 
 import type { Memo } from "@/types/database";
 
+import DatePickerComponent from "./DatePicker";
+
 // HTMLタグを除去し、改行を「/」で置き換える関数
 const formatContent = (html: string) => {
   const doc = new DOMParser().parseFromString(html, "text/html");
@@ -107,7 +109,8 @@ const MemoListAllPage: FC = () => {
           ({filteredMemos.length}/{memoList.length})
         </span>
       </div>
-      <div className="flex items-center justify-center">
+      <DatePickerComponent />
+      <div className="flex flex-col items-center justify-center">
         {/* 日付フィルター入力 */}
         <label htmlFor="date-filter" className="sr-only">
           日付フィルター
