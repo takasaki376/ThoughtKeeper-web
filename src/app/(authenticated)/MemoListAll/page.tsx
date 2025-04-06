@@ -60,7 +60,7 @@ const MemoListAllPage: FC = () => {
     fetchMemoList(); // メモリストを取得
   }, []); // コンポーネントのマウント時にデータを取得
 
-  const handleFilterChange = async (
+  const handleDateChange = async (
     event: React.ChangeEvent<HTMLInputElement>
   ) => {
     const date = event.target.value;
@@ -119,7 +119,7 @@ const MemoListAllPage: FC = () => {
           id="date-filter"
           type="date"
           value={filterDate}
-          onChange={handleFilterChange}
+          onChange={handleDateChange}
           className="mr-2 rounded border border-lightGray p-2"
           placeholder="日付を選択"
         />
