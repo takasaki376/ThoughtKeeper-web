@@ -1,4 +1,5 @@
 "use client";
+import ky from "ky";
 import { type FC, useEffect, useState } from "react";
 
 import type { Memo } from "@/types/database";
@@ -42,22 +43,25 @@ const MemoListAllPage: FC = () => {
 
   useEffect(() => {
     const fetchMemoList = async () => {
-      const response = await fetch("/api/memos"); // メモを取得するAPIを呼び出し
-      const data = await response.json();
-      setMemoList(data); // メモリストを更新
-      setFilteredMemos(data); // 初期状態で全メモを表示
-      const uniqueThemes = Array.from(
-        new Set(data.map((memo: Memo) => memo.theme.theme))
-      ); // ユニークなテーマを取得
-      setThemes(
-        uniqueThemes.map((theme) => ({
-          id: theme as string,
-          theme: theme as string,
-        }))
-      ); // テーマをオブジェクト形式で設定
+      try {
+        const data = await ky.get("/api/memos").json<Memo[]>();
+        setMemoList(data);
+        setFilteredMemos(data);
+        const uniqueThemes = Array.from(
+          new Set(data.map((memo) => memo.theme.theme))
+        );
+        setThemes(
+          uniqueThemes.map((theme) => ({
+            id: theme,
+            theme: theme,
+          }))
+        );
+      } catch (error) {
+        console.error("メモの取得に失敗しました:", error);
+      }
     };
-    fetchMemoList(); // メモリストを取得
-  }, []); // コンポーネントのマウント時にデータを取得
+    fetchMemoList();
+  }, []);
 
   const handleDateChange = (date: Date | null) => {
     if (date) {

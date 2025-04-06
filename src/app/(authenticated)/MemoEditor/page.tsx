@@ -1,12 +1,12 @@
 "use client";
 import { useAtomValue, useSetAtom } from "jotai";
+import ky from "ky";
 import { useCallback, useEffect, useRef, useState } from "react";
 
 import { Tiptap } from "@/component/TipTap";
 import { useThemeTimer } from "@/hooks/useThemeTimer";
 import { countTime, memoListAtom, themeAtom } from "@/store";
 import type { Memo, Theme } from "@/types/database";
-
 
 const MemoEditorPage = () => {
   const themes = useAtomValue(themeAtom);
@@ -32,57 +32,42 @@ const MemoEditorPage = () => {
 
   const saveMemo = useCallback(async () => {
     if (currentTheme && inputContentRef.current) {
-      const response = await fetch("/api/memos", {
-        body: JSON.stringify({
-          content: inputContentRef.current,
-          theme_id: currentTheme.id,
-        }),
-        headers: {
-          "Content-Type": "application/json",
-        },
-        method: "PUT",
-      });
-
-      if (!response.ok) {
-        throw new Error("メモの保存に失敗しました");
-      }
-
-      const responseText = await response.text();
-      if (!responseText) {
-        throw new Error("空のレスポンスが返されました");
-      }
-
-      const responseData: Memo = JSON.parse(responseText);
-
-      // created_atからDateオブジェクトを作成
-      const createdAt = new Date(responseData.created_at);
-
-      // 日付と時刻を日本のフォーマットで取得
-      const currentDate = createdAt.toLocaleDateString("ja-JP");
-      const currentTime = createdAt.toLocaleTimeString("ja-JP");
-
-      // 状態を更新
-      setMemoList((prev) => {
-        const isAlreadySaved = prev.some(
-          (memo) =>
-            memo.theme === currentTheme.theme &&
-            memo.content === inputContentRef.current
-        );
-
-        if (!isAlreadySaved) {
-          console.log("Memo saved to DB:", inputContentRef.current);
-          return [
-            ...prev,
-            {
+      try {
+        const responseData = await ky
+          .put("/api/memos", {
+            json: {
               content: inputContentRef.current,
-              date: currentDate,
-              theme: currentTheme.theme,
-              time: currentTime,
+              theme_id: currentTheme.id,
             },
-          ];
-        }
-        return prev;
-      });
+          })
+          .json<Memo>();
+
+        // 状態を更新
+        setMemoList((prev) => {
+          const isAlreadySaved = prev.some(
+            (memo) =>
+              memo.theme.id === currentTheme.id &&
+              memo.content === inputContentRef.current
+          );
+
+          if (!isAlreadySaved) {
+            console.log("Memo saved to DB:", inputContentRef.current);
+            return [
+              ...prev,
+              {
+                id: responseData.id,
+                content: inputContentRef.current,
+                created_at: responseData.created_at,
+                theme: currentTheme,
+              },
+            ];
+          }
+          return prev;
+        });
+      } catch (error) {
+        console.error("メモの保存に失敗しました:", error);
+        throw error;
+      }
     }
   }, [currentTheme, setMemoList]);
 
