@@ -37,7 +37,6 @@ const formatDate = (dateString: string) => {
 const MemoListAllPage: FC = () => {
   const [memoList, setMemoList] = useState<Memo[]>([]); // メモのリストを管理
   const [filteredMemos, setFilteredMemos] = useState<Memo[]>([]); // フィルタリングされたメモのリストを管理
-  const [filterDate, setFilterDate] = useState(""); // フィルタリング用の日付
   const [themes, setThemes] = useState<{ id: string; theme: string }[]>([]); // テーマのステートを追加
   const [selectedTheme, setSelectedTheme] = useState<string>(""); // 選択されたテーマのステートを追加
 
@@ -60,27 +59,19 @@ const MemoListAllPage: FC = () => {
     fetchMemoList(); // メモリストを取得
   }, []); // コンポーネントのマウント時にデータを取得
 
-  const handleDateChange = async (
-    event: React.ChangeEvent<HTMLInputElement>
-  ) => {
-    const date = event.target.value;
-    setFilterDate(date);
-
+  const handleDateChange = (date: Date | null) => {
     if (date) {
-      // 選択された日付の開始と終了を設定
       const selectedDate = new Date(date);
       selectedDate.setHours(0, 0, 0, 0);
       const nextDate = new Date(selectedDate);
       nextDate.setDate(selectedDate.getDate() + 1);
 
-      // フィルタリングを実行
       const filtered = memoList.filter((memo) => {
         const memoDate = new Date(memo.created_at);
         return memoDate >= selectedDate && memoDate < nextDate;
       });
       setFilteredMemos(filtered);
     } else {
-      // 日付フィルターがクリアされた場合は全てのメモを表示
       setFilteredMemos(memoList);
     }
   };
@@ -109,21 +100,8 @@ const MemoListAllPage: FC = () => {
           ({filteredMemos.length}/{memoList.length})
         </span>
       </div>
-      <DatePickerComponent />
+      <DatePickerComponent onDateChange={handleDateChange} />
       <div className="flex flex-col items-center justify-center">
-        {/* 日付フィルター入力 */}
-        <label htmlFor="date-filter" className="sr-only">
-          日付フィルター
-        </label>
-        <input
-          id="date-filter"
-          type="date"
-          value={filterDate}
-          onChange={handleDateChange}
-          className="mr-2 rounded border border-lightGray p-2"
-          placeholder="日付を選択"
-        />
-
         {/* テーマ選択ドロップボックス */}
         <label htmlFor="theme-select" className="sr-only">
           テーマ選択
