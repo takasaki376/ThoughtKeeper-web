@@ -41,6 +41,7 @@ const MemoListAllPage: FC = () => {
   const [filteredMemos, setFilteredMemos] = useState<Memo[]>([]); // フィルタリングされたメモのリストを管理
   const [themes, setThemes] = useState<{ id: string; theme: string }[]>([]); // テーマのステートを追加
   const [selectedTheme, setSelectedTheme] = useState<string>(""); // 選択されたテーマのステートを追加
+  const [filterDate, setFilterDate] = useState<Date | null>(null); // 選択された日付のステートを追加
   const memoList = useAtomValue(memoListAtom);
   const setMemoList = useSetAtom(memoListAtom);
 
@@ -67,6 +68,7 @@ const MemoListAllPage: FC = () => {
   }, [setMemoList]);
 
   const handleDateChange = (date: Date | null) => {
+    setFilterDate(date);
     if (date) {
       const selectedDate = new Date(date);
       selectedDate.setHours(0, 0, 0, 0);
@@ -75,23 +77,70 @@ const MemoListAllPage: FC = () => {
 
       const filtered = memoList.filter((memo) => {
         const memoDate = new Date(memo.created_at);
-        return memoDate >= selectedDate && memoDate < nextDate;
+        const dateMatch = memoDate >= selectedDate && memoDate < nextDate;
+        const themeMatch =
+          selectedTheme === "" || memo.theme.theme === selectedTheme;
+        return dateMatch && themeMatch;
       });
       setFilteredMemos(filtered);
+
+      // 選択された日付のメモに含まれるテーマのみを抽出
+      const dateThemes = Array.from(
+        new Set(filtered.map((memo) => memo.theme.theme))
+      );
+      setThemes(
+        dateThemes.map((theme) => ({
+          id: theme,
+          theme: theme,
+        }))
+      );
     } else {
-      setFilteredMemos(memoList);
+      // 日付が選択されていない場合は、全てのテーマを表示
+      const allThemes = Array.from(
+        new Set(memoList.map((memo) => memo.theme.theme))
+      );
+      setThemes(
+        allThemes.map((theme) => ({
+          id: theme,
+          theme: theme,
+        }))
+      );
+
+      // テーマでのみフィルタリング
+      const filtered =
+        selectedTheme === ""
+          ? memoList
+          : memoList.filter((memo) => memo.theme.theme === selectedTheme);
+      setFilteredMemos(filtered);
     }
   };
 
   const handleThemeChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
     const selected = event.target.value;
-    setSelectedTheme(selected); // 選択されたテーマを更新
-    // テーマでフィルタリング
-    const filtered =
-      selected === ""
-        ? memoList
-        : memoList.filter((memo) => memo.theme.theme === selected);
-    setFilteredMemos(filtered); // フィルタリングされたメモを更新
+    setSelectedTheme(selected);
+
+    // 日付が選択されている場合は、日付とテーマの両方でフィルタリング
+    if (filterDate) {
+      const selectedDate = new Date(filterDate);
+      selectedDate.setHours(0, 0, 0, 0);
+      const nextDate = new Date(selectedDate);
+      nextDate.setDate(selectedDate.getDate() + 1);
+
+      const filtered = memoList.filter((memo) => {
+        const memoDate = new Date(memo.created_at);
+        const dateMatch = memoDate >= selectedDate && memoDate < nextDate;
+        const themeMatch = selected === "" || memo.theme.theme === selected;
+        return dateMatch && themeMatch;
+      });
+      setFilteredMemos(filtered);
+    } else {
+      // 日付が選択されていない場合は、テーマでのみフィルタリング
+      const filtered =
+        selected === ""
+          ? memoList
+          : memoList.filter((memo) => memo.theme.theme === selected);
+      setFilteredMemos(filtered);
+    }
   };
 
   // 配列であることを確認
