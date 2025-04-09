@@ -1,7 +1,9 @@
 "use client";
+import { useAtomValue, useSetAtom } from "jotai";
 import ky from "ky";
 import { type FC, useEffect, useState } from "react";
 
+import { memoListAtom } from "@/store";
 import type { Memo } from "@/types/database";
 
 import DatePickerComponent from "./DatePicker";
@@ -36,10 +38,11 @@ const formatDate = (dateString: string) => {
 };
 
 const MemoListAllPage: FC = () => {
-  const [memoList, setMemoList] = useState<Memo[]>([]); // メモのリストを管理
   const [filteredMemos, setFilteredMemos] = useState<Memo[]>([]); // フィルタリングされたメモのリストを管理
   const [themes, setThemes] = useState<{ id: string; theme: string }[]>([]); // テーマのステートを追加
   const [selectedTheme, setSelectedTheme] = useState<string>(""); // 選択されたテーマのステートを追加
+  const memoList = useAtomValue(memoListAtom);
+  const setMemoList = useSetAtom(memoListAtom);
 
   useEffect(() => {
     const fetchMemoList = async () => {
@@ -61,7 +64,7 @@ const MemoListAllPage: FC = () => {
       }
     };
     fetchMemoList();
-  }, []);
+  }, [setMemoList]);
 
   const handleDateChange = (date: Date | null) => {
     if (date) {

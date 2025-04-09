@@ -1,6 +1,6 @@
 import "@mantine/dates/styles.css";
 
-import { Button, Indicator } from "@mantine/core";
+import { Button } from "@mantine/core";
 import { DatePicker } from "@mantine/dates";
 import { useAtomValue } from "jotai";
 import { useState } from "react";
@@ -18,7 +18,6 @@ const DatePickerComponent: React.FC<DatePickerProps> = ({ onDateChange }) => {
   // メモがある日付のリストを作成
   const memoDates = memoList.map((memo) => {
     const createdAt = new Date(memo.created_at);
-
     // 日本時間に変換
     createdAt.setHours(createdAt.getHours() + 9);
     return new Date(
@@ -44,13 +43,13 @@ const DatePickerComponent: React.FC<DatePickerProps> = ({ onDateChange }) => {
         value={filterDate}
         onChange={handleDateChange}
         size="xs"
-        renderDay={(date) => {
-          const day = date.getDate();
+        excludeDate={(date) => {
           const currentDate = new Date(
             date.getFullYear(),
             date.getMonth(),
             date.getDate()
           );
+          // メモがある日付は選択可能（falseを返す）、メモがない日付は選択不可（trueを返す）
           const hasMemo = memoDates.some((memoDate) => {
             return (
               memoDate.getFullYear() === currentDate.getFullYear() &&
@@ -58,11 +57,7 @@ const DatePickerComponent: React.FC<DatePickerProps> = ({ onDateChange }) => {
               memoDate.getDate() === currentDate.getDate()
             );
           });
-          return (
-            <Indicator size={6} color="blue" offset={-2} disabled={!hasMemo}>
-              <div>{day}</div>
-            </Indicator>
-          );
+          return !hasMemo;
         }}
       />
       {filterDate && (
