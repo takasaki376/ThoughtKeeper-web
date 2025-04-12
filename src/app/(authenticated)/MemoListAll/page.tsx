@@ -21,20 +21,20 @@ const formatContent = (html: string) => {
   return paragraphs.join(" ｜ ");
 };
 
-// 日付を日本時間でフォーマットする関数
+// 日付をローカルタイムゾーンでフォーマットする関数
 const formatDate = (dateString: string) => {
   const date = new Date(dateString);
   const year = date.getFullYear();
-  const month = date.getMonth() + 1; // 月は0から始まるため1を加算
+  const month = date.getMonth() + 1;
   const day = date.getDate();
   const options: Intl.DateTimeFormatOptions = {
     hour: "2-digit",
     minute: "2-digit",
-    timeZone: "Asia/Tokyo", // 日本時間
+    timeZone: Intl.DateTimeFormat().resolvedOptions().timeZone,
     weekday: "short",
   };
-  const time = date.toLocaleString("ja-JP", options).split(" ")[1]; // 時間部分を取得
-  return `${year}/${month}/${day} ${time}`; // フォーマットを「YYYY/MM/DD HH:mm」に
+  const time = date.toLocaleString("ja-JP", options).split(" ")[1];
+  return `${year}/${month}/${day} ${time}`;
 };
 
 const MemoListAllPage: FC = () => {
@@ -183,7 +183,7 @@ const MemoListAllPage: FC = () => {
             key={`${memo.created_at}-${memo.theme.theme}`}
             className="mb-4 list-none"
           >
-            <p className="text-center text-xs font-extralight text-gray">
+            <p className="text-center text-xs font-thin text-gray">
               {formatDate(memo.created_at)}
             </p>
             <p className="my-2 w-full text-xs font-thin">

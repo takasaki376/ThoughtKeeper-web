@@ -53,16 +53,24 @@ export async function PUT(request: Request) {
 
       if (themeError || !theme) throw new Error("Theme not found");
 
-      // 現在の日本時間を取得
+      // 現在のUTC時間を取得
       const now = new Date();
-      const jstTime = new Date(now.getTime() + (9 * 60 * 60 * 1000));
+      const utcTime = new Date(Date.UTC(
+        now.getUTCFullYear(),
+        now.getUTCMonth(),
+        now.getUTCDate(),
+        now.getUTCHours(),
+        now.getUTCMinutes(),
+        now.getUTCSeconds(),
+        now.getUTCMilliseconds()
+      ));
 
       // upsertを使用して、レコードが存在しない場合は挿入、存在する場合は更新
       const { data, error } = await supabase
         .from('memos')
         .upsert({
           content: content,
-          created_at: jstTime.toISOString(), // 日本時間で保存
+          created_at: utcTime.toISOString(), // UTCで保存
           theme_id: theme.id,
           user_id: userId,
         })

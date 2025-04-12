@@ -18,7 +18,7 @@ const DatePickerComponent: React.FC<DatePickerProps> = ({ onDateChange }) => {
   // メモがある日付のリストを作成
   const memoDates = memoList.map((memo) => {
     const createdAt = new Date(memo.created_at);
-    // 日付のみを比較するために時間を0時に設定
+    // 日付のみを比較するために時間を0時に設定（ローカルタイムゾーン）
     return new Date(
       createdAt.getFullYear(),
       createdAt.getMonth(),
@@ -47,7 +47,7 @@ const DatePickerComponent: React.FC<DatePickerProps> = ({ onDateChange }) => {
         onChange={handleDateChange}
         size="xs"
         excludeDate={(date) => {
-          // 比較する日付の時間も0時に設定
+          // 比較する日付の時間も0時に設定（ローカルタイムゾーン）
           const currentDate = new Date(
             date.getFullYear(),
             date.getMonth(),
