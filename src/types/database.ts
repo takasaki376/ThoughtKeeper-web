@@ -7,6 +7,7 @@ export type Memo = {
   title?: string;
   content: string;
   created_at: string;
+  local_created_at: string;
   theme: Theme;
 }
 

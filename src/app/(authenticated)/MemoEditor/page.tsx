@@ -58,6 +58,7 @@ const MemoEditorPage = () => {
                 id: responseData.id,
                 content: inputContentRef.current,
                 created_at: responseData.created_at,
+                local_created_at: new Date().toISOString(),
                 theme: currentTheme,
               },
             ];
