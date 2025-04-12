@@ -1,7 +1,7 @@
 "use client";
 import { useAtomValue } from "jotai";
 
-import { memoListAtom } from "@/store";
+import { countTheme, memoListAtom } from "@/store";
 import type { Memo } from "@/types/database";
 
 // HTMLタグを除去し、改行を「/」で置き換える関数
@@ -23,7 +23,7 @@ const MemoForView = ({ memo }: { memo: Memo }) => {
   const date = createdAt.toLocaleDateString("ja-JP");
   const time = createdAt.toLocaleTimeString("ja-JP");
   return (
-    <li key={`${date}-${time}-${memo.theme}`} className="mb-4 list-none">
+    <li key={`${date}-${time}-${memo.theme.theme}`} className="mb-4 list-none">
       <p className="text-sm text-gray">
         {date}: {time}
       </p>
@@ -35,14 +35,22 @@ const MemoForView = ({ memo }: { memo: Memo }) => {
 };
 
 export default function MemoListPage() {
-  const memoList = useAtomValue(memoListAtom); // 保存されたメモを取得
-  const reversedList = [...memoList].reverse(); // 配列を逆順にする
+  const memoList = useAtomValue(memoListAtom);
+  const themeCount = useAtomValue(countTheme);
+
+  // 最新のメモを取得（設定されたテーマ数分のみ）
+  const currentSessionMemos = [...memoList]
+    .sort(
+      (a, b) =>
+        new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
+    )
+    .slice(0, themeCount);
 
   return (
     <div className="flex flex-col items-center justify-center">
       <h1 className="mb-5 text-xl font-bold">保存されたメモ</h1>
       <ul className="w-2/3 list-disc">
-        {reversedList.map((memo) => (
+        {currentSessionMemos.map((memo) => (
           <MemoForView key={memo.id} memo={memo} />
         ))}
       </ul>
