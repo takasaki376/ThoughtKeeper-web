@@ -19,7 +19,6 @@ const formatContent = (html: string) => {
 
 const MemoForView = ({ memo }: { memo: Memo }) => {
   const createdAt = new Date(memo.created_at);
-  createdAt.setHours(createdAt.getHours() + 9);
   const date = createdAt.toLocaleDateString("ja-JP");
   const time = createdAt.toLocaleTimeString("ja-JP");
   return (

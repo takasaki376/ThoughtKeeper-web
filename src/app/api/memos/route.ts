@@ -53,12 +53,17 @@ export async function PUT(request: Request) {
 
       if (themeError || !theme) throw new Error("Theme not found");
 
+      // 現在の日本時間を取得
+      const now = new Date();
+      const jstTime = new Date(now.getTime() + (9 * 60 * 60 * 1000));
+
       // upsertを使用して、レコードが存在しない場合は挿入、存在する場合は更新
       const { data, error } = await supabase
         .from('memos')
         .upsert({
           content: content,
-          theme_id: theme.id, // themesから取得したtheme_idを使用
+          created_at: jstTime.toISOString(), // 日本時間で保存
+          theme_id: theme.id,
           user_id: userId,
         })
         .select()

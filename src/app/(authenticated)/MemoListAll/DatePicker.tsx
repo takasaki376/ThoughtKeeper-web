@@ -18,12 +18,15 @@ const DatePickerComponent: React.FC<DatePickerProps> = ({ onDateChange }) => {
   // メモがある日付のリストを作成
   const memoDates = memoList.map((memo) => {
     const createdAt = new Date(memo.created_at);
-    // 日本時間に変換
-    createdAt.setHours(createdAt.getHours() + 9);
+    // 日付のみを比較するために時間を0時に設定
     return new Date(
       createdAt.getFullYear(),
       createdAt.getMonth(),
-      createdAt.getDate()
+      createdAt.getDate(),
+      0,
+      0,
+      0,
+      0
     );
   });
 
@@ -44,18 +47,19 @@ const DatePickerComponent: React.FC<DatePickerProps> = ({ onDateChange }) => {
         onChange={handleDateChange}
         size="xs"
         excludeDate={(date) => {
+          // 比較する日付の時間も0時に設定
           const currentDate = new Date(
             date.getFullYear(),
             date.getMonth(),
-            date.getDate()
+            date.getDate(),
+            0,
+            0,
+            0,
+            0
           );
           // メモがある日付は選択可能（falseを返す）、メモがない日付は選択不可（trueを返す）
           const hasMemo = memoDates.some((memoDate) => {
-            return (
-              memoDate.getFullYear() === currentDate.getFullYear() &&
-              memoDate.getMonth() === currentDate.getMonth() &&
-              memoDate.getDate() === currentDate.getDate()
-            );
+            return memoDate.getTime() === currentDate.getTime();
           });
           return !hasMemo;
         }}
