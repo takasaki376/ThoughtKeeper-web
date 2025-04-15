@@ -1,5 +1,6 @@
 "use client";
-import { useAtomValue } from "jotai";
+import { useAtomValue, useSetAtom } from "jotai";
+import { useEffect, useRef } from "react";
 
 import { countTheme, recentMemosAtom } from "@/store";
 import type { Memo } from "@/types/database";
@@ -38,7 +39,34 @@ const MemoForView = ({ memo }: { memo: Memo }) => {
 
 export default function MemoListPage() {
   const recentMemos = useAtomValue(recentMemosAtom);
+  const setRecentMemos = useSetAtom(recentMemosAtom);
   const themeCount = useAtomValue(countTheme);
+  const lastDateRef = useRef<string | null>(null);
+
+  useEffect(() => {
+    const checkDateChange = () => {
+      const currentDate = new Date().toLocaleDateString();
+
+      if (lastDateRef.current === null) {
+        // 初回実行時は日付を保存
+        lastDateRef.current = currentDate;
+      } else if (lastDateRef.current !== currentDate) {
+        // 日付が変わったらメモをクリア
+        setRecentMemos([]);
+        lastDateRef.current = currentDate;
+      }
+    };
+
+    // 初回実行
+    checkDateChange();
+
+    // 1分ごとに日付をチェック
+    const intervalId = setInterval(checkDateChange, 60000);
+
+    return () => {
+      clearInterval(intervalId);
+    };
+  }, [setRecentMemos]);
 
   // 最新のメモを取得（作成日時の降順でソート）し、theme_countの件数分のみを表示
   const sortedMemos = [...recentMemos]
