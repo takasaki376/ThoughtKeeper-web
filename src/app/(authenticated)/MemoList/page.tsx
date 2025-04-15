@@ -1,8 +1,7 @@
 "use client";
-import { useAtomValue, useSetAtom } from "jotai";
-import { useEffect } from "react";
+import { useAtomValue } from "jotai";
 
-import { recentMemosAtom } from "@/store";
+import { countTheme, recentMemosAtom } from "@/store";
 import type { Memo } from "@/types/database";
 
 // HTMLタグを除去し、改行を「/」で置き換える関数
@@ -39,21 +38,16 @@ const MemoForView = ({ memo }: { memo: Memo }) => {
 
 export default function MemoListPage() {
   const recentMemos = useAtomValue(recentMemosAtom);
-  const setRecentMemos = useSetAtom(recentMemosAtom);
+  const themeCount = useAtomValue(countTheme);
 
-  useEffect(() => {
-    // ページが直接アクセスされた場合は、recentMemosをクリアする
-    if (recentMemos.length === 0) {
-      setRecentMemos([]);
-    }
-  }, [recentMemos.length, setRecentMemos]);
-
-  // 最新のメモを取得（作成日時の降順でソート）
-  const sortedMemos = [...recentMemos].sort(
-    (a, b) =>
-      new Date(b.local_created_at).getTime() -
-      new Date(a.local_created_at).getTime()
-  );
+  // 最新のメモを取得（作成日時の降順でソート）し、theme_countの件数分のみを表示
+  const sortedMemos = [...recentMemos]
+    .sort(
+      (a, b) =>
+        new Date(b.local_created_at).getTime() -
+        new Date(a.local_created_at).getTime()
+    )
+    .slice(0, themeCount);
 
   return (
     <div className="flex flex-col items-center justify-center">
