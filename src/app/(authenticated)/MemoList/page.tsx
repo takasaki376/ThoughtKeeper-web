@@ -1,7 +1,8 @@
 "use client";
-import { useAtomValue } from "jotai";
+import { useAtomValue, useSetAtom } from "jotai";
+import { useEffect } from "react";
 
-import { memoListAtom } from "@/store";
+import { recentMemosAtom } from "@/store";
 import type { Memo } from "@/types/database";
 
 // HTMLタグを除去し、改行を「/」で置き換える関数
@@ -37,10 +38,18 @@ const MemoForView = ({ memo }: { memo: Memo }) => {
 };
 
 export default function MemoListPage() {
-  const memoList = useAtomValue(memoListAtom);
+  const recentMemos = useAtomValue(recentMemosAtom);
+  const setRecentMemos = useSetAtom(recentMemosAtom);
+
+  useEffect(() => {
+    // ページが直接アクセスされた場合は、recentMemosをクリアする
+    if (recentMemos.length === 0) {
+      setRecentMemos([]);
+    }
+  }, [recentMemos.length, setRecentMemos]);
 
   // 最新のメモを取得（作成日時の降順でソート）
-  const sortedMemos = [...memoList].sort(
+  const sortedMemos = [...recentMemos].sort(
     (a, b) =>
       new Date(b.local_created_at).getTime() -
       new Date(a.local_created_at).getTime()

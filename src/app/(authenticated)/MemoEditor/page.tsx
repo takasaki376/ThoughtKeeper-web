@@ -5,12 +5,13 @@ import { useCallback, useEffect, useRef, useState } from "react";
 
 import { Tiptap } from "@/component/TipTap";
 import { useThemeTimer } from "@/hooks/useThemeTimer";
-import { countTime, memoListAtom, themeAtom } from "@/store";
+import { countTime, memoListAtom, recentMemosAtom, themeAtom } from "@/store";
 import type { Memo, Theme } from "@/types/database";
 
 const MemoEditorPage = () => {
   const themes = useAtomValue(themeAtom);
   const themeTime = useAtomValue(countTime);
+  const setRecentMemos = useSetAtom(recentMemosAtom);
 
   const [currentThemeIndex, setCurrentThemeIndex] = useState(0);
   const [currentTheme, setCurrentTheme] = useState(themes[0] || null);
@@ -51,17 +52,16 @@ const MemoEditorPage = () => {
           );
 
           if (!isAlreadySaved) {
+            const newMemo = {
+              id: responseData.id,
+              content: inputContentRef.current,
+              created_at: responseData.created_at,
+              local_created_at: new Date().toISOString(),
+              theme: currentTheme,
+            };
             console.log("Memo saved to DB:", inputContentRef.current);
-            return [
-              ...prev,
-              {
-                id: responseData.id,
-                content: inputContentRef.current,
-                created_at: responseData.created_at,
-                local_created_at: new Date().toISOString(),
-                theme: currentTheme,
-              },
-            ];
+            setRecentMemos((prev) => [...prev, newMemo]);
+            return [...prev, newMemo];
           }
           return prev;
         });
@@ -70,7 +70,7 @@ const MemoEditorPage = () => {
         throw error;
       }
     }
-  }, [currentTheme, setMemoList]);
+  }, [currentTheme, setMemoList, setRecentMemos]);
 
   const { remainingTime, startTimer } = useThemeTimer(
     Number(themeTime),
