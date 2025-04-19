@@ -4,7 +4,7 @@ import { redirect } from "next/navigation";
 
 import { Header } from "@/component/Header";
 import { Navigation } from "@/component/Navigation";
-import { createClient } from "@/utils/supabase/server";
+import { createSupabaseServerClient } from "@/utils/supabase/server";
 
 export const metadata = {
   title: "Next.js",
@@ -16,7 +16,7 @@ export default async function RootLayout({
 }: {
   children: React.ReactNode;
 }) {
-  const supabase = createClient();
+  const supabase = createSupabaseServerClient();
 
   const {
     data: { user },

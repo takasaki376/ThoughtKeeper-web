@@ -1,7 +1,7 @@
 import { headers } from "next/headers";
 import { redirect } from "next/navigation";
 
-import { createClient } from "@/utils/supabase/server";
+import { createSupabaseServerClient } from "@/utils/supabase/server";
 
 import { SubmitButton } from "./submit-button";
 
@@ -15,7 +15,7 @@ export default function SignInPage({
 
     const email = formData.get("email") as string;
     const password = formData.get("password") as string;
-    const supabase = createClient();
+    const supabase = createSupabaseServerClient();
 
     const { error } = await supabase.auth.signInWithPassword({
       email,
@@ -34,7 +34,7 @@ export default function SignInPage({
     const origin = headers().get("origin");
     const email = formData.get("email") as string;
     const password = formData.get("password") as string;
-    const supabase = createClient();
+    const supabase = createSupabaseServerClient();
 
     const { error } = await supabase.auth.signUp({
       email,

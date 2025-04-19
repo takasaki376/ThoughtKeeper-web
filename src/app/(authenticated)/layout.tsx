@@ -6,7 +6,7 @@ import { redirect } from "next/navigation";
 
 import { Header } from "@/component/Header";
 import { Navigation } from "@/component/Navigation";
-import { createClient } from "@/utils/supabase/server";
+import { createSupabaseServerClient } from "@/utils/supabase/server";
 
 export const metadata = {
   title: "Tought Keeper",
@@ -18,7 +18,7 @@ export default async function AuthenticatedLayout({
 }: {
   children: React.ReactNode;
 }) {
-  const supabase = createClient();
+  const supabase = createSupabaseServerClient();
 
   const {
     data: { user },
@@ -27,6 +27,7 @@ export default async function AuthenticatedLayout({
   if (!user) {
     return redirect("/auth/login");
   }
+
   return (
     <Provider>
       <MantineProvider>
