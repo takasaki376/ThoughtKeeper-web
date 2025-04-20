@@ -1,33 +1,27 @@
 "use client";
-import { useEffect, useMemo, useState } from "react";
+import { useAtom } from "jotai";
+import ky from "ky";
+import { useEffect } from "react";
 
-import { createClient } from "@/utils/supabase/client";
-
-interface User {
-  id?: string;
-  email?: string;
-}
+import type { User } from "@/store";
+import { userStateAtom } from "@/store";
 
 export function useUser() {
-  const [user, setUser] = useState<User | null>(null);
-  const supabase = useMemo(() => createClient(), []);
+  const [user, setUser] = useAtom(userStateAtom);
 
   useEffect(() => {
-    const getUser = async () => {
-      const { data: { user } } = await supabase.auth.getUser();
-      setUser(user);
+    const fetchUser = async () => {
+      try {
+        const { user } = await ky.get('/api/auth/user').json<{ user: User | null }>();
+        setUser(user);
+      } catch (error) {
+        console.error('Failed to fetch user:', error);
+        setUser(null);
+      }
     };
 
-    getUser();
-
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
-      setUser(session?.user ?? null);
-    });
-
-    return () => {
-      subscription.unsubscribe();
-    };
-  }, [supabase.auth]);
+    fetchUser();
+  }, [setUser]);
 
   return { user };
 }
