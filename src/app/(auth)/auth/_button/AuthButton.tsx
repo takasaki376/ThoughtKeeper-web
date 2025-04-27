@@ -2,7 +2,8 @@ import Link from "next/link";
 import { redirect } from "next/navigation";
 import { FaArrowRightFromBracket, FaRegCircleUser } from "react-icons/fa6";
 
-import { createSupabaseServerClient } from "@/utils/supabase/server";
+import { createSupabaseServerClient } from "@/app/utils/supabase/server";
+
 
 export default async function AuthButton() {
   const supabase = createSupabaseServerClient();
