@@ -5,10 +5,20 @@ import { createSupabaseServerClient } from "@/utils/supabase/server";
 export async function getUser() {
   try {
     const supabase = createSupabaseServerClient();
-    const { data: { user } } = await supabase.auth.getUser();
-    return { user };
+    const { data, error } = await supabase.auth.getUser();
+
+    if (error) {
+      console.error('Auth error:', error);
+      return { error: 'Authentication failed', user: null };
+    }
+
+    if (!data?.user) {
+      return { error: 'User not found', user: null };
+    }
+
+    return { user: data.user };
   } catch (error) {
-    console.error('Failed to get user:', error);
-    return { user: null };
+    console.error('Unexpected error:', error);
+    return { error: 'Internal server error', user: null };
   }
 }

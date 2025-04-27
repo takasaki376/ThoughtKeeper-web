@@ -18,12 +18,33 @@ export default async function RootLayout({
 }) {
   const supabase = createSupabaseServerClient();
 
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+  try {
+    const { data, error } = await supabase.auth.getUser();
 
-  if (user) {
-    return redirect("/");
+    if (error) {
+      console.error("Auth error:", error);
+      // Continue with the login page if there's an error
+      return (
+        <html lang="en">
+          <body>
+            <Header />
+            <div className="flex justify-center">
+              <div className=" bg-lightGray/20">
+                <Navigation />
+              </div>
+              <div className="min-h-screen w-full">{children}</div>
+            </div>
+          </body>
+        </html>
+      );
+    }
+
+    if (data?.user) {
+      return redirect("/");
+    }
+  } catch (error) {
+    console.error("Unexpected error:", error);
+    // Continue with the login page if there's an unexpected error
   }
 
   return (

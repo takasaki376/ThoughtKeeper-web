@@ -49,24 +49,78 @@ export default function SignInPage({
     const origin = headers().get("origin");
     const email = formData.get("email") as string;
     const password = formData.get("password") as string;
+<<<<<<< HEAD
     // const supabase = createSupabaseServerClient();
+=======
+>>>>>>> dad14083df65f59219dd3c6c45e75215d07ba3a2
 
-    const { error } = await supabase.auth.signUp({
-      email,
-      options: {
-        emailRedirectTo: `${origin}/auth/callback`,
-      },
-      password,
-    });
-    console.log(error?.message);
-
-    if (error?.message) {
-      return redirect(`/auth/login?message=${error.message}`);
+    if (!email || !password) {
+      return { error: "Email and password are required" };
     }
 
-    return redirect(
-      "/auth/login?message=Check email to continue sign in process"
-    );
+    try {
+      const supabase = createSupabaseServerClient();
+
+      if (!supabase?.auth) {
+        console.error("Supabase client initialization failed");
+        return { error: "Authentication service is currently unavailable" };
+      }
+
+      console.log("Attempting to sign up with:", { email });
+      const { data, error } = await supabase.auth.signUp({
+        email,
+        options: {
+          emailRedirectTo: `${origin}/auth/callback`,
+        },
+        password,
+      });
+
+      if (error) {
+        console.error("Sign up error details:", {
+          name: error.name,
+          cause: error.cause,
+          message: error.message,
+          status: error.status,
+        });
+
+        if (error.message.includes("User already registered")) {
+          return { error: "This email is already registered" };
+        }
+        if (error.message.includes("Password should be at least")) {
+          return { error: "Password is too weak" };
+        }
+        if (error.message.includes("Invalid email")) {
+          return { error: "Please enter a valid email address" };
+        }
+
+        return { error: `Registration failed: ${error.message}` };
+      }
+
+      if (!data?.user) {
+        console.error("No user data returned from sign up");
+        return { error: "Registration failed. Please try again" };
+      }
+
+      console.log("Sign up successful for user:", data.user.id);
+      return { success: "Check email to continue sign in process" };
+    } catch (error) {
+      console.error("Unexpected sign up error:", {
+        name: error instanceof Error ? error.name : "Unknown error",
+        error,
+        message:
+          error instanceof Error
+            ? error.message
+            : "An unexpected error occurred",
+        stack: error instanceof Error ? error.stack : undefined,
+      });
+
+      return {
+        error:
+          error instanceof Error
+            ? `Registration error: ${error.message}`
+            : "An unexpected error occurred. Please try again later",
+      };
+    }
   };
   return (
     <div className="flex justify-center gap-2 px-8">
@@ -91,14 +145,39 @@ export default function SignInPage({
           required
         />
         <SubmitButton
+<<<<<<< HEAD
           formAction={signIn}
           className="text-foregroun mb-2 rounded-md bg-green-700 px-4 py-2"
+=======
+          formAction={async (formData) => {
+            "use server";
+            const result = await signIn(formData);
+            if (result?.error) {
+              redirect(
+                `/auth/login?message=${encodeURIComponent(result.error)}`
+              );
+            }
+          }}
+          className="mb-2 rounded-md bg-green-700 px-4 py-2 text-foreground"
+>>>>>>> dad14083df65f59219dd3c6c45e75215d07ba3a2
           pendingText="Signing In..."
         >
           Sign In
         </SubmitButton>
         <SubmitButton
-          formAction={signUp}
+          formAction={async (formData) => {
+            "use server";
+            const result = await signUp(formData);
+            if (result?.error) {
+              redirect(
+                `/auth/login?message=${encodeURIComponent(result.error)}`
+              );
+            } else if (result?.success) {
+              redirect(
+                `/auth/login?message=${encodeURIComponent(result.success)}`
+              );
+            }
+          }}
           className="mb-2 rounded-md border border-foreground/20 px-4 py-2 text-foreground"
           pendingText="Signing Up..."
         >
@@ -106,7 +185,7 @@ export default function SignInPage({
         </SubmitButton>
         {searchParams?.message && (
           <p className="mt-4 p-4 text-center text-tomato">
-            {searchParams.message}
+            {decodeURIComponent(searchParams.message)}
           </p>
         )}
       </form>
