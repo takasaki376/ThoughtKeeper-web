@@ -1,14 +1,24 @@
 import { NextResponse } from 'next/server';
 
-import { createSupabaseServerClient } from '@/utils/supabase/server';
+import { createSupabaseServerClient } from '@/app/utils/supabase/server';
 
 export async function GET() {
   try {
     const supabase = createSupabaseServerClient();
-    const { data: { user } } = await supabase.auth.getUser();
+    const { data, error } = await supabase.auth.getUser();
 
-    return NextResponse.json({ user });
+    if (error) {
+      console.error('Auth error:', error);
+      return NextResponse.json({ error: 'Authentication failed' }, { status: 401 });
+    }
+
+    if (!data?.user) {
+      return NextResponse.json({ error: 'User not found' }, { status: 404 });
+    }
+
+    return NextResponse.json({ user: data.user });
   } catch (error) {
-    return NextResponse.json({ error: 'Failed to get user' }, { status: 500 });
+    console.error('Unexpected error:', error);
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }

@@ -18,29 +18,36 @@ export default async function AuthenticatedLayout({
 }: {
   children: React.ReactNode;
 }) {
-  const supabase = createSupabaseServerClient();
+  try {
+    const supabase = createSupabaseServerClient();
+    const { data, error } = await supabase.auth.getUser();
 
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+    if (error) {
+      console.error("Authentication error:", error);
+      redirect("/auth/login");
+    }
 
-  if (!user) {
+    if (!data?.user) {
+      redirect("/auth/login");
+    }
+
+    return (
+      <Provider>
+        <MantineProvider>
+          <body>
+            <Header />
+            <div className="flex">
+              <div className=" bg-lightGray/20">
+                <Navigation />
+              </div>
+              <div className="min-h-screen w-full">{children}</div>
+            </div>
+          </body>
+        </MantineProvider>
+      </Provider>
+    );
+  } catch (error) {
+    console.error("Unexpected error:", error);
     redirect("/auth/login");
   }
-
-  return (
-    <Provider>
-      <MantineProvider>
-        <body>
-          <Header />
-          <div className="flex">
-            <div className=" bg-lightGray/20">
-              <Navigation />
-            </div>
-            <div className="min-h-screen w-full">{children}</div>
-          </div>
-        </body>
-      </MantineProvider>
-    </Provider>
-  );
 }
