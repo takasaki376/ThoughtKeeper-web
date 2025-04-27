@@ -1,10 +1,11 @@
+"use client";
 import { NumberInput } from "@mantine/core";
 import Link from "next/link";
 import { useState } from "react";
 import { MdOutlineClose } from "react-icons/md";
 
 import { updateSettings } from "@/app/actions/settings";
-import { createSupabaseServerClient } from "@/utils/supabase/server";
+import { createSupabaseServerClient } from "@/app/utils/supabase/server";
 
 // クライアントコンポーネント
 const ThemeCountInput = ({
