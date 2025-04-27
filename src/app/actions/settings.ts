@@ -1,6 +1,6 @@
 'use server';
 
-import { createSupabaseServerClient } from '@/app/utils/supabase/server';
+import { createSupabaseServerClient } from '@/utils/supabase/server';
 
 export async function updateSettings(settings: { theme_count: number; time_limit: string }) {
   const supabase = createSupabaseServerClient();

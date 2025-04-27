@@ -5,7 +5,7 @@ import { useState } from "react";
 import { MdOutlineClose } from "react-icons/md";
 
 import { updateSettings } from "@/app/actions/settings";
-import { createSupabaseServerClient } from "@/app/utils/supabase/server";
+import { createSupabaseServerClient } from "@/utils/supabase/server";
 
 // クライアントコンポーネント
 const ThemeCountInput = ({

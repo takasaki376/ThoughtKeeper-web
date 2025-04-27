@@ -1,7 +1,6 @@
-import { headers } from "next/headers";
+import { createClient } from "@supabase/supabase-js";
+import { cookies } from "next/headers"; // クッキー操作用
 import { redirect } from "next/navigation";
-
-import { createSupabaseServerClient } from "@/app/utils/supabase/server";
 
 import { SubmitButton } from "./submit-button";
 
@@ -10,31 +9,47 @@ export default function SignInPage({
 }: {
   searchParams: { message: string };
 }) {
-  const signIn = async (formData: FormData) => {
+  const supabaseUrl = process.env.SUPABASE_URL!;
+  const supabaseKey = process.env.SUPABASE_ANON_KEY!;
+  const supabase = createClient(supabaseUrl, supabaseKey);
+
+  const signIn = async (email: string, password: string) => {
     "use server";
-
-    const email = formData.get("email") as string;
-    const password = formData.get("password") as string;
-    const supabase = createSupabaseServerClient();
-
-    const { error } = await supabase.auth.signInWithPassword({
+    const { data, error } = await supabase.auth.signInWithPassword({
       email,
       password,
     });
-    if (error?.message) {
+
+    if (error) {
+      console.error("Login failed:", error.message);
       return redirect(`/auth/login?message=${error.message}`);
     }
 
-    return "/";
+    // クッキーにトークンを保存
+    const cookieStore = cookies();
+    const token = data.session?.access_token;
+    if (token) {
+      cookieStore.set("supabase-auth-token", token, {
+        httpOnly: true,
+        maxAge: 60 * 60 * 24 * 7, // 7日間有効
+        path: "/",
+        secure: process.env.NODE_ENV === "production",
+      });
+    }
+
+    return redirect("/"); // ログイン後のリダイレクト先
   };
 
   const signUp = async (formData: FormData) => {
     "use server";
+    const supabaseUrl = process.env.SUPABASE_URL!;
+    const supabaseKey = process.env.SUPABASE_ANON_KEY!;
+    const supabase = createClient(supabaseUrl, supabaseKey);
 
     const origin = headers().get("origin");
     const email = formData.get("email") as string;
     const password = formData.get("password") as string;
-    const supabase = createSupabaseServerClient();
+    // const supabase = createSupabaseServerClient();
 
     const { error } = await supabase.auth.signUp({
       email,
@@ -53,7 +68,6 @@ export default function SignInPage({
       "/auth/login?message=Check email to continue sign in process"
     );
   };
-
   return (
     <div className="flex justify-center gap-2 px-8">
       <form className="flex w-full flex-col gap-2 text-foreground md:w-1/2">
@@ -78,7 +92,7 @@ export default function SignInPage({
         />
         <SubmitButton
           formAction={signIn}
-          className="mb-2 rounded-md bg-green-700 px-4 py-2 text-foreground"
+          className="text-foregroun mb-2 rounded-md bg-green-700 px-4 py-2"
           pendingText="Signing In..."
         >
           Sign In

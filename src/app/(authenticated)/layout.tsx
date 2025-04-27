@@ -4,9 +4,9 @@ import { MantineProvider } from "@mantine/core";
 import { Provider } from "jotai";
 import { redirect } from "next/navigation";
 
-import { createSupabaseServerClient } from "@/app/utils/supabase/server";
 import { Header } from "@/component/Header";
 import { Navigation } from "@/component/Navigation";
+import { createSupabaseServerClient } from "@/utils/supabase/server";
 
 export const metadata = {
   title: "Tought Keeper",
