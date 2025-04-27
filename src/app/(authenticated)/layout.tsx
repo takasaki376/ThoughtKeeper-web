@@ -4,9 +4,9 @@ import { MantineProvider } from "@mantine/core";
 import { Provider } from "jotai";
 import { redirect } from "next/navigation";
 
+import { createSupabaseServerClient } from "@/app/utils/supabase/server";
 import { Header } from "@/component/Header";
 import { Navigation } from "@/component/Navigation";
-import { createSupabaseServerClient } from "@/utils/supabase/server";
 
 export const metadata = {
   title: "Tought Keeper",
@@ -18,29 +18,36 @@ export default async function AuthenticatedLayout({
 }: {
   children: React.ReactNode;
 }) {
-  const supabase = createSupabaseServerClient();
+  try {
+    const supabase = createSupabaseServerClient();
+    const { data, error } = await supabase.auth.getUser();
 
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+    if (error) {
+      console.error("Authentication error:", error);
+      redirect("/auth/login");
+    }
 
-  if (!user) {
-    return redirect("/auth/login");
-  }
+    if (!data?.user) {
+      redirect("/auth/login");
+    }
 
-  return (
-    <Provider>
-      <MantineProvider>
-        <body>
-          <Header />
-          <div className="flex">
-            <div className=" bg-lightGray/20">
-              <Navigation />
+    return (
+      <Provider>
+        <MantineProvider>
+          <body>
+            <Header />
+            <div className="flex">
+              <div className=" bg-lightGray/20">
+                <Navigation />
+              </div>
+              <div className="min-h-screen w-full">{children}</div>
             </div>
-            <div className="min-h-screen w-full">{children}</div>
-          </div>
-        </body>
-      </MantineProvider>
-    </Provider>
-  );
+          </body>
+        </MantineProvider>
+      </Provider>
+    );
+  } catch (error) {
+    console.error("Unexpected error:", error);
+    redirect("/auth/login");
+  }
 }

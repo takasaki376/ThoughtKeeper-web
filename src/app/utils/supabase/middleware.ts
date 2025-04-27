@@ -69,10 +69,18 @@ export const updateSession = async (request: NextRequest) => {
 
     // This will refresh session if expired - required for Server Components
     // https://supabase.com/docs/guides/auth/server-side/nextjs
-    await supabase.auth.getUser();
+    const { error } = await supabase.auth.getUser();
+
+    if (error) {
+      console.error('Middleware auth error:', error);
+      // Clear any invalid session cookies
+      response.cookies.delete('sb-auth-token');
+      response.cookies.delete('sb-refresh-token');
+    }
 
     return response;
   } catch (e) {
+    console.error('Middleware unexpected error:', e);
     // If you are here, a Supabase client could not be created!
     // This is likely because you have not set up environment variables.
     // Check out http://localhost:3000 for Next Steps.

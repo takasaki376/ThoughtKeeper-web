@@ -1,9 +1,8 @@
 "use client";
 import { useAtom } from "jotai";
-import ky from "ky";
 import { useEffect } from "react";
 
-import type { User } from "@/store";
+import { getUser } from "@/app/actions/auth";
 import { userStateAtom } from "@/store";
 
 export function useUser() {
@@ -12,7 +11,7 @@ export function useUser() {
   useEffect(() => {
     const fetchUser = async () => {
       try {
-        const { user } = await ky.get('/api/auth/user').json<{ user: User | null }>();
+        const { user } = await getUser();
         setUser(user);
       } catch (error) {
         console.error('Failed to fetch user:', error);

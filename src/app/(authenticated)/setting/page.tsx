@@ -1,103 +1,90 @@
 "use client";
 import { NumberInput } from "@mantine/core";
-import { useAtom } from "jotai";
-import ky from "ky";
 import Link from "next/link";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { MdOutlineClose } from "react-icons/md";
 
-import { useUser } from "@/hooks/useUser";
-import { countTheme, countTime } from "@/store/setting";
+import { updateSettings } from "@/app/actions/settings";
+import { createSupabaseServerClient } from "@/app/utils/supabase/server";
 
-export default function SettingPage() {
-  const { user } = useUser();
-  const [count, setCount] = useAtom(countTheme);
-  const [time, setTime] = useAtom(countTime);
+// クライアントコンポーネント
+const ThemeCountInput = ({
+  initialValue,
+  onUpdate,
+}: {
+  initialValue: number;
+  onUpdate: (value: number) => Promise<void>;
+}) => {
+  const [value, setValue] = useState(initialValue);
 
-  useEffect(() => {
-    const fetchSettings = async () => {
-      try {
-        const data = await ky.get("/api/settings").json<{
-          theme_count: number;
-          time_limit: string;
-        }>();
-        if (data) {
-          setCount(data.theme_count || 10);
-          setTime(data.time_limit || "60");
-        }
-      } catch (error) {
-        console.error("設定の取得に失敗しました:", error);
-      }
-    };
-
-    if (user) {
-      fetchSettings();
-    }
-  }, [user, setCount, setTime]);
-
-  if (!user) {
-    return null;
-  }
-
-  // テーマ数の入力
-  const InputTargetCount = () => {
-    const [localCount, setLocalCount] = useState(count);
-
-    const handleChange = (val: number | string) => {
-      setLocalCount(Number(val));
-    };
-
-    const handleBlur = () => {
-      if (localCount !== count) {
-        setCount(localCount);
-        ky.put("/api/settings", {
-          json: { theme_count: localCount },
-        });
-      }
-    };
-
-    return (
-      <NumberInput
-        id="themeCount"
-        value={localCount}
-        onChange={handleChange}
-        onBlur={handleBlur}
-        min={1}
-        max={100}
-        clampBehavior="strict"
-        allowDecimal={false}
-      />
-    );
+  const handleChange = async (val: number | string) => {
+    const newValue = Number(val);
+    setValue(newValue);
+    await onUpdate(newValue);
   };
 
-  // 制限時間の入力
-  const InputTargetTime = () => {
-    const [localTime, setLocalTime] = useState(time);
+  return (
+    <NumberInput
+      id="themeCount"
+      value={value}
+      onChange={handleChange}
+      min={1}
+      max={100}
+      clampBehavior="strict"
+      allowDecimal={false}
+    />
+  );
+};
 
-    const handleChange = (val: number | string) => {
-      setLocalTime(String(val));
-    };
+const TimeLimitInput = ({
+  initialValue,
+  onUpdate,
+}: {
+  initialValue: string;
+  onUpdate: (value: string) => Promise<void>;
+}) => {
+  const [value, setValue] = useState(initialValue);
 
-    const handleBlur = () => {
-      if (localTime !== time) {
-        setTime(localTime);
-        ky.put("/api/settings", {
-          json: { time_limit: localTime },
-        });
-      }
-    };
+  const handleChange = async (val: number | string) => {
+    const newValue = String(val);
+    setValue(newValue);
+    await onUpdate(newValue);
+  };
 
-    return (
-      <NumberInput
-        min={1}
-        max={3600}
-        value={Number(localTime)}
-        onChange={handleChange}
-        onBlur={handleBlur}
-        clampBehavior="strict"
-        allowDecimal={false}
-      />
-    );
+  return (
+    <NumberInput
+      min={1}
+      max={3600}
+      value={Number(value)}
+      onChange={handleChange}
+      clampBehavior="strict"
+      allowDecimal={false}
+    />
+  );
+};
+
+// サーバーコンポーネント
+export default async function SettingPage() {
+  const supabase = createSupabaseServerClient();
+
+  // サーバーサイドでの直接データフェッチ
+  const { data: settings } = await supabase
+    .from("user_settings")
+    .select("*")
+    .single();
+
+  const handleThemeCountUpdate = async (value: number) => {
+    await updateSettings({
+      theme_count: value,
+      time_limit: settings?.time_limit || "60",
+    });
+  };
+
+  const handleTimeLimitUpdate = async (value: string) => {
+    await updateSettings({
+      theme_count: settings?.theme_count || 10,
+      time_limit: value,
+    });
   };
 
   return (
@@ -112,7 +99,10 @@ export default function SettingPage() {
             </div>
             <div className="md:w-2/3">
               <div className="flex">
-                <InputTargetCount />
+                <ThemeCountInput
+                  initialValue={settings?.theme_count || 10}
+                  onUpdate={handleThemeCountUpdate}
+                />
                 &nbsp;件
               </div>
               <p className="py-2 text-sm text-gray">テーマの数を設定します</p>
@@ -127,7 +117,10 @@ export default function SettingPage() {
             </div>
             <div className="md:w-2/3">
               <div className="flex">
-                <InputTargetTime />
+                <TimeLimitInput
+                  initialValue={settings?.time_limit || "60"}
+                  onUpdate={handleTimeLimitUpdate}
+                />
                 &nbsp;秒
               </div>
               <p className="py-2 text-sm text-gray">
