@@ -26,13 +26,17 @@ const MemoEditorPage = () => {
   // エディタに自動フォーカスを当てる
   // eslint-disable-next-line react-hooks/exhaustive-deps
   useEffect(() => {
-    if (editorRef.current) {
-      const editorElement = editorRef.current.querySelector(".ProseMirror");
-      if (editorElement instanceof HTMLElement) {
-        editorElement.focus();
+    const timer = setTimeout(() => {
+      if (editorRef.current) {
+        const editorElement = editorRef.current.querySelector(".ProseMirror");
+        if (editorElement instanceof HTMLElement) {
+          editorElement.focus();
+        }
       }
-    }
-  }, [currentThemeIndex]); // テーマが変更されるたびにフォーカスを当てる
+    }, 100); // エディタのマウントを待つ
+
+    return () => clearTimeout(timer);
+  }, [currentThemeIndex, themes]); // テーマが変更されるたびにフォーカスを当てる
 
   const handleThemeChange = useCallback(
     (nextIndex: number) => {
