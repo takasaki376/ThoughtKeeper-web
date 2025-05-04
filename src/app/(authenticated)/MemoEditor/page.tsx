@@ -12,6 +12,7 @@ const MemoEditorPage = () => {
   const themes = useAtomValue(themeAtom);
   const themeTime = useAtomValue(countTime);
   const setRecentMemos = useSetAtom(recentMemosAtom);
+  const editorRef = useRef<HTMLDivElement>(null);
 
   const [currentThemeIndex, setCurrentThemeIndex] = useState(0);
   const [currentTheme, setCurrentTheme] = useState(themes[0] || null);
@@ -21,6 +22,21 @@ const MemoEditorPage = () => {
   // 入力内容を保存するための参照を使用
   const inputContentRef = useRef(inputContent);
   inputContentRef.current = inputContent;
+
+  // エディタに自動フォーカスを当てる
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      if (editorRef.current) {
+        const editorElement = editorRef.current.querySelector(".ProseMirror");
+        if (editorElement instanceof HTMLElement) {
+          editorElement.focus();
+        }
+      }
+    }, 100); // エディタのマウントを待つ
+
+    return () => clearTimeout(timer);
+  }, [currentThemeIndex, themes]); // テーマが変更されるたびにフォーカスを当てる
 
   const handleThemeChange = useCallback(
     (nextIndex: number) => {
@@ -112,7 +128,9 @@ const MemoEditorPage = () => {
           </div>
         </div>
       </div>
-      <Tiptap value={inputContent} onChange={setInputContent} />
+      <div ref={editorRef}>
+        <Tiptap value={inputContent} onChange={setInputContent} />
+      </div>
     </>
   );
 };

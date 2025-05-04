@@ -13,19 +13,35 @@ export default function SignInPage({
   const signIn = async (formData: FormData) => {
     "use server";
 
-    const email = formData.get("email") as string;
-    const password = formData.get("password") as string;
-    const supabase = createSupabaseServerClient();
+    try {
+      const email = formData.get("email") as string;
+      const password = formData.get("password") as string;
+      const supabase = createSupabaseServerClient();
 
-    const { error } = await supabase.auth.signInWithPassword({
-      email,
-      password,
-    });
-    if (error?.message) {
-      return redirect(`/auth/login?message=${error.message}`);
+      console.log("Attempting to sign in with:", { email });
+
+      const { data, error } = await supabase.auth.signInWithPassword({
+        email,
+        password,
+      });
+
+      console.log("Sign in response:", { data, error });
+
+      if (error) {
+        console.error("Sign in error:", error);
+        return redirect(`/auth/login?message=${error.message}`);
+      }
+
+      if (!data.user) {
+        console.error("No user data returned");
+        return redirect("/auth/login?message=Authentication failed");
+      }
+
+      return redirect("/");
+    } catch (error) {
+      console.error("Unexpected error during sign in:", error);
+      return redirect("/auth/login?message=An unexpected error occurred");
     }
-
-    return "/";
   };
 
   const signUp = async (formData: FormData) => {
