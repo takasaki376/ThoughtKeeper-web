@@ -29,60 +29,56 @@ export const useThemeTimer = (
       setRemainingTime((prevTime) => {
         if (prevTime <= 1 && !isSavingRef.current) {
           isSavingRef.current = true;
+          if (timerRef.current) {
+            clearInterval(timerRef.current);
+            timerRef.current = null;
+          }
 
           // IMEの変換を確定させる処理
           // 現在フォーカスされている要素（入力フィールド）を取得
-          const activeElement = document.activeElement as HTMLElement;
-          if (activeElement) {
-            // フォーカスを外してIMEの変換を確定させる
-            // これにより、未確定の日本語入力が確定される
+          const activeElement = document.activeElement;
+          if (activeElement instanceof HTMLElement) {
+            // フォーカスを外してIMEの変換を確定
             activeElement.blur();
-
-            // IMEの変換が確定するのを待つため、少し待機してから保存処理を実行
-            // 100msの待機時間は、IMEの変換確定に必要な時間を考慮した値
+            // 100ms待ってから保存処理を実行
             setTimeout(async () => {
               try {
-                // 保存処理を実行
                 await onSave();
-
-                // 保存完了後の処理
                 if (currentIndex + 1 < themeCount) {
-                  // 次のテーマが存在する場合
-                  // テーマを切り替え、タイマーをリセット
                   onThemeChange(currentIndex + 1);
                   setRemainingTime(initialTime);
+                  // 新しいタイマーを開始
+                  startTimer();
                 } else {
-                  // 最後のテーマの場合
-                  // 保存処理が確実に完了するのを待ってからページ遷移
-                  setTimeout(() => {
-                    router.push("/MemoList");
-                  }, 100);
+                  router.push("/MemoList");
                 }
               } catch (error) {
                 console.error("保存処理でエラーが発生しました:", error);
+                // エラー時もタイマーを再開
+                setRemainingTime(initialTime);
+                startTimer();
               } finally {
-                // 保存処理の完了後、保存中フラグをリセット
                 isSavingRef.current = false;
               }
             }, 100);
           } else {
-            // アクティブな要素がない場合（フォーカスされていない場合）の処理
-            // 通常の保存処理を実行
-            Promise.resolve()
-              .then(() => onSave())
+            // フォーカスされている要素がない場合は即座に保存処理を実行
+            onSave()
               .then(() => {
                 if (currentIndex + 1 < themeCount) {
                   onThemeChange(currentIndex + 1);
                   setRemainingTime(initialTime);
+                  startTimer();
                 } else {
-                  setTimeout(() => {
-                    router.push("/MemoList");
-                  }, 100);
+                  router.push("/MemoList");
                 }
-                isSavingRef.current = false;
               })
               .catch((error) => {
                 console.error("保存処理でエラーが発生しました:", error);
+                setRemainingTime(initialTime);
+                startTimer();
+              })
+              .finally(() => {
                 isSavingRef.current = false;
               });
           }
