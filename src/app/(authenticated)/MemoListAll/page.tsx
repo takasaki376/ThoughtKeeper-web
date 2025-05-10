@@ -37,6 +37,14 @@ const formatDate = (dateString: string) => {
   return `${year}/${month}/${day} ${time}`;
 };
 
+// 時間をローカルタイムゾーンでフォーマットする関数
+const formatTime = (dateString: string) => {
+  const date = new Date(dateString);
+  const hours = date.getHours().toString().padStart(2, '0');
+  const minutes = date.getMinutes().toString().padStart(2, '0');
+  return `${hours}:${minutes}`;
+};
+
 const MemoListAllPage: FC = () => {
   const [filteredMemos, setFilteredMemos] = useState<Memo[]>([]); // フィルタリングされたメモのリストを管理
   const [themes, setThemes] = useState<{ id: string; theme: string }[]>([]); // テーマのステートを追加
@@ -184,7 +192,7 @@ const MemoListAllPage: FC = () => {
             className="mb-4 list-none"
           >
             <p className="text-center text-xs font-thin text-gray">
-              {formatDate(memo.created_at)}
+              {formatDate(memo.created_at)}&nbsp;{formatTime(memo.created_at)}
             </p>
             <p className="my-2 w-full text-xs font-thin">
               {memo.title} - {memo.theme.theme}
