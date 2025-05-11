@@ -72,7 +72,7 @@ const MemoEditorPage = () => {
               id: responseData.id,
               content: inputContentRef.current,
               created_at: responseData.created_at,
-              local_created_at: new Date().toISOString(),
+              local_created_at: responseData.created_at,
               theme: currentTheme,
             };
             console.log("Memo saved to DB:", inputContentRef.current);
