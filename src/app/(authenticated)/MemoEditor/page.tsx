@@ -3,6 +3,7 @@ import { useAtomValue, useSetAtom } from "jotai";
 import ky from "ky";
 import { useCallback, useEffect, useRef, useState } from "react";
 
+import { Drawing } from "@/component/Drawing";
 import { Tiptap } from "@/component/TipTap";
 import { useThemeTimer } from "@/hooks/useThemeTimer";
 import { countTime, memoListAtom, recentMemosAtom, themeAtom } from "@/store";
@@ -16,12 +17,15 @@ const MemoEditorPage = () => {
 
   const [currentThemeIndex, setCurrentThemeIndex] = useState(0);
   const [currentTheme, setCurrentTheme] = useState(themes[0] || null);
-  const [inputContent, setInputContent] = useState("");
+  const [textContent, setTextContent] = useState("");
+  const [drawingContent, setDrawingContent] = useState("");
   const setMemoList = useSetAtom(memoListAtom);
 
   // 入力内容を保存するための参照を使用
-  const inputContentRef = useRef(inputContent);
-  inputContentRef.current = inputContent;
+  const textContentRef = useRef(textContent);
+  const drawingContentRef = useRef(drawingContent);
+  textContentRef.current = textContent;
+  drawingContentRef.current = drawingContent;
 
   // エディタに自動フォーカスを当てる
   // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -40,7 +44,8 @@ const MemoEditorPage = () => {
 
   const handleThemeChange = useCallback(
     (nextIndex: number) => {
-      setInputContent("");
+      setTextContent("");
+      setDrawingContent("");
       setCurrentTheme(themes[nextIndex]);
       setCurrentThemeIndex(nextIndex);
     },
@@ -48,12 +53,13 @@ const MemoEditorPage = () => {
   );
 
   const saveMemo = useCallback(async () => {
-    if (currentTheme && inputContentRef.current) {
+    if (currentTheme && (textContentRef.current || drawingContentRef.current)) {
       try {
         const responseData = await ky
           .put("/api/memos", {
             json: {
-              content: inputContentRef.current,
+              content: textContentRef.current,
+              drawing: drawingContentRef.current,
               theme_id: currentTheme.id,
             },
           })
@@ -64,18 +70,20 @@ const MemoEditorPage = () => {
           const isAlreadySaved = prev.some(
             (memo) =>
               memo.theme.id === currentTheme.id &&
-              memo.content === inputContentRef.current
+              memo.content === textContentRef.current &&
+              memo.drawing === drawingContentRef.current
           );
 
           if (!isAlreadySaved) {
             const newMemo = {
               id: responseData.id,
-              content: inputContentRef.current,
+              content: textContentRef.current,
               created_at: responseData.created_at,
+              drawing: drawingContentRef.current,
               local_created_at: responseData.created_at,
               theme: currentTheme,
             };
-            console.log("Memo saved to DB:", inputContentRef.current);
+            console.log("Memo saved to DB:", textContentRef.current);
             setRecentMemos((prev) => [...prev, newMemo]);
             return [...prev, newMemo];
           }
@@ -128,8 +136,15 @@ const MemoEditorPage = () => {
           </div>
         </div>
       </div>
-      <div ref={editorRef}>
-        <Tiptap value={inputContent} onChange={setInputContent} />
+      <div className="flex flex-col">
+        <div ref={editorRef}>
+          <p className="text-center">文字入力フィールド</p>
+          <Tiptap value={textContent} onChange={setTextContent} />
+        </div>
+        <div className="mt-10">
+          <p className="text-center">手書きフィールド</p>
+          <Drawing value={drawingContent} onChange={setDrawingContent} />
+        </div>
       </div>
     </>
   );
