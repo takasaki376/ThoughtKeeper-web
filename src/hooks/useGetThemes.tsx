@@ -2,7 +2,8 @@
 import { useSetAtom } from "jotai";
 import { useEffect, useState } from "react";
 
-import { setThemeAtom } from "@/store/setting";
+import { createGet } from "@/services/api";
+import { setThemeAtom } from "@/store";
 import type { Themes } from "@/types/database";
 
 export function useGetThemes() {
@@ -14,14 +15,8 @@ export function useGetThemes() {
   useEffect(() => {
     const fetchThemes = async () => {
       try {
-        setLoading(true);
-        const response = await fetch("/api/themes");
-        if (!response.ok) {
-          const errorMessage = await response.text();
-          throw new Error(`Network response was not ok: ${errorMessage}`);
-        }
-        const result = (await response.json()) as Themes;
-        setAllThemes(result);
+        const { data } = await createGet<Themes>("themes");
+        setAllThemes(data);
       } catch (err) {
         console.error(err);
         setError("Failed to fetch themes");

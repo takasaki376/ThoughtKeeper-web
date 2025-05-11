@@ -1,21 +1,26 @@
 "use client";
 import { NumberInput } from "@mantine/core";
 import { useAtom } from "jotai";
+import ky from "ky";
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { MdOutlineClose } from "react-icons/md";
 
+import { useUser } from "@/hooks/useUser";
 import { countTheme, countTime } from "@/store/setting";
 
 export default function SettingPage() {
+  const { user } = useUser();
   const [count, setCount] = useAtom(countTheme);
   const [time, setTime] = useAtom(countTime);
 
   useEffect(() => {
     const fetchSettings = async () => {
       try {
-        const response = await fetch("/api/settings");
-        const data = await response.json();
+        const data = await ky.get("/api/settings").json<{
+          theme_count: number;
+          time_limit: string;
+        }>();
         if (data) {
           setCount(data.theme_count || 10);
           setTime(data.time_limit || "60");
@@ -24,8 +29,15 @@ export default function SettingPage() {
         console.error("設定の取得に失敗しました:", error);
       }
     };
-    fetchSettings();
-  }, [setCount, setTime]);
+
+    if (user) {
+      fetchSettings();
+    }
+  }, [user, setCount, setTime]);
+
+  if (!user) {
+    return null;
+  }
 
   // テーマ数の入力
   const InputTargetCount = () => {
@@ -38,10 +50,8 @@ export default function SettingPage() {
     const handleBlur = () => {
       if (localCount !== count) {
         setCount(localCount);
-        fetch("/api/settings", {
-          body: JSON.stringify({ theme_count: localCount }),
-          headers: { "Content-Type": "application/json" },
-          method: "PUT",
+        ky.put("/api/settings", {
+          json: { theme_count: localCount },
         });
       }
     };
@@ -71,10 +81,8 @@ export default function SettingPage() {
     const handleBlur = () => {
       if (localTime !== time) {
         setTime(localTime);
-        fetch("/api/settings", {
-          body: JSON.stringify({ time_limit: localTime }),
-          headers: { "Content-Type": "application/json" },
-          method: "PUT",
+        ky.put("/api/settings", {
+          json: { time_limit: localTime },
         });
       }
     };

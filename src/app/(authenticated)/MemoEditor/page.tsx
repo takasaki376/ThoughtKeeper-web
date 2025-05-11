@@ -1,16 +1,18 @@
 "use client";
 import { useAtomValue, useSetAtom } from "jotai";
+import ky from "ky";
 import { useCallback, useEffect, useRef, useState } from "react";
 
 import { Tiptap } from "@/component/TipTap";
 import { useThemeTimer } from "@/hooks/useThemeTimer";
-import { countTime, memoListAtom, themeAtom } from "@/store/setting";
+import { countTime, memoListAtom, recentMemosAtom, themeAtom } from "@/store";
 import type { Memo, Theme } from "@/types/database";
-
 
 const MemoEditorPage = () => {
   const themes = useAtomValue(themeAtom);
   const themeTime = useAtomValue(countTime);
+  const setRecentMemos = useSetAtom(recentMemosAtom);
+  const editorRef = useRef<HTMLDivElement>(null);
 
   const [currentThemeIndex, setCurrentThemeIndex] = useState(0);
   const [currentTheme, setCurrentTheme] = useState(themes[0] || null);
@@ -20,6 +22,21 @@ const MemoEditorPage = () => {
   // 入力内容を保存するための参照を使用
   const inputContentRef = useRef(inputContent);
   inputContentRef.current = inputContent;
+
+  // エディタに自動フォーカスを当てる
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      if (editorRef.current) {
+        const editorElement = editorRef.current.querySelector(".ProseMirror");
+        if (editorElement instanceof HTMLElement) {
+          editorElement.focus();
+        }
+      }
+    }, 100); // エディタのマウントを待つ
+
+    return () => clearTimeout(timer);
+  }, [currentThemeIndex, themes]); // テーマが変更されるたびにフォーカスを当てる
 
   const handleThemeChange = useCallback(
     (nextIndex: number) => {
@@ -32,59 +49,44 @@ const MemoEditorPage = () => {
 
   const saveMemo = useCallback(async () => {
     if (currentTheme && inputContentRef.current) {
-      const response = await fetch("/api/memos", {
-        body: JSON.stringify({
-          content: inputContentRef.current,
-          theme_id: currentTheme.id,
-        }),
-        headers: {
-          "Content-Type": "application/json",
-        },
-        method: "PUT",
-      });
-
-      if (!response.ok) {
-        throw new Error("メモの保存に失敗しました");
-      }
-
-      const responseText = await response.text();
-      if (!responseText) {
-        throw new Error("空のレスポンスが返されました");
-      }
-
-      const responseData: Memo = JSON.parse(responseText);
-
-      // created_atからDateオブジェクトを作成
-      const createdAt = new Date(responseData.created_at);
-
-      // 日付と時刻を日本のフォーマットで取得
-      const currentDate = createdAt.toLocaleDateString("ja-JP");
-      const currentTime = createdAt.toLocaleTimeString("ja-JP");
-
-      // 状態を更新
-      setMemoList((prev) => {
-        const isAlreadySaved = prev.some(
-          (memo) =>
-            memo.theme === currentTheme.theme &&
-            memo.content === inputContentRef.current
-        );
-
-        if (!isAlreadySaved) {
-          console.log("Memo saved to DB:", inputContentRef.current);
-          return [
-            ...prev,
-            {
+      try {
+        const responseData = await ky
+          .put("/api/memos", {
+            json: {
               content: inputContentRef.current,
-              date: currentDate,
-              theme: currentTheme.theme,
-              time: currentTime,
+              theme_id: currentTheme.id,
             },
-          ];
-        }
-        return prev;
-      });
+          })
+          .json<Memo>();
+
+        // 状態を更新
+        setMemoList((prev) => {
+          const isAlreadySaved = prev.some(
+            (memo) =>
+              memo.theme.id === currentTheme.id &&
+              memo.content === inputContentRef.current
+          );
+
+          if (!isAlreadySaved) {
+            const newMemo = {
+              id: responseData.id,
+              content: inputContentRef.current,
+              created_at: responseData.created_at,
+              local_created_at: responseData.created_at,
+              theme: currentTheme,
+            };
+            console.log("Memo saved to DB:", inputContentRef.current);
+            setRecentMemos((prev) => [...prev, newMemo]);
+            return [...prev, newMemo];
+          }
+          return prev;
+        });
+      } catch (error) {
+        console.error("メモの保存に失敗しました:", error);
+        throw error;
+      }
     }
-  }, [currentTheme, setMemoList]);
+  }, [currentTheme, setMemoList, setRecentMemos]);
 
   const { remainingTime, startTimer } = useThemeTimer(
     Number(themeTime),
@@ -126,7 +128,9 @@ const MemoEditorPage = () => {
           </div>
         </div>
       </div>
-      <Tiptap value={inputContent} onChange={setInputContent} />
+      <div ref={editorRef}>
+        <Tiptap value={inputContent} onChange={setInputContent} />
+      </div>
     </>
   );
 };

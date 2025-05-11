@@ -1,10 +1,12 @@
 import { NextResponse } from "next/server";
 
-import { createClient } from "@/utils/supabase/server";
+import { createSupabaseServerClient } from "@/utils/supabase/server";
+
+export const dynamic = 'force-dynamic';
 
 export async function GET() {
   try {
-    const supabase = createClient();
+    const supabase = createSupabaseServerClient();
     console.log("Supabase client created");
 
     // テーマを取得
@@ -16,14 +18,14 @@ export async function GET() {
 
     return NextResponse.json(data);
   } catch (error) {
-    console.error("Error in GET /api/themes:", error as any);
-    return NextResponse.json({ details: (error as any).message, error: "Internal Server Error" }, { status: 500 });
+    console.error("Error in GET /api/themes:", error as Error);
+    return NextResponse.json({ details: (error as Error).message, error: "Internal Server Error" }, { status: 500 });
   }
 }
 
 export async function POST(request: Request) {
   try {
-    const supabase = createClient();
+    const supabase = createSupabaseServerClient();
     console.log("Supabase client created");
     const { data: { user }, error: userError } = await supabase.auth.getUser();
     console.log("User fetched:", user);
@@ -55,7 +57,7 @@ export async function POST(request: Request) {
       ...data
     });
   } catch (error) {
-    console.error("Error in POST /api/themes:", error as any);
-    return NextResponse.json({ details: (error as any).message, error: "Internal Server Error" }, { status: 500 });
+    console.error("Error in POST /api/themes:", error as Error);
+    return NextResponse.json({ details: (error as Error).message, error: "Internal Server Error" }, { status: 500 });
   }
 }

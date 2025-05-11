@@ -1,7 +1,7 @@
 import { headers } from "next/headers";
 import { redirect } from "next/navigation";
 
-import { createClient } from "@/utils/supabase/server";
+import { createSupabaseServerClient } from "@/utils/supabase/server";
 
 import { SubmitButton } from "./submit-button";
 
@@ -13,19 +13,35 @@ export default function SignInPage({
   const signIn = async (formData: FormData) => {
     "use server";
 
-    const email = formData.get("email") as string;
-    const password = formData.get("password") as string;
-    const supabase = createClient();
+    try {
+      const email = formData.get("email") as string;
+      const password = formData.get("password") as string;
+      const supabase = createSupabaseServerClient();
 
-    const { error } = await supabase.auth.signInWithPassword({
-      email,
-      password,
-    });
-    if (error?.message) {
-      return redirect(`/auth/login?message=${error.message}`);
+      console.log("Attempting to sign in with:", { email });
+
+      const { data, error } = await supabase.auth.signInWithPassword({
+        email,
+        password,
+      });
+
+      console.log("Sign in response:", { data, error });
+
+      if (error) {
+        console.error("Sign in error:", error);
+        return redirect(`/auth/login?message=${error.message}`);
+      }
+
+      if (!data.user) {
+        console.error("No user data returned");
+        return redirect("/auth/login?message=Authentication failed");
+      }
+
+      return redirect("/");
+    } catch (error) {
+      console.error("Unexpected error during sign in:", error);
+      return redirect("/auth/login?message=An unexpected error occurred");
     }
-
-    return "/";
   };
 
   const signUp = async (formData: FormData) => {
@@ -34,7 +50,7 @@ export default function SignInPage({
     const origin = headers().get("origin");
     const email = formData.get("email") as string;
     const password = formData.get("password") as string;
-    const supabase = createClient();
+    const supabase = createSupabaseServerClient();
 
     const { error } = await supabase.auth.signUp({
       email,
@@ -57,7 +73,7 @@ export default function SignInPage({
   return (
     <div className="flex justify-center gap-2 px-8">
       <form className="flex w-full flex-col gap-2 text-foreground md:w-1/2">
-        <label className="text-md" htmlFor="email">
+        <label className="text-base" htmlFor="email">
           Email
         </label>
         <input
@@ -66,7 +82,7 @@ export default function SignInPage({
           placeholder="you@example.com"
           required
         />
-        <label className="text-md" htmlFor="password">
+        <label className="text-base" htmlFor="password">
           Password
         </label>
         <input

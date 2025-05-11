@@ -4,6 +4,6 @@ create table memos (
   user_id uuid references auth.users (id) on delete cascade,
   theme_id uuid references themes (id),
   content text,
-  created_at timestamp default current_timestamp,
+  created_at timestamp with time zone default (now() at time zone 'utc'),
   primary key (id)
 );

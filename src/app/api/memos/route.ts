@@ -1,10 +1,12 @@
 import { NextResponse } from "next/server";
 
-import { createClient } from "@/utils/supabase/server";
+import { createSupabaseServerClient } from "@/utils/supabase/server";
+
+export const dynamic = 'force-dynamic';
 
 export async function GET() {
   try {
-    const supabase = createClient();
+    const supabase = createSupabaseServerClient();
     const user = await supabase.auth.getUser();
     if (user) {
       const userId = user?.data?.user?.id;
@@ -34,7 +36,7 @@ export async function GET() {
 
 export async function PUT(request: Request) {
   try {
-    const supabase = createClient();
+    const supabase = createSupabaseServerClient();
     const user = await supabase.auth.getUser();
     if (user) {
       const userId = user?.data?.user?.id;
@@ -51,12 +53,25 @@ export async function PUT(request: Request) {
 
       if (themeError || !theme) throw new Error("Theme not found");
 
+      // 現在のUTC時間を取得
+      const now = new Date();
+      const utcTime = new Date(Date.UTC(
+        now.getUTCFullYear(),
+        now.getUTCMonth(),
+        now.getUTCDate(),
+        now.getUTCHours(),
+        now.getUTCMinutes(),
+        now.getUTCSeconds(),
+        now.getUTCMilliseconds()
+      ));
+
       // upsertを使用して、レコードが存在しない場合は挿入、存在する場合は更新
       const { data, error } = await supabase
         .from('memos')
         .upsert({
           content: content,
-          theme_id: theme.id, // themesから取得したtheme_idを使用
+          created_at: utcTime.toISOString(), // UTCで保存
+          theme_id: theme.id,
           user_id: userId,
         })
         .select()
