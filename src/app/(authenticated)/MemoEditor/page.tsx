@@ -125,7 +125,7 @@ const MemoEditorPage = () => {
             const newMemo = {
               id: responseData.id,
               title: "描画メモ",
-              content: drawingContentRef.current,
+              content: responseData.content,
               created_at: responseData.created_at,
               local_created_at: responseData.created_at,
               theme: currentTheme,

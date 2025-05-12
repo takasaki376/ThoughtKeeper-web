@@ -1,12 +1,23 @@
 "use client";
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
+
+import type { Theme } from "@/types/database";
 
 interface DrawingProps {
+  currentTheme: Theme | null;
   onChange: (value: string) => void;
+  onTimeUp: () => Promise<void>;
+  remainingTime: number;
   value: string;
 }
 
-export const Drawing: React.FC<DrawingProps> = ({ onChange, value }) => {
+export const Drawing: React.FC<DrawingProps> = ({
+  currentTheme,
+  onChange,
+  onTimeUp,
+  remainingTime,
+  value,
+}) => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const [isDrawing, setIsDrawing] = useState(false);
   const [context, setContext] = useState<CanvasRenderingContext2D | null>(null);
@@ -17,6 +28,19 @@ export const Drawing: React.FC<DrawingProps> = ({ onChange, value }) => {
     const width = window.innerWidth * 0.7;
     setCanvasWidth(width);
   }, []);
+
+  const clearCanvas = useCallback(() => {
+    if (!context || !canvasRef.current) return;
+    context.clearRect(0, 0, canvasRef.current.width, canvasRef.current.height);
+    onChange("");
+  }, [context, onChange]);
+
+  useEffect(() => {
+    if (remainingTime === 0) {
+      clearCanvas();
+      onTimeUp().catch(console.error);
+    }
+  }, [remainingTime, onTimeUp, clearCanvas]);
 
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -69,11 +93,12 @@ export const Drawing: React.FC<DrawingProps> = ({ onChange, value }) => {
     }
   };
 
-  const clearCanvas = () => {
-    if (!context || !canvasRef.current) return;
-    context.clearRect(0, 0, canvasRef.current.width, canvasRef.current.height);
-    onChange("");
-  };
+  // テーマが変更されたら描画をクリア
+  useEffect(() => {
+    if (currentTheme) {
+      clearCanvas();
+    }
+  }, [currentTheme, clearCanvas]);
 
   return (
     <div className="m-4 bg-lightGray p-4">
@@ -87,13 +112,6 @@ export const Drawing: React.FC<DrawingProps> = ({ onChange, value }) => {
         onMouseLeave={stopDrawing}
         className="cursor-crosshair rounded border border-lightGray"
       />
-      <button
-        type="button"
-        onClick={clearCanvas}
-        className="mt-2 rounded bg-white px-4 py-2 hover:bg-gray"
-      >
-        クリア
-      </button>
     </div>
   );
 };

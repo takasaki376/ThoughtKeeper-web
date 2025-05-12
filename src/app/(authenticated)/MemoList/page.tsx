@@ -1,5 +1,6 @@
 "use client";
 import { useAtomValue } from "jotai";
+import Image from "next/image";
 
 import { countTheme, recentMemosAtom, themeAtom } from "@/store";
 import type { Memo } from "@/types/database";
@@ -58,7 +59,21 @@ const MemoForView = ({
       </p>
       <p className="text-sm text-gray">{memo.theme.theme}</p>
       {/* メモの内容をフォーマットして表示 */}
-      <p>{formatContent(memo.content)}</p>
+      {memo.content && memo.content.trim() !== "" ? (
+        memo.content.startsWith("data:image") ? (
+          <Image
+            src={memo.content}
+            alt="描画内容"
+            width={800}
+            height={400}
+            className="mt-2 max-w-full rounded border border-lightGray"
+          />
+        ) : (
+          <p>{formatContent(memo.content)}</p>
+        )
+      ) : (
+        <p className="text-sm text-gray">入力なし</p>
+      )}
     </li>
   );
 };
@@ -71,8 +86,12 @@ export default function MemoListPage() {
   // テーマごとの最新のメモを取得
   const themeMemos = themes.slice(0, themeCount).map((theme) => {
     const memoForTheme = recentMemos.find((memo) => memo.theme.id === theme.id);
+    console.log("Found memo for theme:", theme.id, memoForTheme);
     return memoForTheme || null;
   });
+
+  console.log("Recent memos:", recentMemos);
+  console.log("Theme memos:", themeMemos);
 
   return (
     <div className="flex flex-col items-center justify-center">
