@@ -105,7 +105,7 @@ export const Drawing: React.FC<DrawingProps> = ({
       <canvas
         ref={canvasRef}
         width={canvasWidth}
-        height={400}
+        height={300}
         onMouseDown={startDrawing}
         onMouseMove={draw}
         onMouseUp={stopDrawing}

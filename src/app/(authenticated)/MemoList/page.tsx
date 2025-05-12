@@ -65,7 +65,7 @@ const MemoForView = ({
             src={memo.content}
             alt="描画内容"
             width={800}
-            height={400}
+            height={300}
             className="mt-2 max-w-full rounded border border-lightGray"
           />
         ) : (
