@@ -1,6 +1,7 @@
 "use client";
 import { useAtomValue, useSetAtom } from "jotai";
 import ky from "ky";
+import Image from "next/image";
 import { type FC, useEffect, useState } from "react";
 
 import { memoListAtom } from "@/store";
@@ -40,8 +41,8 @@ const formatDate = (dateString: string) => {
 // 時間をローカルタイムゾーンでフォーマットする関数
 const formatTime = (dateString: string) => {
   const date = new Date(dateString);
-  const hours = date.getHours().toString().padStart(2, '0');
-  const minutes = date.getMinutes().toString().padStart(2, '0');
+  const hours = date.getHours().toString().padStart(2, "0");
+  const minutes = date.getMinutes().toString().padStart(2, "0");
   return `${hours}:${minutes}`;
 };
 
@@ -197,7 +198,20 @@ const MemoListAllPage: FC = () => {
             <p className="my-2 w-full text-xs font-thin">
               {memo.title} - {memo.theme.theme}
             </p>
-            <p className="w-full break-words">{formatContent(memo.content)}</p>
+            {memo.content &&
+              (memo.content.startsWith("data:image") ? (
+                <Image
+                  src={memo.content}
+                  alt="描画内容"
+                  width={800}
+                  height={400}
+                  className="mt-2 max-w-full rounded border border-lightGray"
+                />
+              ) : (
+                <p className="w-full break-words">
+                  {formatContent(memo.content)}
+                </p>
+              ))}
           </li>
         ))}
       </ul>

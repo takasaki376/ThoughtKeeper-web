@@ -52,14 +52,13 @@ const MemoEditorPage = () => {
     [themes]
   );
 
-  const saveMemo = useCallback(async () => {
-    if (currentTheme && (textContentRef.current || drawingContentRef.current)) {
+  const saveTextMemo = useCallback(async () => {
+    if (currentTheme && textContentRef.current) {
       try {
         const responseData = await ky
           .put("/api/memos", {
             json: {
               content: textContentRef.current,
-              drawing: drawingContentRef.current,
               theme_id: currentTheme.id,
             },
           })
@@ -70,8 +69,7 @@ const MemoEditorPage = () => {
           const isAlreadySaved = prev.some(
             (memo) =>
               memo.theme.id === currentTheme.id &&
-              memo.content === textContentRef.current &&
-              memo.drawing === drawingContentRef.current
+              memo.content === textContentRef.current
           );
 
           if (!isAlreadySaved) {
@@ -79,18 +77,71 @@ const MemoEditorPage = () => {
               id: responseData.id,
               content: textContentRef.current,
               created_at: responseData.created_at,
-              drawing: drawingContentRef.current,
               local_created_at: responseData.created_at,
               theme: currentTheme,
             };
-            console.log("Memo saved to DB:", textContentRef.current);
             setRecentMemos((prev) => [...prev, newMemo]);
             return [...prev, newMemo];
           }
           return prev;
         });
       } catch (error) {
-        console.error("メモの保存に失敗しました:", error);
+        console.error("テキストメモの保存に失敗しました:", error);
+        throw error;
+      }
+    }
+  }, [currentTheme, setMemoList, setRecentMemos]);
+
+  const saveDrawingMemo = useCallback(async () => {
+    if (currentTheme && drawingContentRef.current) {
+      try {
+        console.log("Saving drawing memo:", {
+          title: "描画メモ",
+          content: drawingContentRef.current,
+          theme_id: currentTheme.id,
+        });
+
+        const responseData = await ky
+          .put("/api/memos", {
+            json: {
+              title: "描画メモ",
+              content: drawingContentRef.current,
+              theme_id: currentTheme.id,
+            },
+          })
+          .json<Memo>();
+
+        console.log("Server response:", responseData);
+
+        // 状態を更新
+        setMemoList((prev) => {
+          const isAlreadySaved = prev.some(
+            (memo) =>
+              memo.theme.id === currentTheme.id &&
+              memo.content === drawingContentRef.current
+          );
+
+          if (!isAlreadySaved) {
+            const newMemo = {
+              id: responseData.id,
+              title: "描画メモ",
+              content: drawingContentRef.current,
+              created_at: responseData.created_at,
+              local_created_at: responseData.created_at,
+              theme: currentTheme,
+            };
+            console.log("Adding new memo to recentMemos:", newMemo);
+            setRecentMemos((prev) => {
+              const updated = [...prev, newMemo];
+              console.log("Updated recentMemos:", updated);
+              return updated;
+            });
+            return [...prev, newMemo];
+          }
+          return prev;
+        });
+      } catch (error) {
+        console.error("描画メモの保存に失敗しました:", error);
         throw error;
       }
     }
@@ -100,7 +151,11 @@ const MemoEditorPage = () => {
     Number(themeTime),
     themes.length,
     currentThemeIndex,
-    saveMemo,
+    async () => {
+      // テキストと描画の両方を保存
+      await saveTextMemo();
+      await saveDrawingMemo();
+    },
     handleThemeChange
   );
 
@@ -143,7 +198,13 @@ const MemoEditorPage = () => {
         </div>
         <div className="mt-10">
           <p className="text-center">手書きフィールド</p>
-          <Drawing value={drawingContent} onChange={setDrawingContent} />
+          <Drawing
+            value={drawingContent}
+            onChange={setDrawingContent}
+            currentTheme={currentTheme}
+            remainingTime={remainingTime}
+            onTimeUp={saveDrawingMemo}
+          />
         </div>
       </div>
     </>
