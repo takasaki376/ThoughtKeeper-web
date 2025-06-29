@@ -1,4 +1,5 @@
 "use client";
+import type {Touch} from "react";
 import { useCallback, useEffect, useRef, useState } from "react";
 
 import type { Theme } from "@/types/database";
