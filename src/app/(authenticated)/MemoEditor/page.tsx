@@ -3,6 +3,8 @@ import { useAtomValue, useSetAtom } from "jotai";
 import ky from "ky";
 import { useCallback, useEffect, useRef, useState } from "react";
 
+import { Drawing } from "@/component/Drawing";
+import { Tab } from "@/component/Tab";
 import { Tiptap } from "@/component/TipTap";
 import { useThemeTimer } from "@/hooks/useThemeTimer";
 import { countTime, memoListAtom, recentMemosAtom, themeAtom } from "@/store";
@@ -16,18 +18,15 @@ const MemoEditorPage = () => {
 
   const [currentThemeIndex, setCurrentThemeIndex] = useState(0);
   const [currentTheme, setCurrentTheme] = useState(themes[0] || null);
-  const [inputContent, setInputContent] = useState("");
+  const [textContent, setTextContent] = useState("");
+  const [drawingContent, setDrawingContent] = useState("");
+  const [activeTab, setActiveTab] = useState("text");
   const setMemoList = useSetAtom(memoListAtom);
 
-  // 入力内容を保存するための参照を使用
-  const inputContentRef = useRef(inputContent);
-  inputContentRef.current = inputContent;
-
   // エディタに自動フォーカスを当てる
-  // eslint-disable-next-line react-hooks/exhaustive-deps
   useEffect(() => {
     const timer = setTimeout(() => {
-      if (editorRef.current) {
+      if (editorRef.current && activeTab === "text") {
         const editorElement = editorRef.current.querySelector(".ProseMirror");
         if (editorElement instanceof HTMLElement) {
           editorElement.focus();
@@ -36,24 +35,25 @@ const MemoEditorPage = () => {
     }, 100); // エディタのマウントを待つ
 
     return () => clearTimeout(timer);
-  }, [currentThemeIndex, themes]); // テーマが変更されるたびにフォーカスを当てる
+  }, [currentThemeIndex, activeTab]); // テーマが変更されるたびにフォーカスを当てる
 
   const handleThemeChange = useCallback(
     (nextIndex: number) => {
-      setInputContent("");
+      setTextContent("");
+      setDrawingContent("");
       setCurrentTheme(themes[nextIndex]);
       setCurrentThemeIndex(nextIndex);
     },
     [themes]
   );
 
-  const saveMemo = useCallback(async () => {
-    if (currentTheme && inputContentRef.current) {
+  const saveTextMemo = useCallback(async () => {
+    if (currentTheme && textContent.trim()) {
       try {
         const responseData = await ky
           .put("/api/memos", {
             json: {
-              content: inputContentRef.current,
+              content: textContent,
               theme_id: currentTheme.id,
             },
           })
@@ -61,38 +61,132 @@ const MemoEditorPage = () => {
 
         // 状態を更新
         setMemoList((prev) => {
-          const isAlreadySaved = prev.some(
-            (memo) =>
-              memo.theme.id === currentTheme.id &&
-              memo.content === inputContentRef.current
+          // 同じテーマの既存メモを探す
+          const existingMemoIndex = prev.findIndex(
+            (memo) => memo.theme.id === currentTheme.id
           );
 
-          if (!isAlreadySaved) {
-            const newMemo = {
-              id: responseData.id,
-              content: inputContentRef.current,
-              created_at: responseData.created_at,
-              local_created_at: responseData.created_at,
-              theme: currentTheme,
-            };
-            console.log("Memo saved to DB:", inputContentRef.current);
-            setRecentMemos((prev) => [...prev, newMemo]);
-            return [...prev, newMemo];
+          const newMemo = {
+            id: responseData.id,
+            content: textContent,
+            created_at: responseData.created_at,
+            local_created_at: responseData.created_at,
+            theme: currentTheme,
+          };
+
+          if (existingMemoIndex !== -1) {
+            // 既存のメモを更新
+            const updatedMemos = [...prev];
+            updatedMemos[existingMemoIndex] = newMemo;
+
+            // recentMemosも更新
+            setRecentMemos((recentPrev) => {
+              const recentExistingIndex = recentPrev.findIndex(
+                (memo) => memo.theme.id === currentTheme.id
+              );
+              if (recentExistingIndex !== -1) {
+                const updatedRecent = [...recentPrev];
+                updatedRecent[recentExistingIndex] = newMemo;
+                return updatedRecent;
+              }
+              return [...recentPrev, newMemo];
+            });
+
+            return updatedMemos;
           }
-          return prev;
+          // 新しいメモを追加
+          setRecentMemos((prev) => [...prev, newMemo]);
+          return [...prev, newMemo];
         });
       } catch (error) {
-        console.error("メモの保存に失敗しました:", error);
+        console.error("テキストメモの保存に失敗しました:", error);
         throw error;
       }
     }
-  }, [currentTheme, setMemoList, setRecentMemos]);
+  }, [currentTheme, textContent, setMemoList, setRecentMemos]);
+
+  const saveDrawingMemo = useCallback(async () => {
+    if (currentTheme && drawingContent) {
+      try {
+        console.log("Saving drawing memo:", {
+          title: "描画メモ",
+          content: drawingContent,
+          theme_id: currentTheme.id,
+        });
+
+        const responseData = await ky
+          .put("/api/memos", {
+            json: {
+              title: "描画メモ",
+              content: drawingContent,
+              theme_id: currentTheme.id,
+            },
+          })
+          .json<Memo>();
+
+        console.log("Server response:", responseData);
+
+        // 状態を更新
+        setMemoList((prev) => {
+          // 同じテーマの既存メモを探す
+          const existingMemoIndex = prev.findIndex(
+            (memo) => memo.theme.id === currentTheme.id
+          );
+
+          const newMemo = {
+            id: responseData.id,
+            title: "描画メモ",
+            content: responseData.content,
+            created_at: responseData.created_at,
+            local_created_at: responseData.created_at,
+            theme: currentTheme,
+          };
+
+          if (existingMemoIndex !== -1) {
+            // 既存のメモを更新
+            const updatedMemos = [...prev];
+            updatedMemos[existingMemoIndex] = newMemo;
+
+            // recentMemosも更新
+            setRecentMemos((recentPrev) => {
+              const recentExistingIndex = recentPrev.findIndex(
+                (memo) => memo.theme.id === currentTheme.id
+              );
+              if (recentExistingIndex !== -1) {
+                const updatedRecent = [...recentPrev];
+                updatedRecent[recentExistingIndex] = newMemo;
+                return updatedRecent;
+              }
+              return [...recentPrev, newMemo];
+            });
+
+            return updatedMemos;
+          }
+          // 新しいメモを追加
+          console.log("Adding new memo to recentMemos:", newMemo);
+          setRecentMemos((prev) => {
+            const updated = [...prev, newMemo];
+            console.log("Updated recentMemos:", updated);
+            return updated;
+          });
+          return [...prev, newMemo];
+        });
+      } catch (error) {
+        console.error("描画メモの保存に失敗しました:", error);
+        throw error;
+      }
+    }
+  }, [currentTheme, drawingContent, setMemoList, setRecentMemos]);
 
   const { remainingTime, startTimer } = useThemeTimer(
     Number(themeTime),
     themes.length,
     currentThemeIndex,
-    saveMemo,
+    async () => {
+      // テキストと描画の両方を保存
+      await saveTextMemo();
+      await saveDrawingMemo();
+    },
     handleThemeChange
   );
 
@@ -128,8 +222,35 @@ const MemoEditorPage = () => {
           </div>
         </div>
       </div>
-      <div ref={editorRef}>
-        <Tiptap value={inputContent} onChange={setInputContent} />
+
+      <div className="px-4">
+        <Tab
+          tabs={[
+            {
+              id: "text",
+              content: (
+                <div ref={editorRef}>
+                  <Tiptap value={textContent} onChange={setTextContent} />
+                </div>
+              ),
+              label: "タイプ入力する",
+            },
+            {
+              id: "drawing",
+              content: (
+                <Drawing
+                  value={drawingContent}
+                  onChange={setDrawingContent}
+                  currentTheme={currentTheme}
+                  remainingTime={remainingTime}
+                />
+              ),
+              label: "手書きする",
+            },
+          ]}
+          activeTab={activeTab}
+          onTabChange={setActiveTab}
+        />
       </div>
     </>
   );
