@@ -243,7 +243,6 @@ const MemoEditorPage = () => {
                   onChange={setDrawingContent}
                   currentTheme={currentTheme}
                   remainingTime={remainingTime}
-                  onTimeUp={saveDrawingMemo}
                 />
               ),
               label: "手書きする",

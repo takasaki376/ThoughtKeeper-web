@@ -6,7 +6,6 @@ import type { Theme } from "@/types/database";
 interface DrawingProps {
   currentTheme: Theme | null;
   onChange: (value: string) => void;
-  onTimeUp: () => Promise<void>;
   remainingTime: number;
   value: string;
 }
@@ -14,7 +13,6 @@ interface DrawingProps {
 export const Drawing: React.FC<DrawingProps> = ({
   currentTheme,
   onChange,
-  onTimeUp,
   remainingTime,
   value,
 }) => {
@@ -38,9 +36,10 @@ export const Drawing: React.FC<DrawingProps> = ({
   useEffect(() => {
     if (remainingTime === 0) {
       clearCanvas();
-      onTimeUp().catch(console.error);
+      // onTimeUpの呼び出しを無効化（タイマー終了時にのみ保存される）
+      // onTimeUp().catch(console.error);
     }
-  }, [remainingTime, onTimeUp, clearCanvas]);
+  }, [remainingTime, clearCanvas]);
 
   useEffect(() => {
     const canvas = canvasRef.current;
