@@ -158,63 +158,81 @@ const MemoListAllPage: FC = () => {
     : [];
 
   return (
-    <div className="flex flex-col items-center justify-center">
+    <div className="flex min-h-screen flex-col items-center justify-center p-4">
       <div className="mb-5 flex items-center">
         <h1 className="text-xl font-bold">保存されたメモ</h1>
         <span className="ml-3 text-sm text-gray">
           ({filteredMemos.length}/{memoList.length})
         </span>
       </div>
-      <DatePickerComponent onDateChange={handleDateChange} />
-      <div className="flex flex-col items-center justify-center">
-        {/* テーマ選択ドロップボックス */}
-        <label htmlFor="theme-select" className="sr-only">
-          テーマ選択
-        </label>
-        <select
-          id="theme-select"
-          className="my-4 rounded border border-lightGray p-2"
-          onChange={handleThemeChange}
-          value={selectedTheme}
-        >
-          <option value="">全て表示</option> {/* 初期値として全て表示を追加 */}
-          {themes.map((theme) => (
-            <option key={theme.id} value={theme.id}>
-              {theme.theme} {/* theme.titleをtheme.themeに変更 */}
-            </option>
-          ))}
-        </select>
-      </div>
 
-      <ul className="w-2/3 list-disc">
-        {reversedList.map((memo: Memo) => (
-          <li
-            key={`${memo.created_at}-${memo.theme.theme}`}
-            className="mb-4 list-none"
+      <div className="mx-auto w-full max-w-2xl">
+        <DatePickerComponent onDateChange={handleDateChange} />
+
+        {/* テーマ選択ドロップボックス */}
+        <div className="flex flex-col items-center">
+          <label htmlFor="theme-select" className="sr-only">
+            テーマ選択
+          </label>
+          <select
+            id="theme-select"
+            className="mb-5 w-full max-w-xs rounded border border-lightGray p-3 text-base"
+            onChange={handleThemeChange}
+            value={selectedTheme}
+            style={{ fontSize: "16px" }} // iPadでのズーム防止
           >
-            <p className="text-center text-xs font-thin text-gray">
-              {formatDate(memo.created_at)}&nbsp;{formatTime(memo.created_at)}
-            </p>
-            <p className="my-2 w-full text-xs font-thin">
-              {memo.title} - {memo.theme.theme}
-            </p>
-            {memo.content &&
-              (memo.content.startsWith("data:image") ? (
-                <Image
-                  src={memo.content}
-                  alt="描画内容"
-                  width={800}
-                  height={300}
-                  className="mt-2 max-w-full rounded border border-lightGray"
-                />
-              ) : (
-                <p className="w-full break-words">
-                  {formatContent(memo.content)}
+            <option value="">全て表示</option>
+            {themes.map((theme) => (
+              <option key={theme.id} value={theme.id}>
+                {theme.theme}
+              </option>
+            ))}
+          </select>
+        </div>
+
+        <div
+          className="overflow-y-auto"
+          style={{
+            maxHeight: "60vh",
+            touchAction: "pan-y",
+            WebkitOverflowScrolling: "touch",
+          }}
+        >
+          <ul className="space-y-3">
+            {reversedList.map((memo: Memo) => (
+              <li
+                key={`${memo.created_at}-${memo.theme.theme}`}
+                className="list-none rounded-lg border border-lightGray bg-white p-4 shadow-sm"
+              >
+                <p className="text-center text-xs font-thin text-gray">
+                  {formatDate(memo.created_at)}&nbsp;
+                  {formatTime(memo.created_at)}
                 </p>
-              ))}
-          </li>
-        ))}
-      </ul>
+                <p className="my-2 w-full text-xs font-thin">
+                  {memo.title} - {memo.theme.theme}
+                </p>
+                {memo.content &&
+                  (memo.content.startsWith("data:image") ? (
+                    <div className="mt-2 overflow-hidden rounded">
+                      <Image
+                        src={memo.content}
+                        alt="描画内容"
+                        width={800}
+                        height={300}
+                        className="h-auto max-w-full rounded border border-lightGray"
+                        style={{ touchAction: "manipulation" }}
+                      />
+                    </div>
+                  ) : (
+                    <p className="w-full break-words text-sm leading-relaxed">
+                      {formatContent(memo.content)}
+                    </p>
+                  ))}
+              </li>
+            ))}
+          </ul>
+        </div>
+      </div>
     </div>
   );
 };

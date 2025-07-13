@@ -5,7 +5,6 @@ import { Provider } from "jotai";
 import { redirect } from "next/navigation";
 
 import { Header } from "@/component/Header";
-import { Navigation } from "@/component/Navigation";
 import { createSupabaseServerClient } from "@/utils/supabase/server";
 
 export const metadata = {
@@ -34,10 +33,7 @@ export default async function AuthenticatedLayout({
         <body>
           <Header />
           <div className="flex">
-            <div className=" bg-lightGray/20">
-              <Navigation />
-            </div>
-            <div className="min-h-screen w-full">{children}</div>
+            <div className="min-h-screen w-full px-5">{children}</div>
           </div>
         </body>
       </MantineProvider>
