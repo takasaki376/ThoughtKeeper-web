@@ -51,13 +51,27 @@ npm run dev
 
 ### セキュリティポリシーの管理
 
+#### macOS/Linux
 ```bash
 # ポリシーの適用
 ./supabase/scripts/apply-policies.sh
 
 # ポリシーの確認
 ./supabase/scripts/check-policies.sh
+```
 
+#### Windows
+```powershell
+# PowerShellを使用する場合
+.\supabase\scripts\apply-policies.ps1
+.\supabase\scripts\check-policies.ps1
+
+# または、バッチファイルを使用する場合
+.\supabase\scripts\apply-policies.bat
+```
+
+#### 共通コマンド
+```bash
 # 本番環境へのデプロイ
 supabase db push
 ```

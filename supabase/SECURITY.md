@@ -38,6 +38,8 @@
 ## 🛠️ ポリシー管理コマンド
 
 ### ポリシーの適用
+
+#### macOS/Linux
 ```bash
 # 開発環境でポリシーを適用
 ./supabase/scripts/apply-policies.sh
@@ -46,10 +48,27 @@
 supabase db reset --linked
 ```
 
+#### Windows
+```powershell
+# PowerShellを使用する場合
+.\supabase\scripts\apply-policies.ps1
+
+# または、バッチファイルを使用する場合
+.\supabase\scripts\apply-policies.bat
+```
+
 ### ポリシーの確認
+
+#### macOS/Linux
 ```bash
 # 現在のポリシー設定を確認
 ./supabase/scripts/check-policies.sh
+```
+
+#### Windows
+```powershell
+# PowerShellを使用する場合
+.\supabase\scripts\check-policies.ps1
 ```
 
 ### 本番環境へのデプロイ
