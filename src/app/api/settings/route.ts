@@ -50,15 +50,18 @@ export async function PUT(request: Request) {
       const userId = user?.data?.user?.id;
 
       const body = await request.json();
-      const { theme_count, time_limit } = body;
+      const { last_selected_input_type, theme_count, time_limit } = body;
 
       // upsertを使用して、レコードが存在しない場合は挿入、存在する場合は更新
       const { data, error } = await supabase
-        .from('user_settings')
+        .from("user_settings")
         .upsert({
           theme_count,
           time_limit,
           user_id: userId,
+          ...(last_selected_input_type !== undefined && {
+            last_selected_input_type,
+          }),
         })
         .select()
         .single();

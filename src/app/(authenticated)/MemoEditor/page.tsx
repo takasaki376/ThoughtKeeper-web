@@ -7,6 +7,7 @@ import { Drawing } from "@/component/Drawing";
 import { Tab } from "@/component/Tab";
 import { Tiptap } from "@/component/TipTap";
 import { useThemeTimer } from "@/hooks/useThemeTimer";
+import { fetchSettings, updateSettings } from "@/services/settingsService";
 import { countTime, memoListAtom, recentMemosAtom, themeAtom } from "@/store";
 import type { Memo, Theme } from "@/types/database";
 
@@ -21,6 +22,7 @@ const MemoEditorPage = () => {
   const [textContent, setTextContent] = useState("");
   const [drawingContent, setDrawingContent] = useState("");
   const [activeTab, setActiveTab] = useState("text");
+  const [hasDrawingInput, setHasDrawingInput] = useState(false);
   const setMemoList = useSetAtom(memoListAtom);
 
   // エディタに自動フォーカスを当てる
@@ -35,7 +37,40 @@ const MemoEditorPage = () => {
     }, 100); // エディタのマウントを待つ
 
     return () => clearTimeout(timer);
-  }, [currentThemeIndex, activeTab]); // テーマが変更されるたびにフォーカスを当てる
+  }, [activeTab]); // currentThemeIndexを依存関係から削除
+
+  // DBからタブ状態を復元
+  useEffect(() => {
+    (async () => {
+      try {
+        const settings = await fetchSettings();
+        if (
+          settings?.last_selected_input_type === "text" ||
+          settings?.last_selected_input_type === "drawing"
+        ) {
+          setActiveTab(settings.last_selected_input_type);
+        }
+      } catch (e) {
+        // 取得失敗時は何もしない
+      }
+    })();
+  }, []);
+
+  // タブ切り替え時にDBへ保存
+  const handleTabChange = useCallback(async (tabId: string) => {
+    setActiveTab(tabId);
+    try {
+      // 既存設定を取得
+      const settings = await fetchSettings();
+      await updateSettings(
+        settings?.theme_count ?? 10,
+        settings?.time_limit ?? "60",
+        tabId
+      );
+    } catch (e) {
+      // 保存失敗時は何もしない
+    }
+  }, []);
 
   const handleThemeChange = useCallback(
     (nextIndex: number) => {
@@ -43,9 +78,24 @@ const MemoEditorPage = () => {
       setDrawingContent("");
       setCurrentTheme(themes[nextIndex]);
       setCurrentThemeIndex(nextIndex);
+
+      if (hasDrawingInput) {
+        handleTabChange("drawing");
+        setHasDrawingInput(false);
+      } else {
+        handleTabChange("text");
+      }
     },
-    [themes]
+    [themes, hasDrawingInput, handleTabChange]
   );
+
+  // 描画内容が変更されたときに描画入力フラグを設定
+  const handleDrawingChange = useCallback((value: string) => {
+    setDrawingContent(value);
+    if (value?.trim()) {
+      setHasDrawingInput(true);
+    }
+  }, []);
 
   const saveTextMemo = useCallback(async () => {
     if (currentTheme && textContent.trim()) {
@@ -240,7 +290,7 @@ const MemoEditorPage = () => {
               content: (
                 <Drawing
                   value={drawingContent}
-                  onChange={setDrawingContent}
+                  onChange={handleDrawingChange}
                   currentTheme={currentTheme}
                   remainingTime={remainingTime}
                 />
@@ -249,7 +299,7 @@ const MemoEditorPage = () => {
             },
           ]}
           activeTab={activeTab}
-          onTabChange={setActiveTab}
+          onTabChange={handleTabChange}
         />
       </div>
     </>
