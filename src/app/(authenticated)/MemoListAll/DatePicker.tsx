@@ -41,11 +41,11 @@ const DatePickerComponent: React.FC<DatePickerProps> = ({ onDateChange }) => {
   };
 
   return (
-    <div className="flex flex-col gap-2">
+    <div className="mb-5 flex flex-col items-center gap-2">
       <DatePicker
         value={filterDate}
         onChange={handleDateChange}
-        size="xs"
+        size="md"
         excludeDate={(date) => {
           // 比較する日付の時間も0時に設定（ローカルタイムゾーン）
           const currentDate = new Date(

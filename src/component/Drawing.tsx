@@ -1,4 +1,5 @@
 "use client";
+import type {Touch} from "react";
 import { useCallback, useEffect, useRef, useState } from "react";
 
 import type { Theme } from "@/types/database";
@@ -99,6 +100,45 @@ export const Drawing: React.FC<DrawingProps> = ({
     }
   }, [currentTheme, clearCanvas]);
 
+  // タッチ位置取得用
+  const getTouchPos = (touch: Touch, canvas: HTMLCanvasElement) => {
+    const rect = canvas.getBoundingClientRect();
+    return {
+      x: touch.clientX - rect.left,
+      y: touch.clientY - rect.top,
+    };
+  };
+
+  const startTouch = (e: React.TouchEvent<HTMLCanvasElement>) => {
+    if (!context || !canvasRef.current) return;
+    const touch = e.touches[0];
+    const pos = getTouchPos(touch, canvasRef.current);
+    context.beginPath();
+    context.moveTo(pos.x, pos.y);
+    setIsDrawing(true);
+  };
+
+  const drawTouch = (e: React.TouchEvent<HTMLCanvasElement>) => {
+    if (!isDrawing || !context || !canvasRef.current) return;
+    const touch = e.touches[0];
+    const pos = getTouchPos(touch, canvasRef.current);
+    context.lineTo(pos.x, pos.y);
+    context.stroke();
+  };
+
+  const stopTouch = () => {
+    if (!context) return;
+    context.closePath();
+    setIsDrawing(false);
+
+    // 描画内容をBase64形式で保存
+    const canvas = canvasRef.current;
+    if (canvas) {
+      const dataUrl = canvas.toDataURL("image/png");
+      onChange(dataUrl);
+    }
+  };
+
   return (
     <div className="m-4 bg-lightGray p-4">
       <canvas
@@ -109,7 +149,12 @@ export const Drawing: React.FC<DrawingProps> = ({
         onMouseMove={draw}
         onMouseUp={stopDrawing}
         onMouseLeave={stopDrawing}
+        onTouchStart={startTouch}
+        onTouchMove={drawTouch}
+        onTouchEnd={stopTouch}
+        onTouchCancel={stopTouch}
         className="cursor-crosshair rounded border border-lightGray"
+        style={{ touchAction: "none" }} // スクロール防止
       />
     </div>
   );

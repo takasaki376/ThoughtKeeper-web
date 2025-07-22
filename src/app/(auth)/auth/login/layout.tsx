@@ -3,7 +3,6 @@ import "@/styles/globals.scss";
 import { redirect } from "next/navigation";
 
 import { Header } from "@/component/Header";
-import { Navigation } from "@/component/Navigation";
 import { createSupabaseServerClient } from "@/utils/supabase/server";
 
 export const metadata = {
@@ -31,9 +30,9 @@ export default async function RootLayout({
       <body>
         <Header />
         <div className="flex justify-center">
-          <div className=" bg-lightGray/20">
+          {/* <div className=" bg-lightGray/20">
             <Navigation />
-          </div>
+          </div> */}
           <div className="min-h-screen w-full">{children}</div>
         </div>
       </body>

@@ -82,8 +82,10 @@ export const useThemeTimer = (
                 isSavingRef.current = false;
               });
           }
-
           return 0;
+        }
+        if (prevTime <= 0) {
+          return 0; // タイマーが0以下になった場合は0を返す
         }
         return prevTime - 1;
       });

@@ -33,7 +33,7 @@ const MemoForView = ({
       minute: "2-digit",
     });
     return (
-      <li className="mb-4 list-none">
+      <li className="mb-4 list-none rounded-lg border border-lightGray bg-white p-3 shadow-sm">
         <p className="text-sm text-gray">
           {formattedDate}: {formattedTime}
         </p>
@@ -52,24 +52,29 @@ const MemoForView = ({
   return (
     <li
       key={`${formattedDate}-${formattedTime}-${memo.theme.theme}`}
-      className="mb-4 list-none"
+      className="mb-4 list-none rounded-lg border border-lightGray bg-white p-3 shadow-sm"
     >
       <p className="text-sm text-gray">
         {formattedDate}: {formattedTime}
       </p>
-      <p className="text-sm text-gray">{memo.theme.theme}</p>
+      <p className="text-sm text-gray">{theme.theme}</p>
       {/* メモの内容をフォーマットして表示 */}
       {memo.content && memo.content.trim() !== "" ? (
         memo.content.startsWith("data:image") ? (
-          <Image
-            src={memo.content}
-            alt="描画内容"
-            width={800}
-            height={300}
-            className="mt-2 max-w-full rounded border border-lightGray"
-          />
+          <div className="mt-2 overflow-hidden rounded">
+            <Image
+              src={memo.content}
+              alt="描画内容"
+              width={800}
+              height={300}
+              className="h-auto max-w-full rounded border border-lightGray"
+              style={{ touchAction: "manipulation" }}
+            />
+          </div>
         ) : (
-          <p>{formatContent(memo.content)}</p>
+          <p className="mt-2 text-sm leading-relaxed">
+            {formatContent(memo.content)}
+          </p>
         )
       ) : (
         <p className="text-sm text-gray">入力なし</p>
@@ -94,17 +99,26 @@ export default function MemoListPage() {
   console.log("Theme memos:", themeMemos);
 
   return (
-    <div className="flex flex-col items-center justify-center">
+    <div className="flex min-h-screen flex-col items-center justify-center p-4">
       <h1 className="mb-5 text-xl font-bold">保存されたメモ</h1>
-      <ul className="w-2/3 list-disc">
-        {themeMemos.map((memo, index) => (
-          <MemoForView
-            key={themes[index].id}
-            memo={memo}
-            theme={themes[index]}
-          />
-        ))}
-      </ul>
+      <div
+        className="w-full max-w-2xl overflow-y-auto"
+        style={{
+          maxHeight: "70vh",
+          touchAction: "pan-y",
+          WebkitOverflowScrolling: "touch",
+        }}
+      >
+        <ul className="space-y-3">
+          {themeMemos.map((memo, index) => (
+            <MemoForView
+              key={themes[index].id}
+              memo={memo}
+              theme={themes[index]}
+            />
+          ))}
+        </ul>
+      </div>
     </div>
   );
 }
