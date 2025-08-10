@@ -5,7 +5,9 @@ export default function ResetPasswordSuccessPage() {
     <div className="flex justify-center gap-2 px-8">
       <div className="flex w-full flex-col gap-2 text-foreground md:w-1/2">
         <div className="text-center">
-          <h1 className="mb-6 text-2xl font-bold">パスワードが更新されました</h1>
+          <h1 className="mb-6 text-2xl font-bold">
+            パスワードが更新されました
+          </h1>
 
           <div className="mb-6">
             <svg
@@ -13,6 +15,8 @@ export default function ResetPasswordSuccessPage() {
               fill="none"
               stroke="currentColor"
               viewBox="0 0 24 24"
+              aria-label="Success checkmark"
+              role="img"
             >
               <path
                 strokeLinecap="round"
