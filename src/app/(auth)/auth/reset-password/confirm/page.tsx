@@ -5,11 +5,100 @@ import { createSupabaseServerClient } from "@/utils/supabase/server";
 
 import { SubmitButton } from "../../login/submit-button";
 
-export default function ResetPasswordConfirmPage({
+export default async function ResetPasswordConfirmPage({
   searchParams,
 }: {
-  searchParams: { message: string };
+  searchParams: {
+    code?: string;
+    message?: string;
+    token?: string;
+    type?: string;
+  };
 }) {
+  // デバッグ情報
+  console.log("ResetPasswordConfirmPage - searchParams:", searchParams);
+
+  // トークンとタイプの確認（codeパラメータも考慮）
+  const { code, token, type } = searchParams;
+
+  // codeパラメータがある場合は、Supabaseの認証フローを処理
+  if (code) {
+    console.log("Processing auth code:", code);
+    try {
+      const supabase = createSupabaseServerClient();
+      const { error } = await supabase.auth.exchangeCodeForSession(code);
+
+      if (error) {
+        console.error("Code exchange error:", error);
+        // エラーの種類に応じて適切なメッセージを表示
+        let errorMessage: string;
+        if (
+          error.message.includes("Invalid") ||
+          error.message.includes("expired")
+        ) {
+          errorMessage = "リセットリンクが無効または期限切れです";
+        } else if (
+          error.message.includes("Network") ||
+          error.message.includes("timeout")
+        ) {
+          errorMessage =
+            "ネットワークエラーが発生しました。しばらく待ってから再試行してください";
+        } else {
+          errorMessage = "認証コードの処理に失敗しました";
+        }
+        return redirect(
+          `/auth/reset-password?message=${encodeURIComponent(errorMessage)}`
+        );
+      }
+
+      // 認証コード処理成功後、パスワード設定フォームを表示
+      // この場合は、フォームを表示してパスワード更新を許可する
+      console.log("Code exchange successful, showing password form");
+    } catch (error) {
+      console.error("Unexpected error during code exchange:", error);
+      let errorMessage: string;
+      if (error instanceof Error) {
+        if (
+          error.message.includes("Network") ||
+          error.message.includes("timeout")
+        ) {
+          errorMessage =
+            "ネットワークエラーが発生しました。しばらく待ってから再試行してください";
+        } else {
+          errorMessage = "認証処理中にエラーが発生しました";
+        }
+      } else {
+        errorMessage = "認証処理中にエラーが発生しました";
+      }
+      return redirect(
+        `/auth/reset-password?message=${encodeURIComponent(errorMessage)}`
+      );
+    }
+  }
+
+  // 従来のtoken/typeフロー（codeパラメータがない場合のみ）
+  if (!code && (!token || type !== "recovery")) {
+    console.log("Invalid token or type:", { token, type });
+    return redirect("/auth/reset-password");
+  }
+
+  // トークンの有効性をチェック（token/typeフローの場合のみ）
+  if (token && (!token || token.length < 10)) {
+    console.log("Token too short:", token);
+    return redirect("/auth/reset-password");
+  }
+
+  // トークンに無効な文字が含まれていないかチェック（token/typeフローの場合のみ）
+  if (
+    token &&
+    (token.includes("\n") || token.includes("\r") || token.includes("\t"))
+  ) {
+    console.log("Token contains invalid characters:", token);
+    return redirect("/auth/reset-password");
+  }
+
+  console.log("Validation passed, showing password form");
+
   const updatePassword = async (formData: FormData) => {
     "use server";
 
@@ -20,50 +109,118 @@ export default function ResetPasswordConfirmPage({
 
       // バリデーション
       if (!password || !confirmPassword) {
-        return redirect(
-          "/auth/reset-password/confirm?message=パスワードとパスワード確認を入力してください"
+        const message = encodeURIComponent(
+          "パスワードとパスワード確認を入力してください"
         );
+        if (token && type) {
+          const safeToken = encodeURIComponent(token);
+          const safeType = encodeURIComponent(type);
+          return redirect(
+            `/auth/reset-password/confirm?message=${message}&token=${safeToken}&type=${safeType}`
+          );
+        }
+        return redirect(`/auth/reset-password/confirm?message=${message}`);
       }
 
       if (password !== confirmPassword) {
-        return redirect(
-          "/auth/reset-password/confirm?message=パスワードが一致しません"
-        );
+        const message = encodeURIComponent("パスワードが一致しません");
+        if (token && type) {
+          const safeToken = encodeURIComponent(token);
+          const safeType = encodeURIComponent(type);
+          return redirect(
+            `/auth/reset-password/confirm?message=${message}&token=${safeToken}&type=${safeType}`
+          );
+        }
+        return redirect(`/auth/reset-password/confirm?message=${message}`);
       }
 
       if (password.length < 8) {
-        return redirect(
-          "/auth/reset-password/confirm?message=パスワードは8文字以上である必要があります"
+        const message = encodeURIComponent(
+          "パスワードは8文字以上である必要があります"
         );
+        if (token && type) {
+          const safeToken = encodeURIComponent(token);
+          const safeType = encodeURIComponent(type);
+          return redirect(
+            `/auth/reset-password/confirm?message=${message}&token=${safeToken}&type=${safeType}`
+          );
+        }
+        return redirect(`/auth/reset-password/confirm?message=${message}`);
       }
 
       // パスワードの強度チェック
       const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)/;
       if (!passwordRegex.test(password)) {
-        return redirect(
-          "/auth/reset-password/confirm?message=パスワードは小文字、大文字、数字を含む必要があります"
+        const message = encodeURIComponent(
+          "パスワードは小文字、大文字、数字を含む必要があります"
         );
+        if (token && type) {
+          const safeToken = encodeURIComponent(token);
+          const safeType = encodeURIComponent(type);
+          return redirect(
+            `/auth/reset-password/confirm?message=${message}&token=${safeToken}&type=${safeType}`
+          );
+        }
+        return redirect(`/auth/reset-password/confirm?message=${message}`);
       }
 
       console.log("Attempting to update password");
 
+      // パスワード更新
       const { error } = await supabase.auth.updateUser({
         password: password,
       });
 
       if (error) {
         console.error("Update password error:", error);
-        return redirect(
-          `/auth/reset-password/confirm?message=${error.message}`
-        );
+        const message = encodeURIComponent(error.message);
+        if (token && type) {
+          const safeToken = encodeURIComponent(token);
+          const safeType = encodeURIComponent(type);
+          return redirect(
+            `/auth/reset-password/confirm?message=${message}&token=${safeToken}&type=${safeType}`
+          );
+        }
+        return redirect(`/auth/reset-password/confirm?message=${message}`);
       }
 
+      console.log("Password updated successfully");
       return redirect("/auth/reset-password/success");
     } catch (error) {
       console.error("Unexpected error during password update:", error);
-      return redirect(
-        "/auth/reset-password/confirm?message=予期しないエラーが発生しました"
-      );
+
+      // エラーの種類に応じて適切なメッセージを表示
+      let message: string;
+      if (error instanceof Error) {
+        // 既知のエラーの場合は、そのメッセージを使用
+        if (
+          error.message.includes("Invalid login credentials") ||
+          error.message.includes("Invalid token") ||
+          error.message.includes("Token expired")
+        ) {
+          message = "リセットリンクが無効または期限切れです";
+        } else if (
+          error.message.includes("Network") ||
+          error.message.includes("timeout")
+        ) {
+          message =
+            "ネットワークエラーが発生しました。しばらく待ってから再試行してください";
+        } else {
+          message = "パスワード更新中にエラーが発生しました";
+        }
+      } else {
+        message = "予期しないエラーが発生しました";
+      }
+
+      const encodedMessage = encodeURIComponent(message);
+      if (token && type) {
+        const safeToken = encodeURIComponent(token);
+        const safeType = encodeURIComponent(type);
+        return redirect(
+          `/auth/reset-password/confirm?message=${encodedMessage}&token=${safeToken}&type=${safeType}`
+        );
+      }
+      return redirect(`/auth/reset-password/confirm?message=${encodedMessage}`);
     }
   };
 
@@ -130,7 +287,7 @@ export default function ResetPasswordConfirmPage({
 
         {searchParams?.message && (
           <p className="mt-4 p-4 text-center text-tomato">
-            {searchParams.message}
+            {decodeURIComponent(searchParams.message)}
           </p>
         )}
       </div>

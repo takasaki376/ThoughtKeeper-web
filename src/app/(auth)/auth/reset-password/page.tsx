@@ -1,56 +1,65 @@
-import { headers } from "next/headers";
-import Link from "next/link";
-import { redirect } from "next/navigation";
+"use client";
 
-import { createSupabaseServerClient } from "@/utils/supabase/server";
+import Link from "next/link";
+import { useState } from "react";
 
 import { SubmitButton } from "../login/submit-button";
 
-export default function ResetPasswordPage({
-  searchParams,
-}: {
-  searchParams: { message: string };
-}) {
-  const resetPassword = async (formData: FormData) => {
-    "use server";
+export default function ResetPasswordPage() {
+  const [message, setMessage] = useState<{
+    text: string;
+    type: "success" | "error";
+  } | null>(null);
 
+  const resetPassword = async (formData: FormData) => {
     try {
       const email = formData.get("email") as string;
-      const origin = headers().get("origin");
-      const supabase = createSupabaseServerClient();
 
       // バリデーション
       if (!email) {
-        return redirect("/auth/reset-password?message=Email is required");
+        setMessage({ text: "メールアドレスを入力してください", type: "error" });
+        return;
       }
 
       // メールアドレスの形式チェック
       const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
       if (!emailRegex.test(email)) {
-        return redirect(
-          "/auth/reset-password?message=Please enter a valid email address"
-        );
+        setMessage({
+          text: "有効なメールアドレスを入力してください",
+          type: "error",
+        });
+        return;
       }
 
-      console.log("Attempting to send reset password email to:", { email });
+      console.log("Attempting to send reset password email to:", email);
 
-      const { error } = await supabase.auth.resetPasswordForEmail(email, {
-        redirectTo: `${origin}/auth/reset-password/confirm`,
+      const response = await fetch("/api/auth/reset-password", {
+        body: JSON.stringify({ email }),
+        headers: {
+          "Content-Type": "application/json",
+        },
+        method: "POST",
       });
 
-      if (error) {
-        console.error("Reset password error:", error);
-        return redirect(`/auth/reset-password?message=${error.message}`);
+      const data = await response.json();
+
+      if (!response.ok) {
+        console.error("Reset password error:", data.error);
+        setMessage({
+          text: data.error || "パスワードリセットに失敗しました",
+          type: "error",
+        });
+        return;
       }
 
-      return redirect(
-        "/auth/reset-password?message=パスワードリセット用のメールを送信しました。メールをご確認ください。"
-      );
+      console.log("Password reset email sent successfully");
+      setMessage({
+        text: "パスワードリセット用のメールを送信しました。メールをご確認ください。",
+        type: "success",
+      });
     } catch (error) {
       console.error("Unexpected error during password reset:", error);
-      return redirect(
-        "/auth/reset-password?message=予期しないエラーが発生しました。"
-      );
+      setMessage({ text: "予期しないエラーが発生しました。", type: "error" });
     }
   };
 
@@ -92,9 +101,15 @@ export default function ResetPasswordPage({
           </Link>
         </div>
 
-        {searchParams?.message && (
-          <p className="mt-4 p-4 text-center text-tomato">
-            {searchParams.message}
+        {message && (
+          <p
+            className={`mt-4 p-4 text-center ${
+              message.type === "success"
+                ? "rounded border border-green-200 bg-green-50 text-green-600"
+                : "rounded border border-red-200 bg-red-50 text-tomato"
+            }`}
+          >
+            {message.text}
           </p>
         )}
       </div>
