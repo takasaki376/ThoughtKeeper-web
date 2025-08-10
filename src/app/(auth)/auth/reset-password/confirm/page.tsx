@@ -18,17 +18,30 @@ export default function ResetPasswordConfirmPage({
       const confirmPassword = formData.get("confirmPassword") as string;
       const supabase = createSupabaseServerClient();
 
-      // パスワード確認
+      // バリデーション
+      if (!password || !confirmPassword) {
+        return redirect(
+          "/auth/reset-password/confirm?message=パスワードとパスワード確認を入力してください"
+        );
+      }
+
       if (password !== confirmPassword) {
         return redirect(
-          "/auth/reset-password/confirm?message=Passwords do not match"
+          "/auth/reset-password/confirm?message=パスワードが一致しません"
+        );
+      }
+
+      if (password.length < 8) {
+        return redirect(
+          "/auth/reset-password/confirm?message=パスワードは8文字以上である必要があります"
         );
       }
 
       // パスワードの強度チェック
-      if (password.length < 8) {
+      const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)/;
+      if (!passwordRegex.test(password)) {
         return redirect(
-          "/auth/reset-password/confirm?message=Password must be at least 8 characters long"
+          "/auth/reset-password/confirm?message=パスワードは小文字、大文字、数字を含む必要があります"
         );
       }
 
@@ -49,7 +62,7 @@ export default function ResetPasswordConfirmPage({
     } catch (error) {
       console.error("Unexpected error during password update:", error);
       return redirect(
-        "/auth/reset-password/confirm?message=An unexpected error occurred"
+        "/auth/reset-password/confirm?message=予期しないエラーが発生しました"
       );
     }
   };
@@ -86,6 +99,16 @@ export default function ResetPasswordConfirmPage({
             minLength={8}
             required
           />
+
+          <div className="text-gray-500 mb-4 text-xs">
+            <p>パスワードは以下の条件を満たす必要があります：</p>
+            <ul className="list-disc pl-4">
+              <li>8文字以上</li>
+              <li>小文字を含む</li>
+              <li>大文字を含む</li>
+              <li>数字を含む</li>
+            </ul>
+          </div>
 
           <SubmitButton
             formAction={updatePassword}

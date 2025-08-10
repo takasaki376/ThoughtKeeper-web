@@ -19,6 +19,19 @@ export default function ResetPasswordPage({
       const origin = headers().get("origin");
       const supabase = createSupabaseServerClient();
 
+      // バリデーション
+      if (!email) {
+        return redirect("/auth/reset-password?message=Email is required");
+      }
+
+      // メールアドレスの形式チェック
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      if (!emailRegex.test(email)) {
+        return redirect(
+          "/auth/reset-password?message=Please enter a valid email address"
+        );
+      }
+
       console.log("Attempting to send reset password email to:", { email });
 
       const { error } = await supabase.auth.resetPasswordForEmail(email, {
@@ -31,12 +44,12 @@ export default function ResetPasswordPage({
       }
 
       return redirect(
-        "/auth/reset-password?message=Check your email for the password reset link"
+        "/auth/reset-password?message=パスワードリセット用のメールを送信しました。メールをご確認ください。"
       );
     } catch (error) {
       console.error("Unexpected error during password reset:", error);
       return redirect(
-        "/auth/reset-password?message=An unexpected error occurred"
+        "/auth/reset-password?message=予期しないエラーが発生しました。"
       );
     }
   };
