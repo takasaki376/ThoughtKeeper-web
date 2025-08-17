@@ -1,4 +1,5 @@
 import { headers } from "next/headers";
+import Link from "next/link";
 import { redirect } from "next/navigation";
 
 import { createSupabaseServerClient } from "@/utils/supabase/server";
@@ -106,6 +107,17 @@ export default function SignInPage({
         >
           Sign Up
         </SubmitButton>
+
+        {/* パスワードリセットリンクを追加 */}
+        <div className="mt-4 text-center">
+          <Link
+            href="/auth/reset-password"
+            className="text-sm text-blue-600 hover:underline"
+          >
+            パスワードを忘れた場合
+          </Link>
+        </div>
+
         {searchParams?.message && (
           <p className="mt-4 p-4 text-center text-tomato">
             {searchParams.message}

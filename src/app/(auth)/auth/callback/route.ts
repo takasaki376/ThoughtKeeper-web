@@ -16,5 +16,7 @@ export async function GET(request: Request) {
   }
 
   // URL to redirect to after sign up process completes
-  return NextResponse.redirect(`${origin}/`);
+  // originを適切にエンコードしてリダイレクト
+  const safeOrigin = encodeURI(origin);
+  return NextResponse.redirect(`${safeOrigin}/`);
 }
