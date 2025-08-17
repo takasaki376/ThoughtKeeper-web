@@ -93,8 +93,8 @@
 - API 通信は`ky`ライブラリで実装
 
 ---
-<<<<<<< HEAD
-=======
+
+# <<<<<<< HEAD
 
 ```# MemoEditorPage 設計書
 // filepath: doc/MemoEditorPage.md
@@ -182,4 +182,5 @@
 - タブ状態・テーマ状態はDBと同期
 - API通信は`ky`ライブラリで
 ```
->>>>>>> 10e6b9b (MemoEditorの設計書追加)
+
+> > > > > > > 10e6b9b (MemoEditor の設計書追加)
