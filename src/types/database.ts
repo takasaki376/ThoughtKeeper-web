@@ -12,6 +12,7 @@ export type Memo = {
 }
 
 export type Setting = {
-  theme_count: number,
-  time_limit :string,
-}
+  last_selected_input_type?: string;
+  theme_count: number;
+  time_limit: string;
+};
