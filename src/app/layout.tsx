@@ -22,7 +22,12 @@ export default function RootLayout({
         <link rel="icon" href="/icons/icon-192x192.png" />
         <meta name="theme-color" content="#2563eb" />
         {/* iOS用 */}
-        {/* <link rel="apple-touch-icon" href="/icons/icon-192x192.png" /> */}
+        <link
+          rel="apple-touch-icon"
+          sizes="180x180"
+          href="/icons/apple-touch-icon.png"
+        />
+        <link rel="apple-touch-icon" href="/icons/icon-192x192.png" />
       </head>
       <body
         style={{
