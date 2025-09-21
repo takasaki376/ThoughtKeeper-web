@@ -1,5 +1,5 @@
 "use client";
-import type {Touch} from "react";
+import type { Touch } from "react";
 import { useCallback, useEffect, useRef, useState } from "react";
 
 import type { Theme } from "@/types/database";
@@ -21,11 +21,14 @@ export const Drawing: React.FC<DrawingProps> = ({
   const [isDrawing, setIsDrawing] = useState(false);
   const [context, setContext] = useState<CanvasRenderingContext2D | null>(null);
   const [canvasWidth, setCanvasWidth] = useState(800);
+  const [canvasHeight, setCanvasHeight] = useState(600);
 
   useEffect(() => {
     // 画面幅の70%を計算
     const width = window.innerWidth * 0.7;
+    const height = window.innerHeight * 0.65;
     setCanvasWidth(width);
+    setCanvasHeight(height);
   }, []);
 
   const clearCanvas = useCallback(() => {
@@ -144,7 +147,7 @@ export const Drawing: React.FC<DrawingProps> = ({
       <canvas
         ref={canvasRef}
         width={canvasWidth}
-        height={300}
+        height={canvasHeight}
         onMouseDown={startDrawing}
         onMouseMove={draw}
         onMouseUp={stopDrawing}
