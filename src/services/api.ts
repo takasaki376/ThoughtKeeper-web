@@ -27,8 +27,14 @@ async function request<T>(
 ): Promise<{ data: T; status: number }> {
   try {
     const response = await api(url, options);
-    const responseData: T = await response.json();
-    return { data: responseData, status: response.status };
+    // レスポンスボディが存在し、かつJSON形式の場合のみパースする
+    const contentType = response.headers.get("content-type");
+    if (contentType && contentType.includes("application/json")) {
+      const data: T = await response.json();
+      return { data, status: response.status };
+    }
+    // JSONでない場合やボディが空の場合は、nullをデータとして返す (呼び出し側で型を適切に指定する必要がある)
+    return { data: null as T, status: response.status };
   } catch (error: unknown) {
     const httpError = error as HTTPError;
     console.error(`❌ API request failed: ${httpError.message}`, {
@@ -55,20 +61,7 @@ export function createPatch<T, D = unknown>(url: string, updateData: D) {
   return request<T>(url, { json: updateData, method: "patch" });
 }
 
-export async function createDelete(
-  url: string,
-  id: string
-): Promise<{ data: { id: string }; status: number }> {
-  try {
-    const response = await api.delete(`${url}?id=${id}`);
-    // DELETEリクエストは空のレスポンスを返すことが多いため、成功した場合はIDを返すようにする
-    return { data: { id }, status: response.status };
-  } catch (error: unknown) {
-    const httpError = error as HTTPError;
-    console.error(`❌ API delete failed: ${httpError.message}`, {
-      request: httpError.request,
-      response: httpError.response,
-    });
-    throw error;
-  }
+export function createDelete<T>(url: string, id: string) {
+  // kyのsearchParamsオプションを使用してクエリパラメータを安全に構築
+  return request<T>(url, { method: "delete", searchParams: { id } });
 }
