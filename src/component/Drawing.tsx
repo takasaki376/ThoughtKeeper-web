@@ -38,14 +38,6 @@ export const Drawing: React.FC<DrawingProps> = ({
   }, [context, onChange]);
 
   useEffect(() => {
-    if (remainingTime === 0) {
-      clearCanvas();
-      // onTimeUpの呼び出しを無効化（タイマー終了時にのみ保存される）
-      // onTimeUp().catch(console.error);
-    }
-  }, [remainingTime, clearCanvas]);
-
-  useEffect(() => {
     const canvas = canvasRef.current;
     if (!canvas) return;
 

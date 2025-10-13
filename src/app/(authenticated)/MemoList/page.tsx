@@ -2,11 +2,14 @@
 import { useAtomValue } from "jotai";
 import Image from "next/image";
 
-import { countTheme, recentMemosAtom, themeAtom } from "@/store";
+import { Loader } from "@/component/Loader";
+import { useSettings } from "@/hooks/useSettings";
+import { recentMemosAtom, themeAtom } from "@/store";
 import type { Memo } from "@/types/database";
 
 // HTMLタグを除去し、改行を「/」で置き換える関数
 const formatContent = (html: string) => {
+  if (typeof window === "undefined") return "";
   const doc = new DOMParser().parseFromString(html, "text/html");
 
   // <p> タグを取り除いてテキストのみを抽出
@@ -84,19 +87,21 @@ const MemoForView = ({
 };
 
 export default function MemoListPage() {
+  const { settings, isLoading } = useSettings();
   const recentMemos = useAtomValue(recentMemosAtom);
-  const themeCount = useAtomValue(countTheme);
   const themes = useAtomValue(themeAtom);
+
+  const themeCount = settings?.theme_count ?? 10;
 
   // テーマごとの最新のメモを取得
   const themeMemos = themes.slice(0, themeCount).map((theme) => {
     const memoForTheme = recentMemos.find((memo) => memo.theme.id === theme.id);
-    console.log("Found memo for theme:", theme.id, memoForTheme);
     return memoForTheme || null;
   });
 
-  console.log("Recent memos:", recentMemos);
-  console.log("Theme memos:", themeMemos);
+  if (isLoading) {
+    return <Loader />;
+  }
 
   return (
     <div className="flex min-h-screen flex-col items-center justify-center p-4">

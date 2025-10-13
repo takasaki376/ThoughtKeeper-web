@@ -38,55 +38,35 @@ export async function PUT(request: Request) {
   try {
     const supabase = createSupabaseServerClient();
     const user = await supabase.auth.getUser();
-    if (user) {
-      const userId = user?.data?.user?.id;
+    if (user.data.user) {
+      const userId = user.data.user.id;
 
       const body = await request.json();
-      const { content, theme_id } = body;
-
-      // themesテーブルからtheme_idを取得
-      const { data: theme, error: themeError } = await supabase
-        .from('themes')
-        .select('id')
-        .eq('id', theme_id)
-        .single();
-
-      if (themeError || !theme) throw new Error("Theme not found");
-
-      // 現在のUTC時間を取得
-      const now = new Date();
-      const utcTime = new Date(Date.UTC(
-        now.getUTCFullYear(),
-        now.getUTCMonth(),
-        now.getUTCDate(),
-        now.getUTCHours(),
-        now.getUTCMinutes(),
-        now.getUTCSeconds(),
-        now.getUTCMilliseconds()
-      ));
+      const { content, theme_id, title } = body;
 
       // upsertを使用して、レコードが存在しない場合は挿入、存在する場合は更新
       const { data, error } = await supabase
-        .from('memos')
+        .from("memos")
         .upsert({
+          title: title,
           content: content,
-          created_at: utcTime.toISOString(), // UTCで保存
-          theme_id: theme.id,
+          created_at: new Date().toISOString(), // UTCで保存
+          theme_id: theme_id,
           user_id: userId,
         })
-        .select()
+        .select("*, theme:themes(*)")
         .single();
 
       if (error) throw error;
 
-      return NextResponse.json({
-        message: "Memos updated successfully",
-        ...data
-      });
+      return NextResponse.json(data);
     }
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   } catch (error) {
     console.error("Error in PUT /api/memos:", error as Error);
-    return NextResponse.json({ details: (error as Error).message, error: "Internal Server Error" }, { status: 500 });
+    return NextResponse.json(
+      { details: (error as Error).message, error: "Internal Server Error" },
+      { status: 500 }
+    );
   }
 }

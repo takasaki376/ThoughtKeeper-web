@@ -2,21 +2,20 @@ import "@mantine/dates/styles.css";
 
 import { Button } from "@mantine/core";
 import { DatePicker } from "@mantine/dates";
-import { useAtomValue } from "jotai";
 import { useState } from "react";
 
-import { memoListAtom } from "@/store";
+import type { Memo } from "@/types/database";
 
 interface DatePickerProps {
   onDateChange: (date: Date | null) => void;
+  memos: Memo[];
 }
 
-const DatePickerComponent: React.FC<DatePickerProps> = ({ onDateChange }) => {
-  const memoList = useAtomValue(memoListAtom);
+const DatePickerComponent: React.FC<DatePickerProps> = ({ onDateChange, memos }) => {
   const [filterDate, setFilterDate] = useState<Date | null>(null);
 
   // メモがある日付のリストを作成
-  const memoDates = memoList.map((memo) => {
+  const memoDates = memos.map((memo) => {
     const createdAt = new Date(memo.created_at);
     // 日付のみを比較するために時間を0時に設定（ローカルタイムゾーン）
     return new Date(

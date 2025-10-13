@@ -125,7 +125,7 @@ export default function ResetPasswordConfirmPage() {
     <div className="flex justify-center gap-2 px-8">
       <div className="flex w-full flex-col gap-2 text-foreground md:w-1/2">
         <h1 className="mb-6 text-2xl font-bold">新しいパスワードを設定</h1>
-        <p className="text-gray-600 mb-6 text-sm">
+        <p className="text-gray-500 mb-6 text-sm">
           新しいパスワードを入力してください。
         </p>
 
