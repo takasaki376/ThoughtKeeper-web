@@ -1,19 +1,26 @@
 "use client";
 import { useAtomValue, useSetAtom } from "jotai";
-import ky from "ky";
 import { useCallback, useEffect, useRef, useState } from "react";
 
 import { Drawing } from "@/component/Drawing";
+import { Loader } from "@/component/Loader";
 import { Tab } from "@/component/Tab";
 import { Tiptap } from "@/component/TipTap";
+import { useMemos } from "@/hooks/useMemos";
+import { useSettings } from "@/hooks/useSettings";
 import { useThemeTimer } from "@/hooks/useThemeTimer";
-import { fetchSettings, updateSettings } from "@/services/settingsService";
-import { countTime, memoListAtom, recentMemosAtom, themeAtom } from "@/store";
+import { recentMemosAtom, themeAtom } from "@/store";
 import type { Memo, Theme } from "@/types/database";
 
 const MemoEditorPage = () => {
   const themes = useAtomValue(themeAtom);
-  const themeTime = useAtomValue(countTime);
+  const {
+    settings,
+    updateSettings,
+    isLoading: isLoadingSettings,
+  } = useSettings();
+  const { updateMemo } = useMemos();
+  const themeTime = settings?.time_limit ?? "60";
   const setRecentMemos = useSetAtom(recentMemosAtom);
   const editorRef = useRef<HTMLDivElement>(null);
 
@@ -23,7 +30,6 @@ const MemoEditorPage = () => {
   const [drawingContent, setDrawingContent] = useState("");
   const [activeTab, setActiveTab] = useState("text");
   const [hasDrawingInput, setHasDrawingInput] = useState(false);
-  const setMemoList = useSetAtom(memoListAtom);
 
   // エディタに自動フォーカスを当てる
   useEffect(() => {
@@ -41,36 +47,19 @@ const MemoEditorPage = () => {
 
   // DBからタブ状態を復元
   useEffect(() => {
-    (async () => {
-      try {
-        const settings = await fetchSettings();
-        if (
-          settings?.last_selected_input_type === "text" ||
-          settings?.last_selected_input_type === "drawing"
-        ) {
-          setActiveTab(settings.last_selected_input_type);
-        }
-      } catch (e) {
-        // 取得失敗時は何もしない
-      }
-    })();
-  }, []);
+    if (settings?.last_selected_input_type) {
+      setActiveTab(settings.last_selected_input_type);
+    }
+  }, [settings]);
 
   // タブ切り替え時にDBへ保存
-  const handleTabChange = useCallback(async (tabId: string) => {
-    setActiveTab(tabId);
-    try {
-      // 既存設定を取得
-      const settings = await fetchSettings();
-      await updateSettings(
-        settings?.theme_count ?? 10,
-        settings?.time_limit ?? "60",
-        tabId
-      );
-    } catch (e) {
-      // 保存失敗時は何もしない
-    }
-  }, []);
+  const handleTabChange = useCallback(
+    async (tabId: string) => {
+      setActiveTab(tabId);
+      await updateSettings({ last_selected_input_type: tabId });
+    },
+    [updateSettings]
+  );
 
   const handleThemeChange = useCallback(
     (nextIndex: number) => {
@@ -100,133 +89,55 @@ const MemoEditorPage = () => {
   const saveTextMemo = useCallback(async () => {
     if (currentTheme && textContent.trim()) {
       try {
-        const responseData = await ky
-          .put("/api/memos", {
-            json: {
-              content: textContent,
-              theme_id: currentTheme.id,
-            },
-          })
-          .json<Memo>();
+        const updatedMemo = await updateMemo({
+          content: textContent,
+          theme_id: currentTheme.id,
+        });
 
-        // 状態を更新
-        setMemoList((prev) => {
-          // 同じテーマの既存メモを探す
-          const existingMemoIndex = prev.findIndex(
-            (memo) => memo.theme.id === currentTheme.id
+        // recentMemosAtom を更新
+        setRecentMemos((prev) => {
+          const index = prev.findIndex(
+            (m) => m.theme.id === updatedMemo.theme.id
           );
-
-          const newMemo = {
-            id: responseData.id,
-            content: textContent,
-            created_at: responseData.created_at,
-            local_created_at: responseData.created_at,
-            theme: currentTheme,
-          };
-
-          if (existingMemoIndex !== -1) {
-            // 既存のメモを更新
-            const updatedMemos = [...prev];
-            updatedMemos[existingMemoIndex] = newMemo;
-
-            // recentMemosも更新
-            setRecentMemos((recentPrev) => {
-              const recentExistingIndex = recentPrev.findIndex(
-                (memo) => memo.theme.id === currentTheme.id
-              );
-              if (recentExistingIndex !== -1) {
-                const updatedRecent = [...recentPrev];
-                updatedRecent[recentExistingIndex] = newMemo;
-                return updatedRecent;
-              }
-              return [...recentPrev, newMemo];
-            });
-
-            return updatedMemos;
+          if (index !== -1) {
+            const newRecent = [...prev];
+            newRecent[index] = updatedMemo;
+            return newRecent;
           }
-          // 新しいメモを追加
-          setRecentMemos((prev) => [...prev, newMemo]);
-          return [...prev, newMemo];
+          return [...prev, updatedMemo];
         });
       } catch (error) {
         console.error("テキストメモの保存に失敗しました:", error);
-        throw error;
       }
     }
-  }, [currentTheme, textContent, setMemoList, setRecentMemos]);
+  }, [currentTheme, textContent, updateMemo, setRecentMemos]);
 
   const saveDrawingMemo = useCallback(async () => {
     if (currentTheme && drawingContent) {
       try {
-        console.log("Saving drawing memo:", {
+        const updatedMemo = await updateMemo({
           title: "描画メモ",
           content: drawingContent,
           theme_id: currentTheme.id,
         });
 
-        const responseData = await ky
-          .put("/api/memos", {
-            json: {
-              title: "描画メモ",
-              content: drawingContent,
-              theme_id: currentTheme.id,
-            },
-          })
-          .json<Memo>();
-
-        console.log("Server response:", responseData);
-
-        // 状態を更新
-        setMemoList((prev) => {
-          // 同じテーマの既存メモを探す
-          const existingMemoIndex = prev.findIndex(
-            (memo) => memo.theme.id === currentTheme.id
+        // recentMemosAtom を更新
+        setRecentMemos((prev) => {
+          const index = prev.findIndex(
+            (m) => m.theme.id === updatedMemo.theme.id
           );
-
-          const newMemo = {
-            id: responseData.id,
-            title: "描画メモ",
-            content: responseData.content,
-            created_at: responseData.created_at,
-            local_created_at: responseData.created_at,
-            theme: currentTheme,
-          };
-
-          if (existingMemoIndex !== -1) {
-            // 既存のメモを更新
-            const updatedMemos = [...prev];
-            updatedMemos[existingMemoIndex] = newMemo;
-
-            // recentMemosも更新
-            setRecentMemos((recentPrev) => {
-              const recentExistingIndex = recentPrev.findIndex(
-                (memo) => memo.theme.id === currentTheme.id
-              );
-              if (recentExistingIndex !== -1) {
-                const updatedRecent = [...recentPrev];
-                updatedRecent[recentExistingIndex] = newMemo;
-                return updatedRecent;
-              }
-              return [...recentPrev, newMemo];
-            });
-
-            return updatedMemos;
+          if (index !== -1) {
+            const newRecent = [...prev];
+            newRecent[index] = updatedMemo;
+            return newRecent;
           }
-          // 新しいメモを追加
-          console.log("Adding new memo to recentMemos:", newMemo);
-          setRecentMemos((prev) => {
-            const updated = [...prev, newMemo];
-            console.log("Updated recentMemos:", updated);
-            return updated;
-          });
-          return [...prev, newMemo];
+          return [...prev, updatedMemo];
         });
       } catch (error) {
         console.error("描画メモの保存に失敗しました:", error);
-        throw error;
       }
     }
-  }, [currentTheme, drawingContent, setMemoList, setRecentMemos]);
+  }, [currentTheme, drawingContent, updateMemo, setRecentMemos]);
 
   const { remainingTime, startTimer } = useThemeTimer(
     Number(themeTime),
@@ -244,6 +155,10 @@ const MemoEditorPage = () => {
     const cleanup = startTimer();
     return cleanup;
   }, [startTimer]);
+
+  if (isLoadingSettings) {
+    return <Loader />;
+  }
 
   return (
     <>

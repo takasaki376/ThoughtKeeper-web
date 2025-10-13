@@ -1,50 +1,24 @@
 "use client";
-import { useAtom, useAtomValue } from "jotai";
 import { useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
 
 import { Loader } from "@/component/Loader";
 import { useGetThemes } from "@/hooks/useGetThemes";
-import { countTheme, getSetting } from "@/store/setting";
+import { useSettings } from "@/hooks/useSettings";
 
 export default function ThemeSelectPage() {
-  // 設定値取得の状態管理
-  const [settingsLoaded, setSettingsLoaded] = useState(false);
-
-  // グローバルストアから設定されたテーマ数を取得（ユーザーが設定画面で指定した数）
-  const ThemesToScribble = useAtomValue(countTheme);
-
-  // 設定値を取得するためのatom
-  const [, fetchSettings] = useAtom(getSetting);
+  // 設定値を取得
+  const { settings, isLoading: isLoadingSettings } = useSettings();
+  // テーマ数を取得（デフォルトは10）
+  const ThemesToScribble = settings?.theme_count ?? 10;
 
   // テーマ取得のカスタムフックを使用
-  // allThemes: 全テーマの配列
-  // error: エラー状態
-  // loading: ローディング状態
-  // randomSelect: ランダムにテーマを選択する関数
   const { allThemes, error, loading, randomSelect } = useGetThemes();
 
   // Next.jsのルーターを使用してページ遷移を制御
   const router = useRouter();
 
-  // ページ表示時に設定値を取得
-  useEffect(() => {
-    const loadSettings = async () => {
-      try {
-        await fetchSettings();
-        setSettingsLoaded(true);
-      } catch (err) {
-        console.error("Failed to load settings:", err);
-        // エラーが発生しても設定値が取得できなくても、初期値で続行
-        setSettingsLoaded(true);
-      }
-    };
-
-    loadSettings();
-  }, [fetchSettings]);
-
   // 設定値の読み込み中またはテーマの読み込み中はローダーを表示
-  if (!settingsLoaded || loading) {
+  if (isLoadingSettings || loading) {
     return <Loader />;
   }
 

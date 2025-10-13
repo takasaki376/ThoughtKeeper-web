@@ -1,0 +1,1 @@
+alter table memos add column title text;
