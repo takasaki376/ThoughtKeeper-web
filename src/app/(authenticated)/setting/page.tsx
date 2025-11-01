@@ -6,9 +6,9 @@ import { MdOutlineClose } from "react-icons/md";
 
 import { SubmitButton } from "@/app/(auth)/auth/login/submit-button";
 import { Loader } from "@/component/Loader";
+import { usePasswordReset } from "@/hooks/usePasswordReset";
 import { useSettings } from "@/hooks/useSettings";
 import { useUser } from "@/hooks/useUser";
-import { sendPasswordResetEmail } from "@/services/authService";
 
 // テーマ数の入力コンポーネント
 const InputTargetCount = ({
@@ -94,35 +94,51 @@ export default function SettingPage() {
     updateSettings,
   } = useSettings();
   const { user, isLoading: isUserLoading, error: userError } = useUser();
+  const {
+    updatePassword,
+    isLoading: isPasswordUpdating,
+    error: passwordError,
+    success: passwordSuccess,
+  } = usePasswordReset();
 
-  const [message, setMessage] = useState<{
-    text: string;
-    type: "success" | "error";
-  } | null>(null);
+  const [password, setPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
+  const [passwordMatchMessage, setPasswordMatchMessage] = useState("");
+  const [showPasswordMatchMessage, setShowPasswordMatchMessage] =
+    useState(false);
 
-  const resetPassword = async () => {
-    try {
-      if (!user?.email) {
-        setMessage({
-          text: "ログインしているユーザーのメールアドレスが見つかりません",
-          type: "error",
-        });
-        return;
-      }
-      const email = user.email;
-
-      // バリデーション
-      // メールアドレスの形式チェックは、user.emailがSupabaseから来ているので不要
-
-      console.log("Attempting to send reset password email to:", email);
-
-      const [success, msg] = await sendPasswordResetEmail(email);
-      setMessage({ text: msg, type: success ? "success" : "error" });
-    } catch (error) {
-      console.error("Unexpected error during password reset:", error);
-      setMessage({ text: "予期しないエラーが発生しました。", type: "error" });
+  // リアルタイムバリデーション
+  useEffect(() => {
+    if (confirmPassword && password !== confirmPassword) {
+      setPasswordMatchMessage("パスワードが一致しません");
+      setShowPasswordMatchMessage(true);
+    } else if (confirmPassword && password === confirmPassword) {
+      setPasswordMatchMessage("パスワードが一致しました✅");
+      setShowPasswordMatchMessage(true);
+    } else {
+      setShowPasswordMatchMessage(false);
     }
+  }, [password, confirmPassword]);
+
+  const handlePasswordUpdate = async () => {
+    if (!password || !confirmPassword) {
+      return;
+    }
+
+    if (password !== confirmPassword) {
+      return;
+    }
+
+    await updatePassword(password, confirmPassword);
   };
+
+  // パスワード更新成功時にフォームをクリア
+  useEffect(() => {
+    if (passwordSuccess) {
+      setPassword("");
+      setConfirmPassword("");
+    }
+  }, [passwordSuccess]);
 
   if (isSettingsLoading || isUserLoading) {
     return <Loader />;
@@ -182,32 +198,103 @@ export default function SettingPage() {
           </div>
         </form>
 
-        {/* パスワードリセットセクション */}
+        {/* パスワード変更セクション */}
         <div className="mt-10">
           <h2 className="mb-6 text-xl font-bold">パスワードの変更</h2>
           <p className="text-gray-600 mb-6 text-sm">
-            現在ログイン中のメールアドレス（{user?.email}
-            ）にパスワードリセット用のリンクをお送りします。
+            現在ログイン中のアカウント（{user?.email}
+            ）のパスワードを直接変更できます。
           </p>
-          <form className="flex flex-col gap-2">
-            <SubmitButton
-              formAction={resetPassword}
-              className="mb-2 rounded-md bg-green-700 px-4 py-2 text-foreground"
-              pendingText="送信中..."
+          <form
+            className="flex flex-col gap-2"
+            onSubmit={(e) => {
+              e.preventDefault();
+              handlePasswordUpdate();
+            }}
+          >
+            <label className="text-base font-semibold" htmlFor="newPassword">
+              新しいパスワード
+            </label>
+            <input
+              className="mb-4 rounded-md border bg-inherit px-4 py-2"
+              type="password"
+              name="newPassword"
+              id="newPassword"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              placeholder="••••••••"
+              minLength={8}
+              required
+              disabled={isPasswordUpdating}
+            />
+
+            <label
+              className="text-base font-semibold"
+              htmlFor="confirmNewPassword"
             >
-              リセットリンクを送信
-            </SubmitButton>
+              パスワード確認
+            </label>
+            <input
+              className="mb-4 rounded-md border bg-inherit px-4 py-2"
+              type="password"
+              name="confirmNewPassword"
+              id="confirmNewPassword"
+              value={confirmPassword}
+              onChange={(e) => setConfirmPassword(e.target.value)}
+              placeholder="••••••••"
+              minLength={8}
+              required
+              disabled={isPasswordUpdating}
+            />
+
+            {/* リアルタイムバリデーションメッセージ */}
+            {showPasswordMatchMessage && (
+              <div className="mb-4 text-sm">
+                <p
+                  className={
+                    passwordMatchMessage.includes("一致しました")
+                      ? "text-green-500"
+                      : "text-red-500"
+                  }
+                >
+                  {passwordMatchMessage}
+                </p>
+              </div>
+            )}
+
+            <div className="text-gray-500 mb-4 text-xs">
+              <p>パスワードは以下の条件を満たす必要があります：</p>
+              <ul className="list-disc pl-4">
+                <li>8文字以上</li>
+                <li>小文字を含む</li>
+                <li>大文字を含む</li>
+                <li>数字を含む</li>
+              </ul>
+            </div>
+
+            <button
+              type="submit"
+              className="mb-2 rounded-md bg-green-700 px-4 py-2 text-foreground disabled:opacity-50"
+              disabled={
+                isPasswordUpdating ||
+                !password ||
+                !confirmPassword ||
+                password !== confirmPassword
+              }
+            >
+              {isPasswordUpdating ? "更新中..." : "パスワードを変更"}
+            </button>
           </form>
 
-          {message && (
-            <p
-              className={`mt-4 p-4 text-center ${
-                message.type === "success"
-                  ? "rounded border border-green-200 bg-green-50 text-green-600"
-                  : "rounded border border-red-200 bg-red-50 text-tomato"
-              }`}
-            >
-              {message.text}
+          {passwordSuccess && (
+            <p className="mt-4 rounded border border-green-200 bg-green-50 p-4 text-center text-green-600">
+              {passwordSuccess}
+            </p>
+          )}
+
+          {passwordError && (
+            <p className="mt-4 rounded border border-red-200 bg-red-50 p-4 text-center text-tomato">
+              {passwordError}
             </p>
           )}
         </div>
