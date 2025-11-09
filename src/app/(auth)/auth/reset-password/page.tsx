@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useState } from "react";
 
 import { SubmitButton } from "../login/submit-button";
+import { sendPasswordResetEmail } from "@/services/authService";
 
 export default function ResetPasswordPage() {
   const [message, setMessage] = useState<{
@@ -33,30 +34,8 @@ export default function ResetPasswordPage() {
 
       console.log("Attempting to send reset password email to:", email);
 
-      const response = await fetch("/api/auth/reset-password", {
-        body: JSON.stringify({ email }),
-        headers: {
-          "Content-Type": "application/json",
-        },
-        method: "POST",
-      });
-
-      const data = await response.json();
-
-      if (!response.ok) {
-        console.error("Reset password error:", data.error);
-        setMessage({
-          text: data.error || "パスワードリセットに失敗しました",
-          type: "error",
-        });
-        return;
-      }
-
-      console.log("Password reset email sent successfully");
-      setMessage({
-        text: "パスワードリセット用のメールを送信しました。メールをご確認ください。",
-        type: "success",
-      });
+      const [success, msg] = await sendPasswordResetEmail(email);
+      setMessage({ text: msg, type: success ? "success" : "error" });
     } catch (error) {
       console.error("Unexpected error during password reset:", error);
       setMessage({ text: "予期しないエラーが発生しました。", type: "error" });
