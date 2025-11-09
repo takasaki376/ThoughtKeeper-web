@@ -79,3 +79,43 @@
 - 表示内容: `div.text-gray` 内に `PrivacyPage` という静的テキストを表示。
 - 追加の状態・ロジック・依存はなし（今後コンテンツ差し替え前提）。
 
+## 8. パスワード変更/リセット（Setting ページ）
+
+- 対象ファイル: `src/app/(authenticated)/setting/page.tsx:1`, `src/hooks/usePasswordReset.ts:1`, `src/app/api/auth/update-password/route.ts:1`
+- 目的: 認証済みユーザーが設定画面から直接パスワードを変更できるようにする。
+
+### UI/挙動
+- 入力欄: 新しいパスワード、パスワード確認（どちらも `type="password"`）。
+- ボタン: 「パスワードを変更」。以下の条件で無効化:
+  - 更新中（`isPasswordUpdating`）/ どちらか未入力 / 不一致。
+- リアルタイム一致判定: 確認欄の入力に応じて「一致/不一致」のメッセージを表示。
+- ガイド: 以下の要件をリスト表示し、満たすよう促す。
+  - 8文字以上
+  - 小文字を含む
+  - 大文字を含む
+  - 数字を含む
+- 成否表示: 成功時は緑背景メッセージ、失敗時は赤背景メッセージを表示。成功時は入力欄をクリア。
+
+### クライアント処理
+- `usePasswordReset.updatePassword(password, confirmPassword)` を呼び出し、`/api/auth/update-password` に POST。
+- フックは `isLoading/error/success` を提供。画面側はこれに連動してボタンの無効化・メッセージ表示・フォームクリアを制御。
+
+### サーバー/API
+- エンドポイント: `POST /api/auth/update-password`（`src/app/api/auth/update-password/route.ts:1`）。
+- バリデーション:
+  - `password`/`confirmPassword` 必須。
+  - 一致チェック。
+  - 長さ 8 文字以上。
+  - 強度チェック: 正規表現 `^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)` を満たすこと（小文字/大文字/数字を各1つ以上）。
+- 更新処理: `supabase.auth.updateUser({ password })` を実行。エラー時は 400、成功時はメッセージを返却。
+
+### 想定ユースケース/注意
+- この機能は「ログイン済みの本人による直接変更」を想定（メールによるリンク確認は不要）。
+- メール経由のリセットフローは別途 `/auth/reset-password`（確認は `/auth/reset-password/confirm`）で提供されるが、Setting ページの範囲外。
+- 既存パスワードと同一の設定など、プロバイダ側で拒否されるケースは API エラーメッセージとして返却される。
+
+### 受け入れ条件
+- 不一致時はボタンが無効化され、送信できない。
+- 要件を満たさない入力は API で 400 が返り、エラーメッセージが表示される。
+- 要件を満たす一致した入力で送信すると、成功メッセージが表示され、両入力欄がクリアされる。
+- 更新中はボタン・入力欄が適切に無効化される。
