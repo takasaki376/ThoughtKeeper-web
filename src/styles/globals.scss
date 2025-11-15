@@ -1,3 +1,10 @@
+.ProseMirror:focus {
+  outline: none;
+}
+
+.ProseMirror-focused {
+  outline: none;
+}
 @import "tailwindcss";
 
 @import "./editor.scss";

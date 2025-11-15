@@ -26,10 +26,17 @@ export const Tiptap = ({ onChange, value }: TiptapProps) => {
   }, [value, editor]);
 
   return (
-    <div className="mx-auto mt-10 w-2/3 bg-lightGray p-3">
-      <div className="overflow-hidden overflow-y-scroll bg-white">
+    <div className="border-gray-300 mx-auto mt-10 w-2/3 rounded-lg border bg-lightGray p-3 shadow-sm transition-colors">
+      <div className="border-gray-200 overflow-hidden overflow-y-scroll rounded-md border bg-white">
         {/* エディタが設定されるまでは表示を一時停止する */}
-        {editor ? <EditorContent editor={editor} /> : <p>Loading...</p>}
+        {editor ? (
+          <EditorContent
+            editor={editor}
+            className="focus:outline-none focus-visible:outline-none"
+          />
+        ) : (
+          <p>Loading...</p>
+        )}
       </div>
     </div>
   );

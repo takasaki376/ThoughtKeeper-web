@@ -135,7 +135,7 @@ export const Drawing: React.FC<DrawingProps> = ({
   };
 
   return (
-    <div className="m-4 bg-lightGray p-4">
+    <div className="m-4 flex justify-center bg-lightGray p-4">
       <canvas
         ref={canvasRef}
         width={canvasWidth}
@@ -148,7 +148,7 @@ export const Drawing: React.FC<DrawingProps> = ({
         onTouchMove={drawTouch}
         onTouchEnd={stopTouch}
         onTouchCancel={stopTouch}
-        className="cursor-crosshair rounded border border-lightGray"
+        className="cursor-crosshair rounded border border-gray-300"
         style={{ touchAction: "none" }} // スクロール防止
       />
     </div>
