@@ -104,7 +104,7 @@ export default function MemoListPage() {
   }
 
   return (
-    <div className="flex min-h-screen flex-col items-center justify-center p-4">
+    <div className="justify-top flex min-h-screen flex-col items-center p-4">
       <h1 className="mb-5 text-xl font-bold">保存されたメモ</h1>
       <div
         className="w-full max-w-2xl overflow-y-auto"
