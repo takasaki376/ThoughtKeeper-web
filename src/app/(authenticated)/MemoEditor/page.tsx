@@ -10,7 +10,6 @@ import { useMemos } from "@/hooks/useMemos";
 import { useSettings } from "@/hooks/useSettings";
 import { useThemeTimer } from "@/hooks/useThemeTimer";
 import { recentMemosAtom, themeAtom } from "@/store";
-import type { Memo, Theme } from "@/types/database";
 
 const MemoEditorPage = () => {
   const themes = useAtomValue(themeAtom);
@@ -166,18 +165,13 @@ const MemoEditorPage = () => {
         <h2>テーマ</h2>
         <div className="flex flex-row items-baseline justify-center">
           <div className="mb-4 text-sm text-lightGray">
-            {themes.map((theme: Theme, index: number) => (
-              <p
-                key={theme.theme}
-                className={`${
-                  index === currentThemeIndex
-                    ? "text-base font-semibold text-yellow-700"
-                    : "text-sm"
-                }`}
-              >
-                {theme.title} : {theme.theme}
+            {currentTheme ? (
+              <p className="text-base font-semibold text-yellow-700">
+                {currentTheme.title} : {currentTheme.theme}
               </p>
-            ))}
+            ) : (
+              <p className="text-sm">テーマが設定されていません</p>
+            )}
           </div>
           <div className="ml-3 text-sm">
             <p>
