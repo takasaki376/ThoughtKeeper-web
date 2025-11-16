@@ -4,6 +4,47 @@ ThoughtKeeper-webは、日々の思考やアイデアを記録・管理するた
 
 ## 🚀 Getting Started
 
+## 🧭 OpenSpec の手順
+
+仕様をコードと並行管理し、変更の提案・検証・統合・アーカイブを行うために OpenSpec を利用します。詳細は `openspec/AGENTS.md`:1 とルートの `AGENTS.md`:1 を参照してください。
+
+- 目的
+  - 仕様駆動での開発、回帰の防止、合意形成の明確化
+
+- 基本コマンド
+  - `openspec list`                     — 進行中の変更一覧
+  - `openspec list --specs`            — 仕様一覧
+  - `openspec show [item]`             — 変更/仕様の詳細表示
+  - `openspec validate [item] --strict` — 厳格検証（`[item]` 省略で対話/一括）
+
+- 変更作成フロー（提案）
+  1) 変更ID（kebab-case, 先頭は動詞: `add-`, `update-`, など）を決める
+  2) ディレクトリを作成: `openspec/changes/<change-id>/`
+  3) 必須ファイルを用意:
+     - `proposal.md`（目的・変更点・影響・受け入れ基準）
+     - `tasks.md`（実装手順のチェックリスト）
+     - `specs/<capability>/spec.md`（仕様差分: 下記フォーマット）
+  4) 仕様差分の書式:
+     - 見出し: `## ADDED|MODIFIED|REMOVED Requirements`
+     - 各要件に最低1つの `#### Scenario:` を含める
+  5) 検証: `openspec validate <change-id> --strict`
+     - OK とみなす結果:
+       - 出力に「Change '<change-id>' is valid」が表示され、終了コード 0
+       - 失敗時はエラー詳細が表示され、終了コード ≠ 0
+     - 参考: 仕様全体の検証は `openspec validate --specs --strict`（Totals: X passed, 0 failed で合格）
+
+- 仕様統合とアーカイブ
+  - 現行仕様へ反映: `openspec/specs/<capability>/spec.md` に集約（レビュー後）
+  - アーカイブ: `openspec archive <change-id> --skip-specs --yes`
+
+- トラブルシューティング
+  - Unknown item が出る: `proposal.md`/`tasks.md` が未作成、`<change-id>` が不一致、または変更が `openspec/changes/archive/*` に移動済みの可能性
+  - 文字化け: ファイルを UTF-8 (LF) で保存
+
+- 参考
+  - `openspec/AGENTS.md`:1 — ワークフロー、コマンド、サンプル
+  - `AGENTS.md`:1 — 本リポジトリの運用ガイド
+
 ### 前提条件
 - Node.js 18以上
 - Yarn または npm
