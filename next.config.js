@@ -1,20 +1,17 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  experimental: {
-    typedRoutes: true,
-  },
+  typedRoutes: true,
   reactStrictMode: true,
+  outputFileTracingRoot: __dirname,
 };
-
-module.exports = nextConfig;
 
 const withPWA = require("next-pwa")({
   dest: "public",
-  disable: process.env.NODE_ENV === "development", // 開発時は無効化
+  disable:
+    process.env.NODE_ENV === "development" ||
+    process.env.NEXT_DISABLE_PWA === "true",
   register: true,
   skipWaiting: true,
 });
 
-module.exports = withPWA({
-  // 他のNext.js設定
-});
+module.exports = withPWA(nextConfig);

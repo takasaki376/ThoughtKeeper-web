@@ -6,18 +6,19 @@ import { createSupabaseServerClient } from "@/utils/supabase/server";
 
 import { SubmitButton } from "./submit-button";
 
-export default function SignInPage({
+export default async function SignInPage({
   searchParams,
 }: {
-  searchParams: { message: string };
+  searchParams: Promise<{ message?: string }>;
 }) {
+  const resolvedSearchParams = await searchParams;
   const signIn = async (formData: FormData) => {
     "use server";
 
     try {
       const email = formData.get("email") as string;
       const password = formData.get("password") as string;
-      const supabase = createSupabaseServerClient();
+      const supabase = await createSupabaseServerClient();
 
       console.log("Attempting to sign in with:", { email });
 
@@ -48,10 +49,11 @@ export default function SignInPage({
   const signUp = async (formData: FormData) => {
     "use server";
 
-    const origin = headers().get("origin");
+    const originHeader = await headers();
+    const origin = originHeader.get("origin");
     const email = formData.get("email") as string;
     const password = formData.get("password") as string;
-    const supabase = createSupabaseServerClient();
+    const supabase = await createSupabaseServerClient();
 
     const { error } = await supabase.auth.signUp({
       email,
@@ -118,9 +120,9 @@ export default function SignInPage({
           </Link>
         </div>
 
-        {searchParams?.message && (
+        {resolvedSearchParams?.message && (
           <p className="mt-4 p-4 text-center text-tomato">
-            {searchParams.message}
+            {resolvedSearchParams.message}
           </p>
         )}
       </form>

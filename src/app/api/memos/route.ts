@@ -6,7 +6,7 @@ export const dynamic = 'force-dynamic';
 
 export async function GET() {
   try {
-    const supabase = createSupabaseServerClient();
+    const supabase = await createSupabaseServerClient();
     const user = await supabase.auth.getUser();
     if (user) {
       const userId = user?.data?.user?.id;
@@ -36,7 +36,7 @@ export async function GET() {
 
 export async function PUT(request: Request) {
   try {
-    const supabase = createSupabaseServerClient();
+    const supabase = await createSupabaseServerClient();
     const user = await supabase.auth.getUser();
     if (user.data.user) {
       const userId = user.data.user.id;

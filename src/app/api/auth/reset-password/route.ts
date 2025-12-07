@@ -6,8 +6,9 @@ import { createSupabaseServerClient } from '@/utils/supabase/server';
 export async function POST(request: Request) {
   try {
     const { email } = await request.json();
-    const origin = headers().get("origin");
-    const supabase = createSupabaseServerClient();
+    const originHeader = await headers();
+    const origin = originHeader.get("origin");
+    const supabase = await createSupabaseServerClient();
 
     if (!email) {
       return NextResponse.json({ error: "Email is required" }, { status: 400 });

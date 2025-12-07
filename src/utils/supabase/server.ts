@@ -2,7 +2,7 @@ import type { CookieOptions } from '@supabase/ssr';
 import { createServerClient } from '@supabase/ssr';
 import { cookies } from 'next/headers';
 
-export const createSupabaseServerClient = () => {
+export const createSupabaseServerClient = async () => {
   const supabaseUrl = process.env.SUPABASE_URL;
   const supabaseKey = process.env.SUPABASE_ANON_KEY;
 
@@ -10,7 +10,7 @@ export const createSupabaseServerClient = () => {
     throw new Error('Missing required environment variables for Supabase client');
   }
 
-  const cookieStore = cookies();
+  const cookieStore = await cookies();
   return createServerClient(supabaseUrl, supabaseKey, {
     cookies: {
       get(name: string) {

@@ -24,7 +24,7 @@ export async function updatePassword(
       passwordsMatch: password === confirmPassword
     });
 
-    const supabase = createSupabaseServerClient();
+    const supabase = await createSupabaseServerClient();
     console.log("Supabase client created");
 
     // バリデーション

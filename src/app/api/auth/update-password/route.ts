@@ -5,7 +5,7 @@ import { createSupabaseServerClient } from '@/utils/supabase/server';
 export async function POST(request: Request) {
   try {
     const { confirmPassword, password } = await request.json();
-    const supabase = createSupabaseServerClient();
+    const supabase = await createSupabaseServerClient();
 
     // バリデーション
     if (!password || !confirmPassword) {
